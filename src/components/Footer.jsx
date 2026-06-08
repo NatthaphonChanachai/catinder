@@ -80,7 +80,7 @@ export default function Footer() {
         </div>
         <div style={{ marginTop: 16, textAlign: 'center' }}>
           <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', fontWeight: 500 }}>
-            Built by Suchanayasinee Trisuk (CEO & CTO) · Tanasorn Thongkaew (COO)
+            Built by Tanasorn Thongkaew (CEO & CTO) · Suchanayasinee Trisuk (COO)
           </p>
         </div>
       </div>
