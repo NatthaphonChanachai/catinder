@@ -1,0 +1,105 @@
+export const swipeCats = [
+  {
+    id: 1,
+    name: 'มะโมจิ',
+    nameEn: 'Mochi',
+    breed: 'Scottish Fold',
+    age: '2y',
+    gender: '♀',
+    location: 'Bangkok',
+    rating: 4.9,
+    tags: ['Vaccinated', 'Pedigree', 'Dewormed'],
+    img: '/img/Scottish-fold-mochi.png',
+  },
+  {
+    id: 2,
+    name: 'ลีโอ',
+    nameEn: 'Leo',
+    breed: 'Persian Long Hair',
+    age: '3y',
+    gender: '♂',
+    location: 'Chiang Mai',
+    rating: 4.8,
+    tags: ['Vaccinated', 'Champion Line'],
+    img: '/img/Persian-Long-Hair-Leo.png',
+  },
+  {
+    id: 3,
+    name: 'ลูน่า',
+    nameEn: 'Luna',
+    breed: 'Persian Dollface',
+    age: '1.5y',
+    gender: '♀',
+    location: 'Bangkok',
+    rating: 5.0,
+    tags: ['Vaccinated', 'Pedigree'],
+    img: '/img/Persian_dollface_Luna.png',
+  },
+  {
+    id: 4,
+    name: 'ธอร์',
+    nameEn: 'Thor',
+    breed: 'Maine Coon',
+    age: '4y',
+    gender: '♂',
+    location: 'Phuket',
+    rating: 4.7,
+    tags: ['Vaccinated', 'Dewormed', 'Pedigree'],
+    img: '/img/Maine-Coon.png',
+  },
+  {
+    id: 5,
+    name: 'เบลล่า',
+    nameEn: 'Bella',
+    breed: 'Ragdoll',
+    age: '2y',
+    gender: '♀',
+    location: 'Bangkok',
+    rating: 4.9,
+    tags: ['Vaccinated', 'Pedigree'],
+    img: '/img/Ragdoll.png',
+  },
+  {
+    id: 6,
+    name: 'ซิมบ้า',
+    nameEn: 'Simba',
+    breed: 'Siamese',
+    age: '3y',
+    gender: '♂',
+    location: 'Pattaya',
+    rating: 4.6,
+    tags: ['Vaccinated', 'Dewormed'],
+    img: '/img/Siamese_Cat.png',
+  },
+]
+
+export const breedData = [
+  { name: 'Scottish Fold', badge: 'High Demand 🔥', available: 14, img: '/img/Scottish-fold-mochi.png' },
+  { name: 'British Shorthair', badge: 'New Arrival ✨', available: 8, img: '/img/British-Shorthair.png' },
+  { name: 'Persian', badge: 'High Demand 🔥', available: 11, img: '/img/Persian_dollface_Luna.png' },
+  { name: 'Maine Coon', badge: 'Top Rated ⭐', available: 6, img: '/img/Maine-Coon.png' },
+  { name: 'Ragdoll', badge: 'New Arrival ✨', available: 9, img: '/img/Ragdoll.png' },
+  { name: 'Siamese', badge: 'High Demand 🔥', available: 17, img: '/img/Siamese_Cat.png' },
+]
+
+export const heroFloatingCats = [
+  { name: 'Mochi', nameEn: 'Mochi', breed: 'Scottish Fold', img: '/img/Scottish-fold-mochi.png' },
+  { name: 'Luna', nameEn: 'Luna', breed: 'Persian Dollface', img: '/img/Persian_dollface_Luna.png' },
+  { name: 'Leo', nameEn: 'Leo', breed: 'Persian Long Hair', img: '/img/Persian-Long-Hair-Leo.png' },
+]
+
+export const breedOptions = [
+  'Scottish Fold', 'British Shorthair', 'Persian', 'Persian Long Hair', 'Maine Coon',
+  'Ragdoll', 'Siamese', 'Bengal', 'Birman', 'Abyssinian',
+  'Norwegian Forest Cat', 'Turkish Angora', 'Russian Blue',
+  'Exotic Shorthair', 'Sphynx', 'Munchkin', 'ลูกผสม / Mixed',
+]
+
+export const cityOptions = [
+  'กรุงเทพฯ / Bangkok', 'เชียงใหม่ / Chiang Mai', 'ภูเก็ต / Phuket',
+  'พัทยา / Pattaya', 'ขอนแก่น / Khon Kaen', 'อุดรธานี / Udon Thani',
+  'นครราชสีมา / Nakhon Ratchasima', 'หาดใหญ่ / Hat Yai',
+  'เชียงราย / Chiang Rai', 'พิษณุโลก / Phitsanulok',
+  'ระยอง / Rayong', 'สมุทรปราการ / Samut Prakan',
+  'นนทบุรี / Nonthaburi', 'อื่นๆ / Other',
+]
