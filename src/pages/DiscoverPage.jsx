@@ -231,32 +231,36 @@ export default function DiscoverPage() {
     if (!user || !cat) return
     setIdx(i => i + 1)
 
-    if (direction === 'right') {
-      await setDoc(doc(db, 'likes', `${user.uid}_${cat.id}`), {
-        fromUserId: user.uid, toCatId: cat.id, toOwnerId: cat.ownerId, createdAt: serverTimestamp(),
-      })
-      const reverseSnap = await getDocs(query(collection(db, 'likes'), where('fromUserId', '==', cat.ownerId), where('toOwnerId', '==', user.uid)))
-      if (!reverseSnap.empty) {
-        const uids = [user.uid, cat.ownerId].sort()
-        const matchId = uids.join('_')
-        const existing = await getDoc(doc(db, 'matches', matchId))
-        if (!existing.exists()) {
-          const names = { [user.uid]: userProfile?.displayName || user.email.split('@')[0], [cat.ownerId]: cat.ownerName }
-          const photos = { [user.uid]: userProfile?.photoURL || '', [cat.ownerId]: cat.ownerPhotoURL || '' }
-          await setDoc(doc(db, 'matches', matchId), { users: uids, userNames: names, userPhotos: photos, createdAt: serverTimestamp() })
-          await setDoc(doc(db, 'chats', matchId), { participants: uids, participantNames: names, participantPhotos: photos, matchId, lastMessage: '', lastMessageAt: null, createdAt: serverTimestamp() })
-          confetti({ particleCount: 160, spread: 90, origin: { y: 0.5 }, colors: ['#F97316', '#fb923c', '#fff'] })
-          setMatch({ otherName: cat.ownerName })
-          // Browser notification
-          if (Notification?.permission === 'granted') {
-            new Notification('Match ใหม่!', { body: `คุณ Match กับ ${cat.ownerName}`, icon: '/favicon.svg' })
+    try {
+      if (direction === 'right') {
+        await setDoc(doc(db, 'likes', `${user.uid}_${cat.id}`), {
+          fromUserId: user.uid, toCatId: cat.id, toOwnerId: cat.ownerId, createdAt: serverTimestamp(),
+        })
+        const reverseSnap = await getDocs(query(collection(db, 'likes'), where('fromUserId', '==', cat.ownerId)))
+        const hasReverseLike = reverseSnap.docs.some(d => d.data().toOwnerId === user.uid)
+        if (hasReverseLike) {
+          const uids = [user.uid, cat.ownerId].sort()
+          const matchId = uids.join('_')
+          const existing = await getDoc(doc(db, 'matches', matchId))
+          if (!existing.exists()) {
+            const names = { [user.uid]: userProfile?.displayName || user.email.split('@')[0], [cat.ownerId]: cat.ownerName }
+            const photos = { [user.uid]: userProfile?.photoURL || '', [cat.ownerId]: cat.ownerPhotoURL || '' }
+            await setDoc(doc(db, 'matches', matchId), { users: uids, userNames: names, userPhotos: photos, createdAt: serverTimestamp() })
+            await setDoc(doc(db, 'chats', matchId), { participants: uids, participantNames: names, participantPhotos: photos, matchId, lastMessage: '', lastMessageAt: null, createdAt: serverTimestamp() })
+            confetti({ particleCount: 160, spread: 90, origin: { y: 0.5 }, colors: ['#F97316', '#fb923c', '#fff'] })
+            setMatch({ otherName: cat.ownerName })
+            if (Notification?.permission === 'granted') {
+              new Notification('Match ใหม่!', { body: `คุณ Match กับ ${cat.ownerName}`, icon: '/favicon.svg' })
+            }
           }
+        } else {
+          confetti({ particleCount: 60, spread: 60, origin: { y: 0.6 }, colors: ['#F97316', '#fff'], startVelocity: 28, gravity: 1 })
         }
       } else {
-        confetti({ particleCount: 60, spread: 60, origin: { y: 0.6 }, colors: ['#F97316', '#fff'], startVelocity: 28, gravity: 1 })
+        await setDoc(doc(db, 'passes', `${user.uid}_${cat.id}`), { fromUserId: user.uid, toCatId: cat.id, createdAt: serverTimestamp() })
       }
-    } else {
-      await setDoc(doc(db, 'passes', `${user.uid}_${cat.id}`), { fromUserId: user.uid, toCatId: cat.id, createdAt: serverTimestamp() })
+    } catch (e) {
+      console.error('handleSwipe error:', e)
     }
   }, [user, userProfile])
 
