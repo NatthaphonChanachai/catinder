@@ -6,8 +6,9 @@ import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage
 import { ArrowLeft, Save, Syringe, Scissors, Heart, Home, Users, Sparkles, Camera, Upload, X, PawPrint } from 'lucide-react'
 import { db, storage } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
+import { prepareImage, ACCEPT_IMAGE_TYPES } from '../utils/imageUtils'
 
-const BREEDS = [
+const BREEDS =[
   'เปอร์เซีย', 'สกอตติชโฟลด์', 'บริติชชอร์ตแฮร์', 'เมนคูน', 'แรกดอลล์',
   'สยาม', 'อเมริกันชอร์ตแฮร์', 'รัสเซียนบลู', 'อเบสซิเนียน', 'เบงกอล',
   'บาลีนีส', 'บอมเบย์', 'เบอร์มีส', 'สปิงค์ซ์', 'เดวอนเร็กซ์',
@@ -47,23 +48,6 @@ const Field = ({ label, required, hint, children }) => (
   </div>
 )
 
-async function compressImage(file, maxPx = 800) {
-  return new Promise((resolve) => {
-    const img = new Image()
-    const url = URL.createObjectURL(file)
-    img.onload = () => {
-      const scale = Math.min(maxPx / img.width, maxPx / img.height, 1)
-      const w = Math.round(img.width * scale)
-      const h = Math.round(img.height * scale)
-      const canvas = document.createElement('canvas')
-      canvas.width = w; canvas.height = h
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h)
-      URL.revokeObjectURL(url)
-      canvas.toBlob(blob => resolve(blob), 'image/jpeg', 0.88)
-    }
-    img.src = url
-  })
-}
 
 export default function CreateCatPage() {
   const { user, userProfile } = useAuth()
@@ -96,10 +80,18 @@ export default function CreateCatPage() {
     if (!file) return
     e.target.value = ''
 
+    // Basic size guard (50 MB)
+    if (file.size > 50 * 1024 * 1024) {
+      setUploadProgress(null)
+      setUploading(false)
+      alert('ไฟล์ใหญ่เกินไป (สูงสุด 50 MB)')
+      return
+    }
+
     setUploading(true)
     setUploadProgress('compressing')
     try {
-      const blob = await compressImage(file)
+      const blob = await prepareImage(file)
       setUploadProgress('uploading')
       const path = `cats/${user.uid}/${Date.now()}`
       const sRef = storageRef(storage, path)
@@ -107,8 +99,8 @@ export default function CreateCatPage() {
       const url = await getDownloadURL(sRef)
       set('photoURL', url)
     } catch (err) {
-      alert('อัพโหลดรูปไม่สำเร็จ กรุณาลองใหม่')
-      console.error(err)
+      console.error('upload error:', err)
+      alert('อัพโหลดรูปไม่สำเร็จ\n\nตรวจสอบว่าได้ตั้ง Firebase Storage Rules แล้ว หรือลองใหม่อีกครั้ง')
     }
     setUploading(false)
     setUploadProgress(null)
@@ -259,11 +251,11 @@ export default function CreateCatPage() {
                 รองรับ JPG, PNG, HEIC · ปรับขนาดอัตโนมัติ
               </p>
 
-              {/* Hidden file input */}
+              {/* Hidden file input — accept all common image types incl. HEIC */}
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept={ACCEPT_IMAGE_TYPES}
                 onChange={handleFileSelect}
                 style={{ display: 'none' }}
               />

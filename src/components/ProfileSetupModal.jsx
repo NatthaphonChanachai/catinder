@@ -4,6 +4,7 @@ import { Camera, Upload, PawPrint, ChevronRight, AlertCircle } from 'lucide-reac
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { storage } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
+import { prepareImage, ACCEPT_IMAGE_TYPES } from '../utils/imageUtils'
 
 // Generate colorful cat face SVG avatars
 function genCatAvatar(idx) {
@@ -41,24 +42,6 @@ function genCatAvatar(idx) {
 
 const CAT_AVATARS = [0, 1, 2, 3, 4, 5].map(genCatAvatar)
 
-async function compressImage(file, maxPx = 400) {
-  return new Promise((resolve) => {
-    const img = new Image()
-    const url = URL.createObjectURL(file)
-    img.onload = () => {
-      const scale = Math.min(maxPx / img.width, maxPx / img.height, 1)
-      const w = Math.round(img.width * scale)
-      const h = Math.round(img.height * scale)
-      const canvas = document.createElement('canvas')
-      canvas.width = w
-      canvas.height = h
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h)
-      URL.revokeObjectURL(url)
-      canvas.toBlob(blob => resolve(blob), 'image/jpeg', 0.85)
-    }
-    img.src = url
-  })
-}
 
 export default function ProfileSetupModal() {
   const { user, userProfile, needsProfileSetup, saveProfileSetup } = useAuth()
@@ -78,7 +61,7 @@ export default function ProfileSetupModal() {
     setUploading(true)
     setUploadError('')
     try {
-      const blob = await compressImage(file)
+      const blob = await prepareImage(file, 600)
       const previewUrl = URL.createObjectURL(blob)
       setUploadedPhoto({ previewUrl, blob })
       setSelectedAvatarIdx(null)
@@ -182,7 +165,7 @@ export default function ProfileSetupModal() {
               <Camera size={13} color="#fff" />
             </button>
           </div>
-          <input ref={fileRef} type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+          <input ref={fileRef} type="file" accept={ACCEPT_IMAGE_TYPES} onChange={handleFileChange} style={{ display: 'none' }} />
 
           <button
             type="button"
