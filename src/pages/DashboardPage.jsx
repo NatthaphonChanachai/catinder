@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore'
+import { collection, query, where, getDocs } from 'firebase/firestore'
 import { Compass, PawPrint, MessageCircle, MapPin, Heart, Plus, ArrowRight, Cat } from 'lucide-react'
 import { db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
@@ -23,10 +23,14 @@ export default function DashboardPage() {
     async function load() {
       try {
         const [catsSnap, matchSnap] = await Promise.all([
-          getDocs(query(collection(db, 'cats'), where('ownerId', '==', user.uid), orderBy('createdAt', 'desc'), limit(4))),
+          getDocs(query(collection(db, 'cats'), where('ownerId', '==', user.uid))),
           getDocs(query(collection(db, 'matches'), where('users', 'array-contains', user.uid))),
         ])
-        setMyCats(catsSnap.docs.map(d => ({ id: d.id, ...d.data() })))
+        const sorted = catsSnap.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
+          .slice(0, 4)
+        setMyCats(sorted)
         setStats({ cats: catsSnap.size, matches: matchSnap.size })
       } catch (_) {}
     }

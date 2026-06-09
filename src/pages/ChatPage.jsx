@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { collection, query, where, orderBy, onSnapshot, addDoc, updateDoc, doc, serverTimestamp } from 'firebase/firestore'
+import { collection, query, where, onSnapshot, addDoc, updateDoc, doc, serverTimestamp } from 'firebase/firestore'
 import { Send, ArrowLeft, MessageCircle, Compass, PawPrint } from 'lucide-react'
 import { db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
@@ -36,8 +36,13 @@ export default function ChatPage() {
 
   useEffect(() => {
     if (!user) return
-    const q = query(collection(db, 'chats'), where('participants', 'array-contains', user.uid), orderBy('createdAt', 'desc'))
-    return onSnapshot(q, snap => setChats(snap.docs.map(d => ({ id: d.id, ...d.data() }))))
+    const q = query(collection(db, 'chats'), where('participants', 'array-contains', user.uid))
+    return onSnapshot(q, snap => {
+      const sorted = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => (b.lastMessageAt?.seconds || b.createdAt?.seconds || 0) - (a.lastMessageAt?.seconds || a.createdAt?.seconds || 0))
+      setChats(sorted)
+    })
   }, [user])
 
   useEffect(() => {

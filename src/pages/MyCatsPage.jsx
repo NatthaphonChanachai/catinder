@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { collection, query, where, getDocs, deleteDoc, doc, orderBy } from 'firebase/firestore'
+import { collection, query, where, getDocs, deleteDoc, doc } from 'firebase/firestore'
 import { Plus, Edit2, Trash2, Cat, Syringe, Scissors, ClipboardList, ArrowRight } from 'lucide-react'
 import { db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
@@ -23,9 +23,14 @@ export default function MyCatsPage() {
     if (!user) return
     setLoading(true)
     try {
-      const snap = await getDocs(query(collection(db, 'cats'), where('ownerId', '==', user.uid), orderBy('createdAt', 'desc')))
-      setCats(snap.docs.map(d => ({ id: d.id, ...d.data() })))
-    } catch (e) { console.error(e) }
+      const snap = await getDocs(query(collection(db, 'cats'), where('ownerId', '==', user.uid)))
+      const sorted = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
+      setCats(sorted)
+    } catch (e) {
+      console.error('MyCatsPage load error:', e)
+    }
     setLoading(false)
   }
 
