@@ -202,7 +202,47 @@ export default function DiscoverPage() {
   const [noCats, setNoCats] = useState(false)
   const swipeTrigger = useRef(null)
 
-  useEffect(() => { if (user) loadCats() }, [user])
+  useEffect(() => {
+    if (user) {
+      loadCats()
+      checkMissedMatches()
+    }
+  }, [user])
+
+  const checkMissedMatches = async () => {
+    try {
+      const myLikesSnap = await getDocs(query(collection(db, 'likes'), where('fromUserId', '==', user.uid)))
+      for (const likeDoc of myLikesSnap.docs) {
+        const { toOwnerId, toCatId } = likeDoc.data()
+        if (!toOwnerId) continue
+        const reverseLikesSnap = await getDocs(query(collection(db, 'likes'), where('fromUserId', '==', toOwnerId)))
+        const hasReverse = reverseLikesSnap.docs.some(d => d.data().toOwnerId === user.uid)
+        if (!hasReverse) continue
+        const uids = [user.uid, toOwnerId].sort()
+        const matchId = uids.join('_')
+        let alreadyExists = false
+        try {
+          const existing = await getDoc(doc(db, 'matches', matchId))
+          alreadyExists = existing.exists()
+        } catch { alreadyExists = false }
+        if (alreadyExists) continue
+        const catSnap = await getDoc(doc(db, 'cats', toCatId))
+        const catData = catSnap.exists() ? catSnap.data() : {}
+        const names = {
+          [user.uid]: userProfile?.displayName || user.email.split('@')[0],
+          [toOwnerId]: catData.ownerName || 'ไม่ทราบ',
+        }
+        const photos = {
+          [user.uid]: userProfile?.photoURL || '',
+          [toOwnerId]: catData.ownerPhotoURL || '',
+        }
+        await setDoc(doc(db, 'matches', matchId), { users: uids, userNames: names, userPhotos: photos, createdAt: serverTimestamp() })
+        await setDoc(doc(db, 'chats', matchId), { participants: uids, participantNames: names, participantPhotos: photos, matchId, lastMessage: '', lastMessageAt: null, createdAt: serverTimestamp() })
+      }
+    } catch (e) {
+      console.error('checkMissedMatches error:', e)
+    }
+  }
 
   const loadCats = async () => {
     setLoading(true)
