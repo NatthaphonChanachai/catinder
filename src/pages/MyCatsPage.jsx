@@ -17,11 +17,13 @@ export default function MyCatsPage() {
   const { user } = useAuth()
   const [cats, setCats] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
   const navigate = useNavigate()
 
   const load = async () => {
     if (!user) return
     setLoading(true)
+    setLoadError('')
     try {
       const snap = await getDocs(query(collection(db, 'cats'), where('ownerId', '==', user.uid)))
       const sorted = snap.docs
@@ -30,6 +32,7 @@ export default function MyCatsPage() {
       setCats(sorted)
     } catch (e) {
       console.error('MyCatsPage load error:', e)
+      setLoadError(e.message || 'โหลดข้อมูลไม่ได้')
     }
     setLoading(false)
   }
@@ -65,9 +68,16 @@ export default function MyCatsPage() {
           </Link>
         </div>
 
+        {loadError && (
+          <div style={{ backgroundColor: '#fee2e2', color: '#dc2626', padding: '12px 16px', borderRadius: 12, fontSize: 13, fontWeight: 600, marginBottom: 16 }}>
+            โหลดไม่สำเร็จ: {loadError}
+            <button onClick={load} style={{ marginLeft: 10, fontSize: 12, fontWeight: 700, color: '#dc2626', background: 'none', border: '1px solid #dc2626', borderRadius: 7, padding: '2px 10px', cursor: 'pointer' }}>ลองใหม่</button>
+          </div>
+        )}
+
         {loading ? (
           <div style={{ textAlign: 'center', padding: '60px 0', color: '#aaa' }}>กำลังโหลด...</div>
-        ) : cats.length === 0 ? (
+        ) : cats.length === 0 && !loadError ? (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
             style={{ textAlign: 'center', padding: '50px 20px', backgroundColor: '#fff', borderRadius: 18, border: '2px dashed #e5e7eb' }}
           >
@@ -85,7 +95,7 @@ export default function MyCatsPage() {
               <Plus size={14} /> สร้างโปรไฟล์แมวแรก
             </Link>
           </motion.div>
-        ) : (
+        ) : cats.length > 0 ? (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16 }}>
             {cats.map((cat, i) => (
               <motion.div
@@ -175,7 +185,7 @@ export default function MyCatsPage() {
               </motion.div>
             ))}
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   )
