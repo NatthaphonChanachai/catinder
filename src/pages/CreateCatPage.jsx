@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { collection, addDoc, updateDoc, getDoc, doc, serverTimestamp } from 'firebase/firestore'
-import { ArrowLeft, Save, Syringe, Scissors, Heart, Home, Users, Sparkles } from 'lucide-react'
-import { db } from '../firebase'
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { ArrowLeft, Save, Syringe, Scissors, Heart, Home, Users, Sparkles, Camera, Upload, X, PawPrint } from 'lucide-react'
+import { db, storage } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
 
 const BREEDS = [
@@ -30,8 +31,8 @@ const inputStyle = {
 }
 
 const Section = ({ title, children }) => (
-  <div style={{ backgroundColor: '#fff', borderRadius: 18, padding: '20px', marginBottom: 16, border: '1px solid #f0f0f0' }}>
-    <h3 style={{ fontSize: 14, fontWeight: 800, color: '#000', marginBottom: 18, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#888' }}>{title}</h3>
+  <div style={{ backgroundColor: '#fff', borderRadius: 18, padding: 20, marginBottom: 16, border: '1px solid #f0f0f0' }}>
+    <h3 style={{ fontSize: 13, fontWeight: 800, color: '#aaa', marginBottom: 18, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{title}</h3>
     {children}
   </div>
 )
@@ -46,12 +47,32 @@ const Field = ({ label, required, hint, children }) => (
   </div>
 )
 
+async function compressImage(file, maxPx = 800) {
+  return new Promise((resolve) => {
+    const img = new Image()
+    const url = URL.createObjectURL(file)
+    img.onload = () => {
+      const scale = Math.min(maxPx / img.width, maxPx / img.height, 1)
+      const w = Math.round(img.width * scale)
+      const h = Math.round(img.height * scale)
+      const canvas = document.createElement('canvas')
+      canvas.width = w; canvas.height = h
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h)
+      URL.revokeObjectURL(url)
+      canvas.toBlob(blob => resolve(blob), 'image/jpeg', 0.88)
+    }
+    img.src = url
+  })
+}
+
 export default function CreateCatPage() {
   const { user, userProfile } = useAuth()
   const navigate = useNavigate()
   const { catId } = useParams()
   const isEdit = Boolean(catId)
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(null) // 'compressing' | 'uploading' | null
   const [form, setForm] = useState({
     name: '', breed: '', breedCustom: '', gender: 'male',
     ageYears: 0, ageMonths: 0, weight: '',
@@ -59,6 +80,7 @@ export default function CreateCatPage() {
     vaccinated: false, sterilized: false,
     lookingFor: 'any', location: '', color: '',
   })
+  const fileInputRef = useRef()
 
   useEffect(() => {
     if (!isEdit) return
@@ -68,6 +90,29 @@ export default function CreateCatPage() {
   }, [catId])
 
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }))
+
+  const handleFileSelect = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    e.target.value = ''
+
+    setUploading(true)
+    setUploadProgress('compressing')
+    try {
+      const blob = await compressImage(file)
+      setUploadProgress('uploading')
+      const path = `cats/${user.uid}/${Date.now()}`
+      const sRef = storageRef(storage, path)
+      await uploadBytes(sRef, blob)
+      const url = await getDownloadURL(sRef)
+      set('photoURL', url)
+    } catch (err) {
+      alert('อัพโหลดรูปไม่สำเร็จ กรุณาลองใหม่')
+      console.error(err)
+    }
+    setUploading(false)
+    setUploadProgress(null)
+  }
 
   const handleSave = async (e) => {
     e.preventDefault()
@@ -91,7 +136,10 @@ export default function CreateCatPage() {
         await addDoc(collection(db, 'cats'), data)
       }
       navigate('/my-cats')
-    } catch (e) { alert('เกิดข้อผิดพลาด กรุณาลองใหม่') }
+    } catch (err) {
+      alert('เกิดข้อผิดพลาด กรุณาลองใหม่')
+      console.error(err)
+    }
     setSaving(false)
   }
 
@@ -114,26 +162,111 @@ export default function CreateCatPage() {
         </p>
 
         <form onSubmit={handleSave}>
-          {/* Photo */}
+          {/* Photo upload */}
           <Section title="รูปโปรไฟล์">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              <div style={{
-                width: 88, height: 88, borderRadius: 16, flexShrink: 0,
-                backgroundColor: '#f5f5f5', border: '2px dashed #e5e7eb',
-                backgroundImage: form.photoURL ? `url(${form.photoURL})` : 'none',
-                backgroundSize: 'cover', backgroundPosition: 'center',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                overflow: 'hidden',
-              }}>
-                {!form.photoURL && <span style={{ fontSize: 32 }}>🐱</span>}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
+              {/* Preview */}
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <div style={{
+                  width: 130, height: 130, borderRadius: 20,
+                  backgroundColor: '#f5f5f5',
+                  backgroundImage: form.photoURL ? `url(${form.photoURL})` : 'none',
+                  backgroundSize: 'cover', backgroundPosition: 'center',
+                  border: '2.5px dashed #e5e7eb',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  overflow: 'hidden', flexShrink: 0,
+                }}>
+                  {uploading ? (
+                    <div style={{ textAlign: 'center', padding: 12 }}>
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                        style={{ width: 28, height: 28, border: '3px solid #F97316', borderTopColor: 'transparent', borderRadius: '50%', margin: '0 auto 8px' }}
+                      />
+                      <p style={{ fontSize: 11, color: '#F97316', fontWeight: 700 }}>
+                        {uploadProgress === 'compressing' ? 'ประมวลผล...' : 'อัพโหลด...'}
+                      </p>
+                    </div>
+                  ) : !form.photoURL ? (
+                    <div style={{ textAlign: 'center', padding: 16 }}>
+                      <PawPrint size={32} color="#ddd" />
+                      <p style={{ fontSize: 11, color: '#ccc', fontWeight: 600, marginTop: 6 }}>ยังไม่มีรูป</p>
+                    </div>
+                  ) : null}
+                </div>
+
+                {form.photoURL && !uploading && (
+                  <button
+                    type="button"
+                    onClick={() => set('photoURL', '')}
+                    style={{
+                      position: 'absolute', top: -8, right: -8,
+                      width: 24, height: 24, borderRadius: '50%',
+                      backgroundColor: '#ef4444', border: '2px solid #fff',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <X size={11} color="#fff" />
+                  </button>
+                )}
               </div>
-              <Field label="URL รูปภาพ" hint="วางลิงก์รูปแมวจาก Google Drive, Imgur หรือแหล่งอื่น">
-                <input type="url" value={form.photoURL} onChange={e => set('photoURL', e.target.value)}
-                  placeholder="https://..." style={inputStyle}
-                  onFocus={e => e.target.style.borderColor = '#F97316'}
-                  onBlur={e => e.target.style.borderColor = '#e5e7eb'}
-                />
-              </Field>
+
+              {/* Upload buttons */}
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
+                <button
+                  type="button"
+                  disabled={uploading}
+                  onClick={() => {
+                    fileInputRef.current.removeAttribute('capture')
+                    fileInputRef.current.click()
+                  }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 7,
+                    padding: '10px 18px', borderRadius: 11,
+                    border: '1.5px solid #F97316', backgroundColor: '#FFF7ED',
+                    color: '#F97316', fontSize: 13, fontWeight: 800,
+                    cursor: uploading ? 'not-allowed' : 'pointer',
+                    fontFamily: 'Space Grotesk, sans-serif',
+                    opacity: uploading ? 0.6 : 1,
+                  }}
+                >
+                  <Upload size={14} /> เลือกจากแกลลอรี่ / ไฟล์
+                </button>
+
+                <button
+                  type="button"
+                  disabled={uploading}
+                  onClick={() => {
+                    fileInputRef.current.setAttribute('capture', 'environment')
+                    fileInputRef.current.click()
+                  }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 7,
+                    padding: '10px 18px', borderRadius: 11,
+                    border: '1.5px solid #e5e7eb', backgroundColor: '#fff',
+                    color: '#555', fontSize: 13, fontWeight: 800,
+                    cursor: uploading ? 'not-allowed' : 'pointer',
+                    fontFamily: 'Space Grotesk, sans-serif',
+                    opacity: uploading ? 0.6 : 1,
+                  }}
+                >
+                  <Camera size={14} /> ถ่ายรูปเดี๋ยวนี้
+                </button>
+              </div>
+
+              <p style={{ fontSize: 11, color: '#bbb', fontWeight: 500, textAlign: 'center' }}>
+                รองรับ JPG, PNG, HEIC · ปรับขนาดอัตโนมัติ
+              </p>
+
+              {/* Hidden file input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                style={{ display: 'none' }}
+              />
             </div>
           </Section>
 
@@ -176,7 +309,7 @@ export default function CreateCatPage() {
               <div style={{ display: 'flex', gap: 10 }}>
                 {[{ v: 'male', l: 'ตัวผู้' }, { v: 'female', l: 'ตัวเมีย' }].map(({ v, l }) => (
                   <button key={v} type="button" onClick={() => set('gender', v)} style={{
-                    flex: 1, padding: '11px', borderRadius: 11,
+                    flex: 1, padding: 11, borderRadius: 11,
                     border: form.gender === v ? '2px solid #F97316' : '1.5px solid #e5e7eb',
                     backgroundColor: form.gender === v ? 'rgba(249,115,22,0.06)' : '#fff',
                     color: form.gender === v ? '#F97316' : '#555',
@@ -198,8 +331,7 @@ export default function CreateCatPage() {
                 ].map(({ key, label, max, step }) => (
                   <div key={key}>
                     <input type="number" min="0" max={max} step={step || 1}
-                      value={form[key]}
-                      onChange={e => set(key, e.target.value)}
+                      value={form[key]} onChange={e => set(key, e.target.value)}
                       style={{ ...inputStyle, textAlign: 'center' }}
                       onFocus={e => e.target.style.borderColor = '#F97316'}
                       onBlur={e => e.target.style.borderColor = '#e5e7eb'}
@@ -265,17 +397,14 @@ export default function CreateCatPage() {
               { field: 'vaccinated', label: 'ฉีดวัคซีนครบแล้ว', desc: 'วัคซีนป้องกันโรคแมว', icon: Syringe, color: '#10b981' },
               { field: 'sterilized', label: 'ทำหมันแล้ว', desc: 'ผ่าตัดทำหมัน/ตัดแต่ง', icon: Scissors, color: '#8b5cf6' },
             ].map(({ field, label, desc, icon: Icon, color }) => (
-              <label key={field} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', marginBottom: 14 }}>
-                <div
-                  onClick={() => set(field, !form[field])}
-                  style={{
-                    width: 22, height: 22, borderRadius: 7,
-                    border: form[field] ? `2px solid ${color}` : '2px solid #e5e7eb',
-                    backgroundColor: form[field] ? color : '#fff',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    flexShrink: 0, transition: 'all 0.15s', cursor: 'pointer',
-                  }}
-                >
+              <label key={field} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', marginBottom: 14 }} onClick={() => set(field, !form[field])}>
+                <div style={{
+                  width: 22, height: 22, borderRadius: 7,
+                  border: form[field] ? `2px solid ${color}` : '2px solid #e5e7eb',
+                  backgroundColor: form[field] ? color : '#fff',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  flexShrink: 0, transition: 'all 0.15s',
+                }}>
                   {form[field] && <span style={{ color: '#fff', fontSize: 13, fontWeight: 900 }}>✓</span>}
                 </div>
                 <Icon size={16} color={form[field] ? color : '#ccc'} />
@@ -287,20 +416,17 @@ export default function CreateCatPage() {
             ))}
           </Section>
 
-          <button type="submit" disabled={saving}
-            style={{
-              width: '100%', padding: '14px',
-              borderRadius: 13, border: 'none',
-              backgroundColor: saving ? '#ccc' : '#F97316',
-              color: '#fff', fontSize: 15, fontWeight: 800,
-              cursor: saving ? 'not-allowed' : 'pointer',
-              fontFamily: 'Space Grotesk, sans-serif',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              boxShadow: saving ? 'none' : '0 4px 14px rgba(249,115,22,0.3)',
-            }}
-          >
+          <button type="submit" disabled={saving || uploading} style={{
+            width: '100%', padding: 14, borderRadius: 13, border: 'none',
+            backgroundColor: (saving || uploading) ? '#ccc' : '#F97316',
+            color: '#fff', fontSize: 15, fontWeight: 800,
+            cursor: (saving || uploading) ? 'not-allowed' : 'pointer',
+            fontFamily: 'Space Grotesk, sans-serif',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            boxShadow: (saving || uploading) ? 'none' : '0 4px 14px rgba(249,115,22,0.3)',
+          }}>
             <Save size={15} />
-            {saving ? 'กำลังบันทึก...' : isEdit ? 'บันทึกการแก้ไข' : 'สร้างโปรไฟล์แมว'}
+            {saving ? 'กำลังบันทึก...' : uploading ? 'รอให้รูปอัพโหลดเสร็จก่อน...' : isEdit ? 'บันทึกการแก้ไข' : 'สร้างโปรไฟล์แมว'}
           </button>
         </form>
       </div>
