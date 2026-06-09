@@ -241,8 +241,12 @@ export default function DiscoverPage() {
         if (hasReverseLike) {
           const uids = [user.uid, cat.ownerId].sort()
           const matchId = uids.join('_')
-          const existing = await getDoc(doc(db, 'matches', matchId))
-          if (!existing.exists()) {
+          let alreadyExists = false
+          try {
+            const existing = await getDoc(doc(db, 'matches', matchId))
+            alreadyExists = existing.exists()
+          } catch { alreadyExists = false }
+          if (!alreadyExists) {
             const names = { [user.uid]: userProfile?.displayName || user.email.split('@')[0], [cat.ownerId]: cat.ownerName }
             const photos = { [user.uid]: userProfile?.photoURL || '', [cat.ownerId]: cat.ownerPhotoURL || '' }
             await setDoc(doc(db, 'matches', matchId), { users: uids, userNames: names, userPhotos: photos, createdAt: serverTimestamp() })
