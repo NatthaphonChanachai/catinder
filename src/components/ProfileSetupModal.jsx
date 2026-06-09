@@ -1,10 +1,8 @@
 import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Camera, Upload, PawPrint, ChevronRight, AlertCircle } from 'lucide-react'
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
-import { storage } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
-import { prepareImage, ACCEPT_IMAGE_TYPES } from '../utils/imageUtils'
+import { prepareImage, blobToBase64, ACCEPT_IMAGE_TYPES } from '../utils/imageUtils'
 
 // Generate colorful cat face SVG avatars
 function genCatAvatar(idx) {
@@ -61,9 +59,9 @@ export default function ProfileSetupModal() {
     setUploading(true)
     setUploadError('')
     try {
-      const blob = await prepareImage(file, 600)
-      const previewUrl = URL.createObjectURL(blob)
-      setUploadedPhoto({ previewUrl, blob })
+      const blob = await prepareImage(file, 500)
+      const base64 = await blobToBase64(blob)
+      setUploadedPhoto({ previewUrl: base64, base64 })
       setSelectedAvatarIdx(null)
     } catch {
       setUploadError('ไม่สามารถโหลดรูปได้ กรุณาลองใหม่')
@@ -82,21 +80,12 @@ export default function ProfileSetupModal() {
     setSaving(true)
     let photoURL = user?.photoURL || userProfile?.photoURL || ''
 
-    try {
-      if (uploadedPhoto?.blob) {
-        const fileRef2 = storageRef(storage, `profiles/${user.uid}/avatar`)
-        await uploadBytes(fileRef2, uploadedPhoto.blob)
-        photoURL = await getDownloadURL(fileRef2)
-      } else if (selectedAvatarIdx !== null) {
-        photoURL = CAT_AVATARS[selectedAvatarIdx]
-      } else if (!photoURL) {
-        photoURL = CAT_AVATARS[Math.floor(Math.random() * CAT_AVATARS.length)]
-      }
-    } catch {
-      // Storage might not be enabled yet — fall back to cat avatar
-      photoURL = selectedAvatarIdx !== null
-        ? CAT_AVATARS[selectedAvatarIdx]
-        : CAT_AVATARS[Math.floor(Math.random() * CAT_AVATARS.length)]
+    if (uploadedPhoto?.base64) {
+      photoURL = uploadedPhoto.base64
+    } else if (selectedAvatarIdx !== null) {
+      photoURL = CAT_AVATARS[selectedAvatarIdx]
+    } else if (!photoURL) {
+      photoURL = CAT_AVATARS[Math.floor(Math.random() * CAT_AVATARS.length)]
     }
 
     await saveProfileSetup(name.trim(), photoURL)

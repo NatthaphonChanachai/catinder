@@ -2,6 +2,15 @@ import heic2any from 'heic2any'
 
 export const ACCEPT_IMAGE_TYPES = 'image/jpeg,image/jpg,image/png,image/webp,image/heic,image/heif,image/gif,image/bmp,image/tiff'
 
+export async function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result)
+    reader.onerror = reject
+    reader.readAsDataURL(blob)
+  })
+}
+
 export async function prepareImage(file, maxPx = 1000) {
   let workFile = file
 

@@ -2,11 +2,10 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { collection, addDoc, updateDoc, getDoc, doc, serverTimestamp } from 'firebase/firestore'
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { ArrowLeft, Save, Syringe, Scissors, Heart, Home, Users, Sparkles, Camera, Upload, X, PawPrint } from 'lucide-react'
-import { db, storage } from '../firebase'
+import { db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
-import { prepareImage, ACCEPT_IMAGE_TYPES } from '../utils/imageUtils'
+import { prepareImage, blobToBase64, ACCEPT_IMAGE_TYPES } from '../utils/imageUtils'
 
 const BREEDS =[
   'เปอร์เซีย', 'สกอตติชโฟลด์', 'บริติชชอร์ตแฮร์', 'เมนคูน', 'แรกดอลล์',
@@ -91,16 +90,14 @@ export default function CreateCatPage() {
     setUploading(true)
     setUploadProgress('compressing')
     try {
-      const blob = await prepareImage(file)
-      setUploadProgress('uploading')
-      const path = `cats/${user.uid}/${Date.now()}`
-      const sRef = storageRef(storage, path)
-      await uploadBytes(sRef, blob)
-      const url = await getDownloadURL(sRef)
-      set('photoURL', url)
+      // Compress to max 700px then store as base64 in Firestore (no Storage needed)
+      const blob = await prepareImage(file, 700)
+      setUploadProgress('encoding')
+      const base64 = await blobToBase64(blob)
+      set('photoURL', base64)
     } catch (err) {
-      console.error('upload error:', err)
-      alert('อัพโหลดรูปไม่สำเร็จ\n\nตรวจสอบว่าได้ตั้ง Firebase Storage Rules แล้ว หรือลองใหม่อีกครั้ง')
+      console.error('image error:', err)
+      alert('ไม่สามารถโหลดรูปได้ กรุณาลองไฟล์อื่น')
     }
     setUploading(false)
     setUploadProgress(null)
@@ -176,7 +173,7 @@ export default function CreateCatPage() {
                         style={{ width: 28, height: 28, border: '3px solid #F97316', borderTopColor: 'transparent', borderRadius: '50%', margin: '0 auto 8px' }}
                       />
                       <p style={{ fontSize: 11, color: '#F97316', fontWeight: 700 }}>
-                        {uploadProgress === 'compressing' ? 'ประมวลผล...' : 'อัพโหลด...'}
+                        {uploadProgress === 'compressing' ? 'ปรับขนาด...' : 'กำลังโหลด...'}
                       </p>
                     </div>
                   ) : !form.photoURL ? (

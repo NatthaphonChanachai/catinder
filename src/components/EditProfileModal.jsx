@@ -1,10 +1,8 @@
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Camera, Upload, PawPrint, AlertCircle, Check } from 'lucide-react'
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
-import { storage } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
-import { prepareImage, ACCEPT_IMAGE_TYPES } from '../utils/imageUtils'
+import { prepareImage, blobToBase64, ACCEPT_IMAGE_TYPES } from '../utils/imageUtils'
 
 function genCatAvatar(idx) {
   const palettes = [
@@ -64,9 +62,9 @@ export default function EditProfileModal({ onClose }) {
     if (!file) return
     setUploading(true); setError('')
     try {
-      const blob = await prepareImage(file, 600)
-      const previewUrl = URL.createObjectURL(blob)
-      setUploadedPhoto({ previewUrl, blob })
+      const blob = await prepareImage(file, 500)
+      const base64 = await blobToBase64(blob)
+      setUploadedPhoto({ previewUrl: base64, base64 })
       setSelectedAvatarIdx(null)
     } catch {
       setError('ไม่สามารถโหลดรูปได้')
@@ -80,18 +78,10 @@ export default function EditProfileModal({ onClose }) {
     setSaving(true); setError('')
     let photoURL = currentPhoto
 
-    try {
-      if (uploadedPhoto?.blob) {
-        const sRef = storageRef(storage, `profiles/${user.uid}/avatar`)
-        await uploadBytes(sRef, uploadedPhoto.blob)
-        photoURL = await getDownloadURL(sRef)
-      } else if (selectedAvatarIdx !== null) {
-        photoURL = CAT_AVATARS[selectedAvatarIdx]
-      }
-    } catch {
-      if (selectedAvatarIdx !== null) {
-        photoURL = CAT_AVATARS[selectedAvatarIdx]
-      }
+    if (uploadedPhoto?.base64) {
+      photoURL = uploadedPhoto.base64
+    } else if (selectedAvatarIdx !== null) {
+      photoURL = CAT_AVATARS[selectedAvatarIdx]
     }
 
     const res = await updateUserProfile(name.trim(), photoURL)
