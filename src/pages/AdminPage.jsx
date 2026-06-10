@@ -156,14 +156,26 @@ function SupportPanel({ user: adminUser }) {
   const messagesEndRef = useRef(null)
 
   useEffect(() => {
-    const q = query(collection(db, 'supportChats'), orderBy('lastMessageAt', 'desc'))
-    return onSnapshot(q, snap => setChats(snap.docs.map(d => ({ id: d.id, ...d.data() }))))
+    return onSnapshot(
+      collection(db, 'supportChats'),
+      snap => {
+        const sorted = snap.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => (b.lastMessageAt?.seconds || 0) - (a.lastMessageAt?.seconds || 0))
+        setChats(sorted)
+      },
+      err => console.error('supportChats listener error:', err)
+    )
   }, [])
 
   useEffect(() => {
     if (!activeUid) { setMessages([]); return }
     const q = query(collection(db, 'supportChats', activeUid, 'messages'), orderBy('createdAt', 'asc'))
-    return onSnapshot(q, snap => setMessages(snap.docs.map(d => ({ id: d.id, ...d.data() }))))
+    return onSnapshot(
+      q,
+      snap => setMessages(snap.docs.map(d => ({ id: d.id, ...d.data() }))),
+      err => console.error('messages listener error:', err)
+    )
   }, [activeUid])
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
@@ -174,6 +186,11 @@ function SupportPanel({ user: adminUser }) {
     setSending(true)
     const msg = text.trim()
     setText('')
+    const tempId = `temp_${Date.now()}`
+    setMessages(prev => [...prev, {
+      id: tempId, senderId: adminUser.uid, text: msg, isAdmin: true,
+      createdAt: { toDate: () => new Date() },
+    }])
     try {
       await addDoc(collection(db, 'supportChats', activeUid, 'messages'), {
         senderId: adminUser.uid,
