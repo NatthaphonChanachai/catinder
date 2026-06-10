@@ -28,21 +28,26 @@ export default function SupportChatPage() {
   useEffect(() => {
     if (!user) return
     async function init() {
-      const ref = doc(db, 'supportChats', user.uid)
-      const snap = await getDoc(ref)
-      if (!snap.exists()) {
-        await setDoc(ref, {
-          userId: user.uid,
-          userName: userProfile?.displayName || user.email?.split('@')[0] || 'ไม่ระบุ',
-          userPhoto: userProfile?.photoURL || '',
-          userEmail: user.email || '',
-          lastMessage: '',
-          lastMessageAt: serverTimestamp(),
-          unreadAdmin: 0,
-          createdAt: serverTimestamp(),
-        })
+      try {
+        const ref = doc(db, 'supportChats', user.uid)
+        const snap = await getDoc(ref)
+        if (!snap.exists()) {
+          await setDoc(ref, {
+            userId: user.uid,
+            userName: userProfile?.displayName || user.email?.split('@')[0] || 'ไม่ระบุ',
+            userPhoto: userProfile?.photoURL || '',
+            userEmail: user.email || '',
+            lastMessage: '',
+            lastMessageAt: serverTimestamp(),
+            unreadAdmin: 0,
+            createdAt: serverTimestamp(),
+          })
+        }
+      } catch (err) {
+        console.error('supportChat init error:', err)
+      } finally {
+        setInitialized(true)
       }
-      setInitialized(true)
     }
     init()
   }, [user, userProfile])
@@ -62,20 +67,25 @@ export default function SupportChatPage() {
     const msg = text.trim()
     setText('')
     try {
+      const chatRef = doc(db, 'supportChats', user.uid)
+      // Upsert chat doc in case init failed silently
+      await setDoc(chatRef, {
+        userId: user.uid,
+        userName: userProfile?.displayName || user.email?.split('@')[0] || 'ไม่ระบุ',
+        userPhoto: userProfile?.photoURL || '',
+        userEmail: user.email || '',
+        lastMessage: msg,
+        lastMessageAt: serverTimestamp(),
+        unreadAdmin: messages.filter(m => !m.isAdmin).length + 1,
+        createdAt: serverTimestamp(),
+      }, { merge: true })
       await addDoc(collection(db, 'supportChats', user.uid, 'messages'), {
         senderId: user.uid,
         text: msg,
         isAdmin: false,
         createdAt: serverTimestamp(),
       })
-      await updateDoc(doc(db, 'supportChats', user.uid), {
-        lastMessage: msg,
-        lastMessageAt: serverTimestamp(),
-        unreadAdmin: (messages.filter(m => !m.isAdmin).length) + 1,
-        userName: userProfile?.displayName || user.email?.split('@')[0] || 'ไม่ระบุ',
-        userPhoto: userProfile?.photoURL || '',
-      })
-    } catch (err) { console.error(err) }
+    } catch (err) { console.error('send error:', err) }
     setSending(false)
   }
 
