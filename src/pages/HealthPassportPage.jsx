@@ -8,9 +8,12 @@ import {
 import {
   ArrowLeft, Plus, Trash2, Syringe, Scissors,
   Activity, Calendar, X, Save, ClipboardList, Scale,
+  FileDown, Lock, Sparkles, Check,
 } from 'lucide-react'
 import { db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
+
+const FREE_RECORD_LIMIT = 10
 
 const RECORD_TYPES = [
   { value: 'vaccine', label: 'ฉีดวัคซีน', icon: Syringe, color: '#10b981', bg: '#f0fdf4' },
@@ -29,6 +32,112 @@ const inputStyle = {
   transition: 'border-color 0.2s', backgroundColor: '#fff',
 }
 
+function UpgradeModal({ onClose, reason = 'limit' }) {
+  const PERKS = [
+    'บันทึกสุขภาพไม่จำกัด',
+    'Export Health Passport เป็น PDF',
+    'QR Code แชร์ให้สัตวแพทย์สแกนได้',
+    'Badge "Verified Health" บนโปรไฟล์แมว',
+    'Match ไม่จำกัดใน Discover',
+  ]
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 3000,
+      backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(6px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: 20,
+    }} onClick={onClose}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.92, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.92, y: 20 }}
+        transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+        onClick={e => e.stopPropagation()}
+        style={{
+          backgroundColor: '#fff', borderRadius: 24, padding: '32px 28px',
+          width: '100%', maxWidth: 400,
+          fontFamily: 'Space Grotesk, sans-serif',
+          boxShadow: '0 32px 80px rgba(0,0,0,0.25)',
+        }}
+      >
+        <button onClick={onClose} style={{
+          position: 'absolute', top: 16, right: 16,
+          background: 'none', border: 'none', cursor: 'pointer', padding: 4,
+        }}>
+          <X size={18} color="#aaa" />
+        </button>
+
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <div style={{
+            width: 60, height: 60, borderRadius: 18,
+            background: 'linear-gradient(135deg, #F97316, #FBBF24)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 14px',
+            boxShadow: '0 8px 24px rgba(249,115,22,0.35)',
+          }}>
+            <Sparkles size={28} color="#fff" />
+          </div>
+          <h2 style={{ fontSize: 20, fontWeight: 900, color: '#000', margin: '0 0 8px' }}>
+            {reason === 'limit' ? 'ครบ 10 บันทึกแล้ว!' : 'ฟีเจอร์ Premium'}
+          </h2>
+          <p style={{ fontSize: 13, color: '#888', fontWeight: 500, lineHeight: 1.6 }}>
+            {reason === 'limit'
+              ? 'แผน Free จำกัด 10 บันทึกต่อแมว อัปเกรดเพื่อบันทึกไม่จำกัด'
+              : 'ฟีเจอร์นี้สำหรับผู้ใช้ Premium เท่านั้น'}
+          </p>
+        </div>
+
+        <div style={{ marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {PERKS.map((perk, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{
+                width: 22, height: 22, borderRadius: 999, flexShrink: 0,
+                backgroundColor: '#FFF7ED',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Check size={12} color="#F97316" strokeWidth={3} />
+              </div>
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#333' }}>{perk}</span>
+            </div>
+          ))}
+        </div>
+
+        <div style={{
+          backgroundColor: '#FFF7ED', borderRadius: 14, padding: '14px 18px',
+          marginBottom: 18, textAlign: 'center',
+        }}>
+          <span style={{ fontSize: 26, fontWeight: 900, color: '#F97316' }}>฿299</span>
+          <span style={{ fontSize: 13, color: '#888', fontWeight: 600 }}> / เดือน</span>
+          <p style={{ fontSize: 11, color: '#aaa', margin: '4px 0 0', fontWeight: 500 }}>
+            ยกเลิกได้ทุกเมื่อ · ไม่มีสัญญาผูกมัด
+          </p>
+        </div>
+
+        <button style={{
+          width: '100%', padding: '14px', borderRadius: 13, border: 'none',
+          background: 'linear-gradient(135deg, #F97316, #FBBF24)',
+          color: '#fff', fontSize: 15, fontWeight: 800, cursor: 'pointer',
+          fontFamily: 'Space Grotesk, sans-serif',
+          boxShadow: '0 6px 20px rgba(249,115,22,0.35)',
+        }}
+          onClick={() => alert('ระบบชำระเงินกำลังพัฒนา — เร็วๆ นี้!')}
+        >
+          อัปเกรดเป็น Premium
+        </button>
+
+        <button onClick={onClose} style={{
+          display: 'block', width: '100%', marginTop: 12, background: 'none',
+          border: 'none', cursor: 'pointer', fontSize: 13, color: '#bbb',
+          fontWeight: 600, fontFamily: 'Space Grotesk, sans-serif',
+        }}>
+          ไว้ทีหลัง
+        </button>
+      </motion.div>
+    </div>
+  )
+}
+
 function AddRecordModal({ onClose, onSave }) {
   const [form, setForm] = useState({
     type: 'vaccine', date: new Date().toISOString().split('T')[0],
@@ -45,8 +154,6 @@ function AddRecordModal({ onClose, onSave }) {
     setSaving(false)
     onClose()
   }
-
-  const typeInfo = RECORD_TYPES.find(r => r.value === form.type)
 
   return (
     <div style={{
@@ -74,7 +181,6 @@ function AddRecordModal({ onClose, onSave }) {
           </button>
         </div>
 
-        {/* Type selector */}
         <div style={{ marginBottom: 18 }}>
           <label style={{ fontSize: 12, fontWeight: 700, color: '#888', display: 'block', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>ประเภท</label>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
@@ -118,7 +224,7 @@ function AddRecordModal({ onClose, onSave }) {
           <div style={{ marginBottom: 14 }}>
             <label style={{ fontSize: 12, fontWeight: 700, color: '#888', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>รายละเอียด</label>
             <input type="text" value={form.description} onChange={e => set('description', e.target.value)}
-              placeholder="เช่น วัคซีน FVRCP, ถ่ายพยาธิ Drontal, ตรวจเลือดประจำปี..." style={inputStyle}
+              placeholder="เช่น วัคซีน FVRCP, ถ่ายพยาธิ Drontal..." style={inputStyle}
               onFocus={e => e.target.style.borderColor = '#F97316'}
               onBlur={e => e.target.style.borderColor = '#e5e7eb'}
             />
@@ -169,11 +275,14 @@ function formatDate(dateStr) {
 export default function HealthPassportPage() {
   const { catId } = useParams()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, userProfile } = useAuth()
+  const isPremium = userProfile?.isPremium === true
   const [cat, setCat] = useState(null)
   const [records, setRecords] = useState([])
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
+  const [upgradeOpen, setUpgradeOpen] = useState(false)
+  const [upgradeReason, setUpgradeReason] = useState('limit')
 
   useEffect(() => {
     async function load() {
@@ -194,6 +303,24 @@ export default function HealthPassportPage() {
     load()
   }, [catId])
 
+  const handleAddClick = () => {
+    if (!isPremium && records.length >= FREE_RECORD_LIMIT) {
+      setUpgradeReason('limit')
+      setUpgradeOpen(true)
+      return
+    }
+    setModalOpen(true)
+  }
+
+  const handleExportClick = () => {
+    if (!isPremium) {
+      setUpgradeReason('export')
+      setUpgradeOpen(true)
+      return
+    }
+    alert('Export PDF — กำลังพัฒนา')
+  }
+
   const handleSave = async (form) => {
     const newDoc = await addDoc(collection(db, 'cats', catId, 'healthRecords'), {
       ...form, createdAt: serverTimestamp(),
@@ -207,6 +334,8 @@ export default function HealthPassportPage() {
     setRecords(prev => prev.filter(r => r.id !== recId))
   }
 
+  const atLimit = !isPremium && records.length >= FREE_RECORD_LIMIT
+
   if (loading) return (
     <div style={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Space Grotesk, sans-serif' }}>
       <p style={{ color: '#aaa', fontSize: 15 }}>กำลังโหลด...</p>
@@ -217,6 +346,7 @@ export default function HealthPassportPage() {
     <div style={{ minHeight: '100dvh', backgroundColor: '#f8f8f8', fontFamily: 'Space Grotesk, sans-serif', paddingBottom: 80 }}>
       <AnimatePresence>
         {modalOpen && <AddRecordModal onClose={() => setModalOpen(false)} onSave={handleSave} />}
+        {upgradeOpen && <UpgradeModal onClose={() => setUpgradeOpen(false)} reason={upgradeReason} />}
       </AnimatePresence>
 
       <div style={{ maxWidth: 640, margin: '0 auto', padding: '20px 16px' }}>
@@ -229,33 +359,119 @@ export default function HealthPassportPage() {
         </button>
 
         {/* Cat header */}
-        <div style={{ backgroundColor: '#fff', borderRadius: 18, padding: '18px 20px', marginBottom: 20, border: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{
-            width: 56, height: 56, borderRadius: 14, flexShrink: 0,
-            backgroundColor: '#f5f5f5',
-            backgroundImage: cat?.photoURL ? `url(${cat.photoURL})` : 'none',
-            backgroundSize: 'cover', backgroundPosition: 'center',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            {!cat?.photoURL && <ClipboardList size={24} color="#ddd" />}
+        <div style={{ backgroundColor: '#fff', borderRadius: 18, padding: '18px 20px', marginBottom: 12, border: '1px solid #f0f0f0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14 }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: 14, flexShrink: 0,
+              backgroundColor: '#f5f5f5',
+              backgroundImage: cat?.photoURL ? `url(${cat.photoURL})` : 'none',
+              backgroundSize: 'cover', backgroundPosition: 'center',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              {!cat?.photoURL && <ClipboardList size={24} color="#ddd" />}
+            </div>
+            <div style={{ flex: 1 }}>
+              <h1 style={{ fontSize: 19, fontWeight: 900, color: '#000', marginBottom: 2 }}>Health Passport</h1>
+              <p style={{ fontSize: 13, color: '#888', fontWeight: 600 }}>{cat?.name} · {cat?.breed}</p>
+            </div>
+            <button onClick={handleAddClick} style={{
+              display: 'flex', alignItems: 'center', gap: 7,
+              backgroundColor: atLimit ? '#e5e7eb' : '#F97316',
+              color: atLimit ? '#aaa' : '#fff',
+              padding: '9px 16px', borderRadius: 10,
+              border: 'none', cursor: 'pointer',
+              fontSize: 13, fontWeight: 800,
+              fontFamily: 'Space Grotesk, sans-serif',
+              boxShadow: atLimit ? 'none' : '0 3px 10px rgba(249,115,22,0.3)',
+              flexShrink: 0,
+            }}>
+              {atLimit ? <Lock size={13} /> : <Plus size={14} />}
+              เพิ่ม
+            </button>
           </div>
-          <div style={{ flex: 1 }}>
-            <h1 style={{ fontSize: 19, fontWeight: 900, color: '#000', marginBottom: 2 }}>Health Passport</h1>
-            <p style={{ fontSize: 13, color: '#888', fontWeight: 600 }}>{cat?.name} · {cat?.breed}</p>
+
+          {/* Usage bar + Export row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {/* Usage bar */}
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5, fontSize: 11, fontWeight: 700 }}>
+                <span style={{ color: '#999' }}>
+                  {isPremium ? 'Premium — ไม่จำกัด' : `${records.length} / ${FREE_RECORD_LIMIT} บันทึก (Free)`}
+                </span>
+                {!isPremium && (
+                  <span style={{ color: atLimit ? '#ef4444' : '#F97316' }}>
+                    {atLimit ? 'เต็มแล้ว' : `เหลือ ${FREE_RECORD_LIMIT - records.length}`}
+                  </span>
+                )}
+              </div>
+              {!isPremium && (
+                <div style={{ height: 5, backgroundColor: '#f3f4f6', borderRadius: 999, overflow: 'hidden' }}>
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${Math.min((records.length / FREE_RECORD_LIMIT) * 100, 100)}%` }}
+                    transition={{ duration: 0.6, ease: 'easeOut' }}
+                    style={{
+                      height: '100%', borderRadius: 999,
+                      backgroundColor: atLimit ? '#ef4444' : '#F97316',
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Export PDF button */}
+            <button onClick={handleExportClick} style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '7px 13px', borderRadius: 9,
+              border: '1.5px solid',
+              borderColor: isPremium ? '#F97316' : '#e5e7eb',
+              backgroundColor: isPremium ? '#FFF7ED' : '#fafafa',
+              color: isPremium ? '#F97316' : '#bbb',
+              fontSize: 12, fontWeight: 700, cursor: 'pointer',
+              fontFamily: 'Space Grotesk, sans-serif',
+              flexShrink: 0,
+            }}>
+              {isPremium ? <FileDown size={13} /> : <Lock size={12} />}
+              Export PDF
+            </button>
           </div>
-          <button onClick={() => setModalOpen(true)} style={{
-            display: 'flex', alignItems: 'center', gap: 7,
-            backgroundColor: '#F97316', color: '#fff',
-            padding: '9px 16px', borderRadius: 10,
-            border: 'none', cursor: 'pointer',
-            fontSize: 13, fontWeight: 800,
-            fontFamily: 'Space Grotesk, sans-serif',
-            boxShadow: '0 3px 10px rgba(249,115,22,0.3)',
-            flexShrink: 0,
-          }}>
-            <Plus size={14} /> เพิ่ม
-          </button>
         </div>
+
+        {/* At-limit banner */}
+        <AnimatePresence>
+          {atLimit && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              style={{
+                backgroundColor: '#FFF7ED', borderRadius: 13,
+                padding: '12px 16px', marginBottom: 12,
+                border: '1.5px solid #FED7AA',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+                <Lock size={15} color="#F97316" />
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#9A3412' }}>
+                  ครบ {FREE_RECORD_LIMIT} บันทึกแล้ว — อัปเกรดเพื่อบันทึกเพิ่ม
+                </span>
+              </div>
+              <button
+                onClick={() => { setUpgradeReason('limit'); setUpgradeOpen(true) }}
+                style={{
+                  padding: '6px 13px', borderRadius: 8,
+                  backgroundColor: '#F97316', color: '#fff',
+                  border: 'none', cursor: 'pointer',
+                  fontSize: 12, fontWeight: 800, flexShrink: 0,
+                  fontFamily: 'Space Grotesk, sans-serif',
+                }}
+              >
+                ดู Premium
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Summary chips */}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
@@ -282,7 +498,7 @@ export default function HealthPassportPage() {
             </div>
             <h3 style={{ fontSize: 16, fontWeight: 800, color: '#000', marginBottom: 6 }}>ยังไม่มีบันทึกสุขภาพ</h3>
             <p style={{ fontSize: 13, color: '#888', fontWeight: 500, marginBottom: 18 }}>เพิ่มบันทึกวัคซีน ถ่ายพยาธิ หรือการพบสัตวแพทย์</p>
-            <button onClick={() => setModalOpen(true)} style={{
+            <button onClick={handleAddClick} style={{
               display: 'inline-flex', alignItems: 'center', gap: 7,
               backgroundColor: '#F97316', color: '#fff',
               padding: '10px 20px', borderRadius: 10,
@@ -339,8 +555,8 @@ export default function HealthPassportPage() {
                     background: 'none', border: 'none', cursor: 'pointer',
                     padding: 4, flexShrink: 0, opacity: 0.4, transition: 'opacity 0.15s',
                   }}
-                  onMouseEnter={e => e.currentTarget.style.opacity = 1}
-                  onMouseLeave={e => e.currentTarget.style.opacity = 0.4}
+                    onMouseEnter={e => e.currentTarget.style.opacity = 1}
+                    onMouseLeave={e => e.currentTarget.style.opacity = 0.4}
                   >
                     <Trash2 size={14} color="#ef4444" />
                   </button>
