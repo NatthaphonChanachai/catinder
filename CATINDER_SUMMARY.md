@@ -210,7 +210,18 @@ npm run preview  # preview production build
 
 ## Changelog ล่าสุด
 
-### รอบล่าสุด — Pet Document Verification + Support Chat
+### รอบล่าสุด — Venue Booking System + Dashboard Upgrade
+
+- **หน้า "สถานที่ผสมพันธุ์"** ที่ `/venues` — browse สถานที่และจองได้เลยในแอป
+- **ระบบจอง**: user เลือกแมว, วันเข้า-ออก, หมายเหตุ → บันทึกใน Firestore collection `bookings`
+- **Province filter**: กรองสถานที่ตามจังหวัดด้วย pill buttons
+- **Dashboard**: เพิ่ม banner "สถานที่ผสมพันธุ์" (gradient ม่วง-indigo) ลิงก์ไปหน้า venue
+- **AppNavbar**: เพิ่มเมนู "สถานที่" ด้วย Building2 icon
+- **AdminPage tab "สถานที่"**: จัดการ venues (add/edit/delete, toggle เปิด/ปิดรับจอง, facilities)
+- **AdminPage sub-tab "การจอง"**: เห็น booking ทุกใบ, badge แดงแสดงจำนวนรอยืนยัน, กด ยืนยัน/ยกเลิก/เสร็จสิ้น
+- Firestore collections ใหม่: `venues` (active venues) + `bookings` (all booking requests)
+
+### รอบก่อน — Pet Document Verification + Support Chat
 - **Health Passport tab "เอกสาร"**: อัปโหลดใบ Pedigree / สมุดวัคซีน / ใบรับรองสุขภาพ ไปยัง Firebase Storage
 - สถานะเอกสาร: รอตรวจสอบ / ยืนยันแล้ว / ไม่ผ่าน (พร้อมเหตุผลจาก admin)
 - แมวที่มีเอกสารยืนยันแล้วแสดง badge "X ยืนยัน" บน Health Passport header

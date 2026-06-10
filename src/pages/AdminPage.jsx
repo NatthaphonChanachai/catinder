@@ -8,9 +8,145 @@ import {
   Shield, Plus, Pencil, Trash2, X, Check, Users, Building2,
   Home, Coffee, HeartPulse, Stethoscope, Fish, TreePine, MapPin, Phone,
   FileText, ShieldCheck, AlertCircle, Clock, Eye, Headphones, Send,
+  CalendarDays, CheckCircle, XCircle, ToggleLeft, ToggleRight,
 } from 'lucide-react'
 import { db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
+
+const VENUE_FACILITIES = ['ac', 'cctv', 'wifi', 'vet_nearby', 'separate_rooms', 'playground']
+const VENUE_FACILITY_LABELS = { ac: 'แอร์', cctv: 'CCTV', wifi: 'Wi-Fi', vet_nearby: 'คลินิกใกล้', separate_rooms: 'ห้องแยก', playground: 'สนามเล่น' }
+const EMPTY_VENUE = { name: '', location: '', province: 'กรุงเทพมหานคร', description: '', price: 0, priceUnit: 'night', facilities: [], photoURL: '', isActive: true }
+
+function VenueFormModal({ initial, onSave, onClose }) {
+  const [form, setForm] = useState(initial ? { ...EMPTY_VENUE, ...initial } : EMPTY_VENUE)
+  const [saving, setSaving] = useState(false)
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
+  const toggleFacility = (f) => setForm(prev => ({
+    ...prev,
+    facilities: prev.facilities?.includes(f) ? prev.facilities.filter(x => x !== f) : [...(prev.facilities || []), f],
+  }))
+
+  const handleSave = async () => {
+    if (!form.name.trim()) return
+    setSaving(true)
+    await onSave({ ...form, price: Number(form.price) || 0 })
+    setSaving(false)
+    onClose()
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.45)', zIndex: 3000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
+      onClick={e => { if (e.target === e.currentTarget) onClose() }}
+    >
+      <motion.div
+        initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+        transition={{ type: 'spring', stiffness: 340, damping: 32 }}
+        style={{ backgroundColor: '#fff', borderRadius: '22px 22px 0 0', width: '100%', maxWidth: 560, maxHeight: '90dvh', overflowY: 'auto', padding: '24px 22px 36px', fontFamily: 'Space Grotesk, sans-serif' }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+          <h3 style={{ fontSize: 17, fontWeight: 900, color: '#000' }}>{initial?.id ? 'แก้ไขสถานที่' : 'เพิ่มสถานที่ใหม่'}</h3>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}><X size={19} color="#888" /></button>
+        </div>
+
+        {[
+          { key: 'name', label: 'ชื่อสถานที่ *', placeholder: 'เช่น Cat Villa บางนา', type: 'text' },
+          { key: 'location', label: 'ที่อยู่', placeholder: 'เช่น บางนา กรุงเทพฯ', type: 'text' },
+          { key: 'province', label: 'จังหวัด', placeholder: 'กรุงเทพมหานคร', type: 'text' },
+          { key: 'photoURL', label: 'URL รูปภาพ', placeholder: 'https://...', type: 'url' },
+        ].map(f => (
+          <div key={f.key} style={{ marginBottom: 14 }}>
+            <label style={{ fontSize: 12, fontWeight: 700, color: '#555', display: 'block', marginBottom: 5 }}>{f.label}</label>
+            <input type={f.type} value={form[f.key] || ''} onChange={e => set(f.key, e.target.value)} placeholder={f.placeholder}
+              style={{ width: '100%', padding: '10px 13px', borderRadius: 10, border: '1.5px solid #e5e7eb', fontSize: 14, fontFamily: 'Space Grotesk, sans-serif', outline: 'none', boxSizing: 'border-box' }}
+              onFocus={e => e.target.style.borderColor = '#F97316'} onBlur={e => e.target.style.borderColor = '#e5e7eb'}
+            />
+          </div>
+        ))}
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 700, color: '#555', display: 'block', marginBottom: 5 }}>ราคา (บาท)</label>
+            <input type="number" value={form.price || ''} onChange={e => set('price', e.target.value)} placeholder="0" min="0"
+              style={{ width: '100%', padding: '10px 13px', borderRadius: 10, border: '1.5px solid #e5e7eb', fontSize: 14, fontFamily: 'Space Grotesk, sans-serif', outline: 'none', boxSizing: 'border-box' }}
+              onFocus={e => e.target.style.borderColor = '#F97316'} onBlur={e => e.target.style.borderColor = '#e5e7eb'}
+            />
+          </div>
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 700, color: '#555', display: 'block', marginBottom: 5 }}>หน่วย</label>
+            <select value={form.priceUnit} onChange={e => set('priceUnit', e.target.value)}
+              style={{ width: '100%', padding: '10px 13px', borderRadius: 10, border: '1.5px solid #e5e7eb', fontSize: 14, fontFamily: 'Space Grotesk, sans-serif', outline: 'none', boxSizing: 'border-box', backgroundColor: '#fff' }}>
+              <option value="night">ต่อคืน</option>
+              <option value="session">ต่อครั้ง</option>
+            </select>
+          </div>
+        </div>
+
+        <div style={{ marginBottom: 14 }}>
+          <label style={{ fontSize: 12, fontWeight: 700, color: '#555', display: 'block', marginBottom: 5 }}>รายละเอียด</label>
+          <textarea value={form.description || ''} onChange={e => set('description', e.target.value)} placeholder="รายละเอียดสถานที่..." rows={3}
+            style={{ width: '100%', padding: '10px 13px', borderRadius: 10, border: '1.5px solid #e5e7eb', fontSize: 14, fontFamily: 'Space Grotesk, sans-serif', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }}
+            onFocus={e => e.target.style.borderColor = '#F97316'} onBlur={e => e.target.style.borderColor = '#e5e7eb'}
+          />
+        </div>
+
+        <div style={{ marginBottom: 16 }}>
+          <label style={{ fontSize: 12, fontWeight: 700, color: '#555', display: 'block', marginBottom: 8 }}>สิ่งอำนวยความสะดวก</label>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {VENUE_FACILITIES.map(f => {
+              const active = form.facilities?.includes(f)
+              return (
+                <button key={f} onClick={() => toggleFacility(f)} style={{
+                  padding: '7px 14px', borderRadius: 999, border: `1.5px solid ${active ? '#F97316' : '#e5e7eb'}`,
+                  backgroundColor: active ? '#FFF7ED' : '#fff', color: active ? '#F97316' : '#555',
+                  fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'Space Grotesk, sans-serif',
+                  transition: 'all 0.15s',
+                }}>
+                  {VENUE_FACILITY_LABELS[f]}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20, cursor: 'pointer' }} onClick={() => set('isActive', !form.isActive)}>
+          {form.isActive
+            ? <ToggleRight size={24} color="#F97316" />
+            : <ToggleLeft size={24} color="#bbb" />}
+          <span style={{ fontSize: 13, fontWeight: 700, color: form.isActive ? '#F97316' : '#888', userSelect: 'none' }}>
+            {form.isActive ? 'เปิดรับจอง' : 'ปิดรับจอง'}
+          </span>
+        </div>
+
+        <button onClick={handleSave} disabled={saving || !form.name.trim()} style={{
+          width: '100%', padding: 13, borderRadius: 13, border: 'none',
+          backgroundColor: form.name.trim() ? '#F97316' : '#e5e7eb',
+          color: '#fff', fontSize: 15, fontWeight: 800,
+          cursor: form.name.trim() ? 'pointer' : 'not-allowed',
+          fontFamily: 'Space Grotesk, sans-serif',
+        }}>
+          {saving ? 'กำลังบันทึก...' : (initial?.id ? 'บันทึกการแก้ไข' : 'เพิ่มสถานที่')}
+        </button>
+      </motion.div>
+    </motion.div>
+  )
+}
+
+function BookingBadge({ status }) {
+  const map = {
+    pending: { label: 'รอยืนยัน', color: '#92400e', bg: '#FEF3C7' },
+    confirmed: { label: 'ยืนยันแล้ว', color: '#065f46', bg: '#D1FAE5' },
+    cancelled: { label: 'ยกเลิก', color: '#991b1b', bg: '#FEE2E2' },
+    completed: { label: 'เสร็จสิ้น', color: '#1e40af', bg: '#DBEAFE' },
+  }
+  const s = map[status] || map.pending
+  return (
+    <span style={{ fontSize: 11, fontWeight: 700, color: s.color, backgroundColor: s.bg, padding: '3px 10px', borderRadius: 999 }}>
+      {s.label}
+    </span>
+  )
+}
 
 const CATEGORIES = [
   { id: 'farm', label: 'ฟาร์มแมว', icon: Home },
@@ -317,6 +453,12 @@ export default function AdminPage() {
   const [deleting, setDeleting] = useState(null)
   const [reviewModal, setReviewModal] = useState(null)
   const [reviewNote, setReviewNote] = useState('')
+  const [venues, setVenues] = useState([])
+  const [bookings, setBookings] = useState([])
+  const [venueModal, setVenueModal] = useState(null)
+  const [venueSubTab, setVenueSubTab] = useState('venues')
+  const [bookingFilter, setBookingFilter] = useState('all')
+  const [pendingBookingsCount, setPendingBookingsCount] = useState(0)
 
   useEffect(() => {
     if (!isAdmin) return
@@ -335,6 +477,24 @@ export default function AdminPage() {
     const q = query(collection(db, 'catDocuments'), orderBy('uploadedAt', 'desc'))
     return onSnapshot(q, snap => setPendingDocs(snap.docs.map(d => ({ id: d.id, ...d.data() }))))
   }, [isAdmin, activeTab])
+
+  useEffect(() => {
+    if (!isAdmin) return
+    const q = query(collection(db, 'bookings'), where('status', '==', 'pending'))
+    return onSnapshot(q, snap => setPendingBookingsCount(snap.size), () => {})
+  }, [isAdmin])
+
+  useEffect(() => {
+    if (!isAdmin || activeTab !== 'venues') return
+    const q = query(collection(db, 'venues'), orderBy('createdAt', 'desc'))
+    return onSnapshot(q, snap => setVenues(snap.docs.map(d => ({ id: d.id, ...d.data() }))), () => {})
+  }, [isAdmin, activeTab])
+
+  useEffect(() => {
+    if (!isAdmin || activeTab !== 'venues' || venueSubTab !== 'bookings') return
+    const q = query(collection(db, 'bookings'), orderBy('createdAt', 'desc'))
+    return onSnapshot(q, snap => setBookings(snap.docs.map(d => ({ id: d.id, ...d.data() }))), () => {})
+  }, [isAdmin, activeTab, venueSubTab])
 
   if (!isAdmin) {
     return (
@@ -365,6 +525,23 @@ export default function AdminPage() {
     setDeleting(null)
   }
 
+  const saveVenue = async (form) => {
+    const { id, ...data } = form
+    if (venueModal?.id) {
+      await updateDoc(doc(db, 'venues', venueModal.id), { ...data, updatedAt: serverTimestamp() })
+    } else {
+      await addDoc(collection(db, 'venues'), { ...data, createdAt: serverTimestamp() })
+    }
+  }
+
+  const deleteVenue = async (id) => {
+    await deleteDoc(doc(db, 'venues', id))
+  }
+
+  const updateBookingStatus = async (bookingId, status) => {
+    await updateDoc(doc(db, 'bookings', bookingId), { status, updatedAt: serverTimestamp() })
+  }
+
   const reviewDoc = async (docId, status) => {
     await updateDoc(doc(db, 'catDocuments', docId), {
       status,
@@ -379,6 +556,7 @@ export default function AdminPage() {
     { id: 'directory', label: 'Directory', icon: Building2 },
     { id: 'users', label: 'ผู้ใช้', icon: Users },
     { id: 'documents', label: 'เอกสาร', icon: FileText },
+    { id: 'venues', label: 'สถานที่', icon: Home },
     { id: 'support', label: 'Support', icon: Headphones },
   ]
 
@@ -399,7 +577,8 @@ export default function AdminPage() {
           <div style={{ display: 'flex', gap: 0 }}>
             {TABS.map(t => {
               const Icon = t.icon
-              const badge = t.id === 'documents' ? pendingDocs.filter(d => d.status === 'pending').length : 0
+              const badge = t.id === 'documents' ? pendingDocs.filter(d => d.status === 'pending').length
+                : t.id === 'venues' ? pendingBookingsCount : 0
               return (
                 <button key={t.id} onClick={() => setActiveTab(t.id)} style={{
                   padding: '10px 18px', background: 'none', border: 'none', cursor: 'pointer',
@@ -561,6 +740,165 @@ export default function AdminPage() {
                     </div>
                   </motion.div>
                 </motion.div>
+              )}
+            </AnimatePresence>
+          </>
+        )}
+
+        {/* Venues tab */}
+        {activeTab === 'venues' && (
+          <>
+            {/* Sub-tabs */}
+            <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+              {[{ id: 'venues', label: 'สถานที่', icon: Home }, { id: 'bookings', label: 'การจอง', icon: CalendarDays }].map(t => {
+                const Icon = t.icon
+                return (
+                  <button key={t.id} onClick={() => setVenueSubTab(t.id)} style={{
+                    display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px',
+                    borderRadius: 10, border: 'none', cursor: 'pointer',
+                    backgroundColor: venueSubTab === t.id ? '#F97316' : '#fff',
+                    color: venueSubTab === t.id ? '#fff' : '#555',
+                    fontSize: 13, fontWeight: 800, fontFamily: 'Space Grotesk, sans-serif',
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.07)', transition: 'all 0.15s',
+                  }}>
+                    <Icon size={14} /> {t.label}
+                    {t.id === 'bookings' && pendingBookingsCount > 0 && (
+                      <span style={{ backgroundColor: venueSubTab === 'bookings' ? 'rgba(255,255,255,0.3)' : '#F97316', color: '#fff', fontSize: 10, fontWeight: 800, padding: '1px 6px', borderRadius: 999, marginLeft: 2 }}>
+                        {pendingBookingsCount}
+                      </span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+
+            {venueSubTab === 'venues' && (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                  <p style={{ fontSize: 13, color: '#888', fontWeight: 600 }}>{venues.length} สถานที่</p>
+                  <button onClick={() => setVenueModal({})} style={{
+                    display: 'flex', alignItems: 'center', gap: 7, padding: '9px 16px',
+                    backgroundColor: '#F97316', color: '#fff', border: 'none', borderRadius: 10,
+                    fontSize: 13, fontWeight: 800, cursor: 'pointer', fontFamily: 'Space Grotesk, sans-serif',
+                  }}>
+                    <Plus size={15} /> เพิ่มสถานที่
+                  </button>
+                </div>
+
+                {venues.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '50px 20px', backgroundColor: '#fff', borderRadius: 14 }}>
+                    <Home size={32} color="#e5e7eb" style={{ marginBottom: 10 }} />
+                    <p style={{ fontSize: 14, color: '#aaa', fontWeight: 600 }}>ยังไม่มีสถานที่ — กดเพิ่มสถานที่เพื่อเริ่มต้น</p>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {venues.map(v => (
+                      <div key={v.id} style={{ backgroundColor: '#fff', borderRadius: 14, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 13, boxShadow: '0 1px 4px rgba(0,0,0,0.05)', flexWrap: 'wrap' }}>
+                        <div style={{ width: 52, height: 52, borderRadius: 12, flexShrink: 0, backgroundColor: '#f5f5f5', backgroundImage: v.photoURL ? `url(${v.photoURL})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          {!v.photoURL && <Home size={22} color="#ccc" />}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 3 }}>
+                            <span style={{ fontSize: 14, fontWeight: 800, color: '#000' }}>{v.name}</span>
+                            <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 999, backgroundColor: v.isActive ? '#D1FAE5' : '#f0f0f0', color: v.isActive ? '#065f46' : '#888' }}>
+                              {v.isActive ? 'เปิดรับจอง' : 'ปิด'}
+                            </span>
+                          </div>
+                          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                            {v.location && <span style={{ fontSize: 11, color: '#aaa', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 3 }}><MapPin size={10} /> {v.location}</span>}
+                            <span style={{ fontSize: 11, color: '#F97316', fontWeight: 700 }}>฿{v.price?.toLocaleString() || 0}/{v.priceUnit === 'session' ? 'ครั้ง' : 'คืน'}</span>
+                          </div>
+                          {v.facilities?.length > 0 && (
+                            <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginTop: 5 }}>
+                              {v.facilities.map(f => (
+                                <span key={f} style={{ fontSize: 10, fontWeight: 700, color: '#666', backgroundColor: '#f5f5f5', padding: '2px 8px', borderRadius: 999 }}>{VENUE_FACILITY_LABELS[f] || f}</span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <div style={{ display: 'flex', gap: 7, flexShrink: 0 }}>
+                          <button onClick={() => setVenueModal(v)} style={{ padding: '7px 12px', borderRadius: 8, border: '1.5px solid #e5e7eb', backgroundColor: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 700, color: '#555', fontFamily: 'Space Grotesk, sans-serif' }}>
+                            <Pencil size={12} /> แก้ไข
+                          </button>
+                          <button onClick={() => deleteVenue(v.id)} style={{ padding: '7px 12px', borderRadius: 8, border: '1.5px solid #fee2e2', backgroundColor: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 700, color: '#ef4444', fontFamily: 'Space Grotesk, sans-serif' }}>
+                            <Trash2 size={12} /> ลบ
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+
+            {venueSubTab === 'bookings' && (
+              <>
+                <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+                  {['all', 'pending', 'confirmed', 'completed', 'cancelled'].map(s => (
+                    <button key={s} onClick={() => setBookingFilter(s)} style={{
+                      padding: '6px 14px', borderRadius: 999, border: 'none', cursor: 'pointer',
+                      backgroundColor: bookingFilter === s ? '#000' : '#f0f0f0',
+                      color: bookingFilter === s ? '#fff' : '#555',
+                      fontSize: 12, fontWeight: 700, fontFamily: 'Space Grotesk, sans-serif',
+                    }}>
+                      {{ all: 'ทั้งหมด', pending: 'รอยืนยัน', confirmed: 'ยืนยันแล้ว', completed: 'เสร็จสิ้น', cancelled: 'ยกเลิก' }[s]}
+                    </button>
+                  ))}
+                </div>
+
+                {bookings.filter(b => bookingFilter === 'all' || b.status === bookingFilter).length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '50px 20px', backgroundColor: '#fff', borderRadius: 14 }}>
+                    <CalendarDays size={32} color="#e5e7eb" style={{ marginBottom: 10 }} />
+                    <p style={{ fontSize: 14, color: '#aaa', fontWeight: 600 }}>ยังไม่มีการจอง</p>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {bookings.filter(b => bookingFilter === 'all' || b.status === bookingFilter).map(b => (
+                      <div key={b.id} style={{ backgroundColor: '#fff', borderRadius: 14, padding: '14px 16px', boxShadow: '0 1px 4px rgba(0,0,0,0.05)', display: 'flex', gap: 12, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 5 }}>
+                            <span style={{ fontSize: 14, fontWeight: 900, color: '#000' }}>{b.venueName}</span>
+                            <BookingBadge status={b.status} />
+                          </div>
+                          <p style={{ fontSize: 13, color: '#555', fontWeight: 600, margin: '0 0 2px' }}>
+                            {b.userName} · น้องแมว: <strong>{b.catName}</strong> ({b.catBreed})
+                          </p>
+                          <p style={{ fontSize: 12, color: '#888', fontWeight: 500, margin: '0 0 2px' }}>
+                            {b.checkIn} → {b.checkOut}
+                          </p>
+                          {b.notes && <p style={{ fontSize: 12, color: '#aaa', fontWeight: 500, margin: '2px 0 0' }}>หมายเหตุ: {b.notes}</p>}
+                        </div>
+                        <div style={{ display: 'flex', gap: 7, flexShrink: 0 }}>
+                          {b.status === 'pending' && (
+                            <>
+                              <button onClick={() => updateBookingStatus(b.id, 'confirmed')} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 11px', borderRadius: 8, border: 'none', backgroundColor: '#D1FAE5', color: '#065f46', fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'Space Grotesk, sans-serif' }}>
+                                <CheckCircle size={12} /> ยืนยัน
+                              </button>
+                              <button onClick={() => updateBookingStatus(b.id, 'cancelled')} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 11px', borderRadius: 8, border: 'none', backgroundColor: '#FEE2E2', color: '#991b1b', fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'Space Grotesk, sans-serif' }}>
+                                <XCircle size={12} /> ยกเลิก
+                              </button>
+                            </>
+                          )}
+                          {b.status === 'confirmed' && (
+                            <button onClick={() => updateBookingStatus(b.id, 'completed')} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 11px', borderRadius: 8, border: 'none', backgroundColor: '#DBEAFE', color: '#1e40af', fontSize: 12, fontWeight: 800, cursor: 'pointer', fontFamily: 'Space Grotesk, sans-serif' }}>
+                              <CheckCircle size={12} /> เสร็จสิ้น
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+
+            <AnimatePresence>
+              {venueModal !== null && (
+                <VenueFormModal
+                  initial={venueModal?.id ? venueModal : null}
+                  onSave={saveVenue}
+                  onClose={() => setVenueModal(null)}
+                />
               )}
             </AnimatePresence>
           </>

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { collection, query, where, getDocs } from 'firebase/firestore'
-import { Compass, PawPrint, MessageCircle, MapPin, Heart, Plus, ArrowRight, Cat } from 'lucide-react'
+import { Compass, PawPrint, MessageCircle, MapPin, Heart, Plus, ArrowRight, Cat, Home } from 'lucide-react'
 import { db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
 
@@ -83,7 +83,7 @@ export default function DashboardPage() {
         {/* Quick actions */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
           <h2 style={{ fontSize: 14, fontWeight: 700, color: '#888', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 12 }}>เมนู</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 28 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 16 }}>
             {QUICK_ACTIONS.map(({ path, icon: Icon, label, desc, color, bg, border }) => (
               <Link
                 key={path}
@@ -111,6 +111,30 @@ export default function DashboardPage() {
               </Link>
             ))}
           </div>
+
+          {/* Venue CTA */}
+          <Link to="/venues" style={{ textDecoration: 'none', display: 'block', marginBottom: 28 }}>
+            <div style={{
+              background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',
+              borderRadius: 16, padding: '18px 20px',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              transition: 'opacity 0.15s',
+            }}
+              onMouseEnter={e => e.currentTarget.style.opacity = '0.9'}
+              onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 13 }}>
+                <div style={{ width: 42, height: 42, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Home size={21} color="#fff" />
+                </div>
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', marginBottom: 2 }}>สถานที่ผสมพันธุ์</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', fontWeight: 500 }}>จองสถานที่มาตรฐาน ปลอดภัย ราคาเริ่มต้น</div>
+                </div>
+              </div>
+              <ArrowRight size={18} color="rgba(255,255,255,0.55)" />
+            </div>
+          </Link>
         </motion.div>
 
         {/* My cats */}
