@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Home, Trophy, Sprout, Heart, Star, Sparkles } from 'lucide-react'
+import { Home, Trophy, Sprout, PawPrint, Heart, Star, Sparkles, Search } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useLanguage } from '../contexts/LanguageContext'
 import { breedOptions, cityOptions } from '../data/cats'
@@ -49,7 +49,7 @@ export default function OnboardingQuiz() {
               color: answers.role === opt ? '#F97316' : '#333',
             }}
           >
-            {[<Home size={18} color="#F97316" />, <Trophy size={18} color="#F97316" />, <Sprout size={18} color="#F97316" />][i]}
+            {[<Home size={18} color="#F97316" />, <Trophy size={18} color="#F97316" />, <Sprout size={18} color="#F97316" />, <PawPrint size={18} color="#F97316" />][i]}
             {opt}
           </button>
         ))}
@@ -101,7 +101,7 @@ export default function OnboardingQuiz() {
               color: answers.goal === opt ? '#F97316' : '#333',
             }}
           >
-            {[<Heart size={18} color="#F97316" />, <Star size={18} color="#F97316" />, <Sparkles size={18} color="#F97316" />][i]}
+            {[<Heart size={18} color="#F97316" />, <Star size={18} color="#F97316" />, <Sparkles size={18} color="#F97316" />, <Search size={18} color="#F97316" />][i]}
             {opt}
           </button>
         ))}

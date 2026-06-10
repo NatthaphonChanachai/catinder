@@ -73,7 +73,7 @@ export function AuthProvider({ children }) {
         if (needsSetup) {
           setNeedsProfileSetup(true)
         } else {
-          const quizDone = localStorage.getItem(`catinder_quiz_${firebaseUser.uid}`)
+          const quizDone = profile.quizDone || localStorage.getItem(`catinder_quiz_${firebaseUser.uid}`)
           if (!quizDone) setShowQuiz(true)
         }
       } else {
@@ -138,8 +138,14 @@ export function AuthProvider({ children }) {
       console.error('saveProfileSetup error:', err)
     }
     setNeedsProfileSetup(false)
-    const quizDone = localStorage.getItem(`catinder_quiz_${user.uid}`)
-    if (!quizDone) setShowQuiz(true)
+    try {
+      const snap = await getDoc(doc(db, 'users', user.uid))
+      const latestProfile = snap.exists() ? snap.data() : {}
+      const quizAlreadyDone = latestProfile.quizDone || localStorage.getItem(`catinder_quiz_${user.uid}`)
+      if (!quizAlreadyDone) setShowQuiz(true)
+    } catch {
+      if (!localStorage.getItem(`catinder_quiz_${user.uid}`)) setShowQuiz(true)
+    }
   }
 
   const updateUserProfile = async (displayName, photoURL) => {
@@ -174,12 +180,35 @@ export function AuthProvider({ children }) {
   }
   const closeAuthModal = () => setShowAuthModal(false)
 
-  const completeQuiz = (answers) => {
-    if (user) localStorage.setItem(`catinder_quiz_${user.uid}`, JSON.stringify(answers))
+  const completeQuiz = async (answers) => {
+    if (user) {
+      localStorage.setItem(`catinder_quiz_${user.uid}`, JSON.stringify(answers))
+      try {
+        await updateDoc(doc(db, 'users', user.uid), {
+          quizDone: true,
+          quizAnswers: answers,
+          quizCompletedAt: serverTimestamp(),
+        })
+        setUserProfile((prev) => prev ? { ...prev, quizDone: true, quizAnswers: answers } : prev)
+      } catch (err) {
+        console.error('completeQuiz error:', err)
+      }
+    }
     setShowQuiz(false)
   }
-  const skipQuiz = () => {
-    if (user) localStorage.setItem(`catinder_quiz_${user.uid}`, 'skipped')
+  const skipQuiz = async () => {
+    if (user) {
+      localStorage.setItem(`catinder_quiz_${user.uid}`, 'skipped')
+      try {
+        await updateDoc(doc(db, 'users', user.uid), {
+          quizDone: true,
+          quizSkipped: true,
+        })
+        setUserProfile((prev) => prev ? { ...prev, quizDone: true } : prev)
+      } catch (err) {
+        console.error('skipQuiz error:', err)
+      }
+    }
     setShowQuiz(false)
   }
 
