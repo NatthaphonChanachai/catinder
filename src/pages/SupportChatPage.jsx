@@ -55,7 +55,18 @@ export default function SupportChatPage() {
   useEffect(() => {
     if (!user || !initialized) return
     const q = query(collection(db, 'supportChats', user.uid, 'messages'), orderBy('createdAt', 'asc'))
-    return onSnapshot(q, snap => setMessages(snap.docs.map(d => ({ id: d.id, ...d.data() }))))
+    return onSnapshot(
+      q,
+      snap => {
+        const serverMsgs = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+        setMessages(prev => {
+          const temps = prev.filter(m => m.id.startsWith('temp_'))
+          // ถ้า server ส่งข้อมูลกลับแล้ว ลบ temp ออก
+          return serverMsgs.length > 0 ? serverMsgs : [...serverMsgs, ...temps]
+        })
+      },
+      err => console.error('messages listener error:', err)
+    )
   }, [user, initialized])
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
@@ -66,6 +77,14 @@ export default function SupportChatPage() {
     setSending(true)
     const msg = text.trim()
     setText('')
+
+    // Optimistic update — ขึ้นทันทีไม่รอ server
+    const tempId = `temp_${Date.now()}`
+    setMessages(prev => [...prev, {
+      id: tempId, senderId: user.uid, text: msg, isAdmin: false,
+      createdAt: { toDate: () => new Date() },
+    }])
+
     try {
       const chatRef = doc(db, 'supportChats', user.uid)
       // Upsert chat doc in case init failed silently
