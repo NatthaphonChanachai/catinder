@@ -153,18 +153,23 @@ function SupportPanel({ user: adminUser }) {
   const [messages, setMessages] = useState([])
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
+  const [rulesError, setRulesError] = useState(false)
   const messagesEndRef = useRef(null)
 
   useEffect(() => {
     return onSnapshot(
       collection(db, 'supportChats'),
       snap => {
+        setRulesError(false)
         const sorted = snap.docs
           .map(d => ({ id: d.id, ...d.data() }))
           .sort((a, b) => (b.lastMessageAt?.seconds || 0) - (a.lastMessageAt?.seconds || 0))
         setChats(sorted)
       },
-      err => console.error('supportChats listener error:', err)
+      err => {
+        console.error('supportChats listener error:', err)
+        setRulesError(true)
+      }
     )
   }, [])
 
@@ -206,6 +211,23 @@ function SupportPanel({ user: adminUser }) {
   const activeChat = chats.find(c => c.id === activeUid)
 
   return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    {rulesError && (
+      <div style={{ backgroundColor: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 12, padding: '12px 16px' }}>
+        <p style={{ fontSize: 13, fontWeight: 800, color: '#991b1b', margin: '0 0 6px' }}>Firestore Rules ไม่อนุญาตให้ Admin อ่าน supportChats</p>
+        <p style={{ fontSize: 12, color: '#b91c1c', fontWeight: 500, margin: '0 0 8px' }}>ไปที่ Firebase Console → Firestore Database → Rules แล้วเพิ่ม rule นี้:</p>
+        <pre style={{ backgroundColor: '#fff', borderRadius: 8, padding: '10px 14px', fontSize: 11, color: '#333', margin: 0, overflowX: 'auto', border: '1px solid #FECACA' }}>{`match /supportChats/{userId} {
+  allow read, write: if request.auth != null &&
+    (request.auth.uid == userId ||
+     get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+  match /messages/{msgId} {
+    allow read, write: if request.auth != null &&
+      (request.auth.uid == userId ||
+       get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+  }
+}`}</pre>
+      </div>
+    )}
     <div style={{ display: 'flex', gap: 16, height: 'calc(100dvh - 200px)', minHeight: 400 }}>
       {/* Chat list */}
       <div style={{ width: 260, flexShrink: 0, backgroundColor: '#fff', borderRadius: 14, overflow: 'hidden', border: '1px solid #f0f0f0', display: 'flex', flexDirection: 'column' }}>
@@ -280,6 +302,7 @@ function SupportPanel({ user: adminUser }) {
           </>
         )}
       </div>
+    </div>
     </div>
   )
 }
