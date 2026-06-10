@@ -104,11 +104,14 @@
 
 ### Onboarding Quiz — แบบสอบถาม
 - **Auto-triggers after login**: เด้งขึ้นอัตโนมัติหลัง login ครั้งแรก (ครั้งเดียว)
-- **4 ขั้นตอน**: บทบาท (Cat Farm Owner / Professional Breeder) → สายพันธุ์ → เมือง → เป้าหมาย
+- **4 ขั้นตอน**: บทบาท → สายพันธุ์ → เมือง → เป้าหมาย
+- **บทบาท 4 ตัวเลือก**: เจ้าของฟาร์มแมว / นักเพาะพันธุ์มืออาชีพ / ผู้เพาะพันธุ์งานอดิเรก / **เจ้าของแมวทั่วไป**
+- **เป้าหมาย 4 ตัวเลือก**: คู่ผสมพันธุ์ / ลูกแมว Pedigree / ทั้งสองอย่าง / **แค่ดูแมวน่ารัก**
 - **Progress bar**: แถบความคืบหน้าที่ animate ไปเรื่อยๆ พร้อม % บอก
 - **Slide transition**: หน้าเคลื่อนที่ซ้าย/ขวาเมื่อกด Next/Back
-- **LocalStorage save**: บันทึกคำตอบไว้ใน localStorage ตาม UID ไม่เด้งซ้ำ
-- **Skip option**: ข้ามได้ถ้าไม่อยากตอบตอนนี้
+- **Firestore save**: บันทึก `quizDone`, `quizAnswers`, `quizCompletedAt` ลง Firestore — ไม่เด้งซ้ำแม้เปลี่ยนอุปกรณ์
+- **LocalStorage fallback**: ใช้ localStorage เป็น backup กรณี Firestore ใช้ไม่ได้
+- **Skip option**: ข้ามได้ บันทึก `quizSkipped: true` ลง Firestore
 
 ### Language (ภาษา)
 - **สลับ TH/EN ได้ทุกส่วน**: ทุก text บนเว็บสลับภาษาพร้อมกันทันที
@@ -183,6 +186,24 @@ npm run preview  # preview production build
 1. ไป [console.firebase.google.com](https://console.firebase.google.com) → Project `catinder-d4c54`
 2. Authentication → Sign-in method → เปิด **Google** และ **Email/Password**
 3. ตรวจว่า `localhost` อยู่ใน Authorized domains
+
+---
+
+---
+
+## Changelog ล่าสุด
+
+### รอบล่าสุด — Health Passport Freemium
+- **Free tier จำกัด 10 บันทึกต่อแมว** — progress bar แสดงการใช้งาน, ปุ่มเพิ่มล็อคเมื่อเต็ม
+- **Export PDF ล็อคสำหรับ Free** — เห็นปุ่มแต่กดไม่ได้, trigger upgrade modal
+- **Upgrade Modal** แสดง perks ครบ + ราคา ฿299/เดือน
+- **Banner เตือน** เมื่อถึง limit พร้อมปุ่ม "ดู Premium"
+- Premium user (`isPremium: true` ใน Firestore) ข้ามข้อจำกัดทั้งหมด
+
+### Fix 404, Quiz Firestore, Regular Cat Owner options
+- สร้าง **`vercel.json`**: rewrite ทุก route → `index.html` แก้ปัญหา 404 เมื่อเปิด URL ตรง เช่น `/dashboard`
+- **Quiz บันทึกลง Firestore** แทน localStorage อย่างเดียว: `quizDone`, `quizAnswers`, `quizCompletedAt`
+- เพิ่มตัวเลือก **"เจ้าของแมวทั่วไป"** และ **"แค่ดูแมวน่ารัก"** ในแบบสอบถาม
 
 ---
 

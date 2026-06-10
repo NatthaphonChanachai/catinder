@@ -16,6 +16,7 @@ import HealthPassportPage from './pages/HealthPassportPage'
 import ChatPage from './pages/ChatPage'
 import DirectoryPage from './pages/DirectoryPage'
 import AdminPage from './pages/AdminPage'
+import SupportChatPage from './pages/SupportChatPage'
 import { PawPrint } from 'lucide-react'
 
 function LoadingScreen() {
@@ -75,6 +76,7 @@ function AppRoutes() {
         } />
 
         <Route path="/admin" element={<ProtectedRoute><AppNavbar /><AdminPage /></ProtectedRoute>} />
+        <Route path="/support" element={<ProtectedRoute><AppNavbar /><SupportChatPage /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Navigate to="/dashboard" replace /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Compass, PawPrint, MessageCircle, MapPin,
-  Shield, LogOut, ChevronDown, Menu, X, Bell, UserPen,
+  Shield, LogOut, ChevronDown, Menu, X, Bell, UserPen, Headphones,
 } from 'lucide-react'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
@@ -184,6 +184,23 @@ export default function AppNavbar() {
                       </div>
                     )}
                   </div>
+
+                  {/* Support chat */}
+                  <Link to="/support" onClick={() => setDropOpen(false)} style={{
+                    display: 'flex', alignItems: 'center', gap: 9,
+                    padding: '11px 16px', width: '100%', textAlign: 'left',
+                    textDecoration: 'none',
+                    color: '#F97316', fontSize: 13, fontWeight: 700,
+                    fontFamily: 'Space Grotesk, sans-serif',
+                    borderBottom: '1px solid #f5f5f5',
+                    transition: 'background 0.1s',
+                    backgroundColor: 'transparent',
+                  }}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = '#FFF7ED'}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                  >
+                    <Headphones size={14} /> ติดต่อทีมงาน
+                  </Link>
 
                   {/* Edit profile */}
                   <button onClick={() => { setDropOpen(false); setShowEditProfile(true) }} style={{
