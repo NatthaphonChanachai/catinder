@@ -113,6 +113,23 @@
 - **LocalStorage fallback**: ใช้ localStorage เป็น backup กรณี Firestore ใช้ไม่ได้
 - **Skip option**: ข้ามได้ บันทึก `quizSkipped: true` ลง Firestore
 
+### Health Passport — เอกสาร tab
+- **อัปโหลดเอกสาร**: ใบ Pedigree, สมุดวัคซีน, ใบรับรองสุขภาพ, ผลตรวจสัตวแพทย์, อื่นๆ
+- **Firebase Storage**: ไฟล์เก็บที่ `cat-documents/{catId}/` พร้อม progress bar ขณะอัปโหลด
+- **Firestore**: collection `catDocuments` เก็บ `{catId, catName, ownerUid, type, url, status, reviewNote}`
+- **Status badges**: รอตรวจสอบ (เหลือง) / ยืนยันแล้ว (เขียว) / ไม่ผ่าน (แดง + เหตุผล)
+- **Badge header**: แสดง "X ยืนยัน" บน cat header เมื่อมีเอกสารผ่านการตรวจแล้ว
+
+### Support Chat (`/support`)
+- **ทุก user**: เปิด chat กับทีมงาน Catinder ได้ผ่านปุ่ม "ติดต่อทีมงาน" ใน navbar dropdown
+- **Firestore**: `supportChats/{userId}` + subcollection `messages`
+- **Quick-reply**: 3 ตัวเลือกข้อความด่วนสำหรับ user ใหม่ที่ยังไม่มีข้อความ
+- **Admin**: เห็น support chat ทุกคนใน AdminPage → tab "Support", ตอบกลับได้เลย
+
+### AdminPage — tabs เพิ่มเติม
+- **Tab "เอกสาร"**: แสดงเอกสารทั้งหมด, badge แดงจำนวน pending, ปุ่มยืนยัน/ไม่ผ่าน + modal ใส่เหตุผล
+- **Tab "Support"**: 2-panel layout — รายชื่อ chat ซ้าย, chat window ขวา, ตอบกลับได้ inline
+
 ### Language (ภาษา)
 - **สลับ TH/EN ได้ทุกส่วน**: ทุก text บนเว็บสลับภาษาพร้อมกันทันที
 - **Persist ใน localStorage**: เลือกภาษาแล้วปิดเปิดใหม่ยังจำ
@@ -193,7 +210,16 @@ npm run preview  # preview production build
 
 ## Changelog ล่าสุด
 
-### รอบล่าสุด — Health Passport Freemium
+### รอบล่าสุด — Pet Document Verification + Support Chat
+- **Health Passport tab "เอกสาร"**: อัปโหลดใบ Pedigree / สมุดวัคซีน / ใบรับรองสุขภาพ ไปยัง Firebase Storage
+- สถานะเอกสาร: รอตรวจสอบ / ยืนยันแล้ว / ไม่ผ่าน (พร้อมเหตุผลจาก admin)
+- แมวที่มีเอกสารยืนยันแล้วแสดง badge "X ยืนยัน" บน Health Passport header
+- **Support Chat** ที่ `/support` — แชทกับทีมงาน Catinder, มี quick-reply suggestions
+- **AppNavbar dropdown**: เพิ่มปุ่ม "ติดต่อทีมงาน" นำทางไปหน้า Support Chat
+- **AdminPage tab "เอกสาร"**: คิวตรวจสอบเอกสาร, badge แดงแสดงจำนวนรอตรวจ, กดยืนยัน/ไม่ผ่าน + ระบุเหตุผล
+- **AdminPage tab "Support"**: เห็น support chat ทุกคน, ตอบกลับได้เลยใน panel เดียว
+
+### Health Passport Freemium
 - **Free tier จำกัด 10 บันทึกต่อแมว** — progress bar แสดงการใช้งาน, ปุ่มเพิ่มล็อคเมื่อเต็ม
 - **Export PDF ล็อคสำหรับ Free** — เห็นปุ่มแต่กดไม่ได้, trigger upgrade modal
 - **Upgrade Modal** แสดง perks ครบ + ราคา ฿299/เดือน
