@@ -18,6 +18,8 @@ import DirectoryPage from './pages/DirectoryPage'
 import AdminPage from './pages/AdminPage'
 import SupportChatPage from './pages/SupportChatPage'
 import VenuePage from './pages/VenuePage'
+import RegistriesPage from './pages/RegistriesPage'
+import PedigreeFormPage from './pages/PedigreeFormPage'
 import { PawPrint } from 'lucide-react'
 
 function LoadingScreen() {
@@ -79,6 +81,8 @@ function AppRoutes() {
         <Route path="/admin" element={<ProtectedRoute><AppNavbar /><AdminPage /></ProtectedRoute>} />
         <Route path="/support" element={<ProtectedRoute><AppNavbar /><SupportChatPage /></ProtectedRoute>} />
         <Route path="/venues" element={<ProtectedRoute><AppNavbar /><VenuePage /></ProtectedRoute>} />
+        <Route path="/pedigree" element={<ProtectedRoute><AppNavbar /><PedigreeFormPage /></ProtectedRoute>} />
+        <Route path="/registries" element={<>{user ? <AppNavbar /> : <Navbar />}<RegistriesPage /></>} />
         <Route path="/profile" element={<ProtectedRoute><Navigate to="/dashboard" replace /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

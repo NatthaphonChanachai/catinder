@@ -132,7 +132,37 @@ function CatSwipeCard({ cat, isTop, zIndex, stackScale, stackOffset, onSwipe, on
   )
 }
 
-function MatchModal({ match, onClose }) {
+function RegistryBadge({ match, myCats }) {
+  const otherReg = match?.otherRegistry
+  if (!otherReg) return null
+  const myReg = myCats.find(c => c.registry)?.registry
+  if (!myReg) return null
+  const compatible = myReg === otherReg
+  return (
+    <div style={{
+      borderRadius: 10, padding: '10px 14px', marginBottom: 18,
+      backgroundColor: compatible ? 'rgba(16,185,129,0.07)' : 'rgba(249,115,22,0.07)',
+      border: compatible ? '1px solid #a7f3d0' : '1px solid #fed7aa',
+      textAlign: 'left',
+    }}>
+      <div style={{
+        fontSize: 12, fontWeight: 800,
+        color: compatible ? '#065f46' : '#92400e', marginBottom: 3,
+      }}>
+        {compatible
+          ? `✅ ทั้งคู่อยู่ใน ${otherReg} — ออกใบ Pedigree ได้`
+          : `⚠️ แมวคุณอยู่ใน ${myReg} · แมวนี้อยู่ใน ${otherReg}`}
+      </div>
+      {!compatible && (
+        <div style={{ fontSize: 11, color: '#78350f', fontWeight: 500, lineHeight: 1.5 }}>
+          ลูกแมวอาจออกใบเพ็ดดีกรีไม่ได้ เนื่องจากพ่อแม่อยู่ต่างชมรม
+        </div>
+      )}
+    </div>
+  )
+}
+
+function MatchModal({ match, myCats, onClose }) {
   return (
     <AnimatePresence>
       {match && (
@@ -151,8 +181,8 @@ function MatchModal({ match, onClose }) {
             transition={{ type: 'spring', stiffness: 400, damping: 26 }}
             onClick={e => e.stopPropagation()}
             style={{
-              backgroundColor: '#fff', borderRadius: 24, padding: '40px 32px',
-              textAlign: 'center', maxWidth: 340, width: '100%',
+              backgroundColor: '#fff', borderRadius: 24, padding: '32px 28px',
+              textAlign: 'center', maxWidth: 360, width: '100%',
               boxShadow: '0 32px 80px rgba(0,0,0,0.4)',
             }}
           >
@@ -165,26 +195,42 @@ function MatchModal({ match, onClose }) {
             <h2 style={{ fontSize: 22, fontWeight: 900, color: '#000', marginBottom: 8 }}>
               คุณ Match กับ<br />{match.otherName}
             </h2>
-            <p style={{ fontSize: 13, color: '#888', fontWeight: 500, lineHeight: 1.6, marginBottom: 26 }}>
+            <p style={{ fontSize: 13, color: '#888', fontWeight: 500, lineHeight: 1.6, marginBottom: 18 }}>
               เริ่มต้นพูดคุยกับ {match.otherName} ได้เลย
             </p>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <Link to="/chat" onClick={onClose} style={{
-                flex: 1, padding: '12px', borderRadius: 11,
-                backgroundColor: '#F97316', color: '#fff',
-                textDecoration: 'none', fontSize: 14, fontWeight: 800, textAlign: 'center',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-              }}>
-                <MessageCircle size={15} /> แชทเลย
-              </Link>
-              <button onClick={onClose} style={{
-                flex: 1, padding: '12px', borderRadius: 11,
-                border: '1.5px solid #e5e7eb', backgroundColor: '#fff',
-                fontSize: 14, fontWeight: 700, cursor: 'pointer',
-                color: '#555', fontFamily: 'Space Grotesk, sans-serif',
-              }}>
-                Discover ต่อ
-              </button>
+
+            <RegistryBadge match={match} myCats={myCats} />
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <Link to="/chat" onClick={onClose} style={{
+                  flex: 1, padding: '11px', borderRadius: 11,
+                  backgroundColor: '#F97316', color: '#fff',
+                  textDecoration: 'none', fontSize: 13, fontWeight: 800, textAlign: 'center',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+                }}>
+                  <MessageCircle size={14} /> แชทเลย
+                </Link>
+                <button onClick={onClose} style={{
+                  flex: 1, padding: '11px', borderRadius: 11,
+                  border: '1.5px solid #e5e7eb', backgroundColor: '#fff',
+                  fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                  color: '#555', fontFamily: 'Space Grotesk, sans-serif',
+                }}>
+                  Discover ต่อ
+                </button>
+              </div>
+              {match.otherRegistry && (
+                <Link to={`/pedigree?matchId=${match.matchId || ''}`} onClick={onClose} style={{
+                  padding: '10px', borderRadius: 11,
+                  border: '1.5px solid #fed7aa', backgroundColor: '#fff7ed',
+                  color: '#F97316', textDecoration: 'none',
+                  fontSize: 13, fontWeight: 800, textAlign: 'center',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+                }}>
+                  📋 เตรียมเอกสาร Pedigree
+                </Link>
+              )}
             </div>
           </motion.div>
         </motion.div>
@@ -196,6 +242,7 @@ function MatchModal({ match, onClose }) {
 export default function DiscoverPage() {
   const { user, userProfile } = useAuth()
   const [cats, setCats] = useState([])
+  const [myCats, setMyCats] = useState([])
   const [idx, setIdx] = useState(0)
   const [loading, setLoading] = useState(true)
   const [match, setMatch] = useState(null)
@@ -248,6 +295,8 @@ export default function DiscoverPage() {
     setLoading(true)
     try {
       const myCatsSnap = await getDocs(query(collection(db, 'cats'), where('ownerId', '==', user.uid)))
+      const myCatsData = myCatsSnap.docs.map(d => ({ id: d.id, ...d.data() }))
+      setMyCats(myCatsData)
       if (myCatsSnap.empty) { setNoCats(true); setLoading(false); return }
 
       const [likesSnap, passesSnap] = await Promise.all([
@@ -292,7 +341,7 @@ export default function DiscoverPage() {
             await setDoc(doc(db, 'matches', matchId), { users: uids, userNames: names, userPhotos: photos, createdAt: serverTimestamp() })
             await setDoc(doc(db, 'chats', matchId), { participants: uids, participantNames: names, participantPhotos: photos, matchId, lastMessage: '', lastMessageAt: null, createdAt: serverTimestamp() })
             confetti({ particleCount: 160, spread: 90, origin: { y: 0.5 }, colors: ['#F97316', '#fb923c', '#fff'] })
-            setMatch({ otherName: cat.ownerName })
+            setMatch({ otherName: cat.ownerName, otherRegistry: cat.registry || '', catId: cat.id, matchId })
             if (Notification?.permission === 'granted') {
               new Notification('Match ใหม่!', { body: `คุณ Match กับ ${cat.ownerName}`, icon: '/favicon.svg' })
             }
@@ -343,7 +392,7 @@ export default function DiscoverPage() {
 
   return (
     <div style={{ minHeight: '100dvh', backgroundColor: '#f8f8f8', fontFamily: 'Space Grotesk, sans-serif', paddingBottom: 80 }}>
-      <MatchModal match={match} onClose={() => setMatch(null)} />
+      <MatchModal match={match} myCats={myCats} onClose={() => setMatch(null)} />
 
       <div style={{ maxWidth: 420, margin: '0 auto', padding: '24px 16px' }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>

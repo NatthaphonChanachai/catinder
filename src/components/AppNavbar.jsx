@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Compass, PawPrint, MessageCircle, MapPin,
-  Shield, LogOut, ChevronDown, Menu, X, Bell, UserPen, Headphones, Building2,
+  Shield, LogOut, ChevronDown, Menu, X, Bell, UserPen, Headphones, Building2, BookOpen,
 } from 'lucide-react'
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
@@ -16,6 +16,7 @@ const NAV = [
   { path: '/chat', label: 'แชท', icon: MessageCircle },
   { path: '/directory', label: 'ไดเรกทอรี', icon: MapPin },
   { path: '/venues', label: 'สถานที่', icon: Building2 },
+  { path: '/registries', label: 'Registry', icon: BookOpen },
 ]
 
 export default function AppNavbar() {

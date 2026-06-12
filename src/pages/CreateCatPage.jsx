@@ -1,11 +1,20 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { collection, addDoc, updateDoc, getDoc, doc, serverTimestamp } from 'firebase/firestore'
-import { ArrowLeft, Save, Syringe, Scissors, Heart, Home, Users, Sparkles, Camera, Upload, X, PawPrint } from 'lucide-react'
+import { ArrowLeft, Save, Syringe, Scissors, Heart, Home, Users, Sparkles, Camera, Upload, X, PawPrint, Award, BookOpen } from 'lucide-react'
 import { db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
 import { prepareImage, blobToBase64, ACCEPT_IMAGE_TYPES } from '../utils/imageUtils'
+
+const REGISTRY_OPTIONS = [
+  { value: '', label: '-- ยังไม่ได้จดทะเบียน --' },
+  { value: 'CFA', label: 'CFA (Cat Fanciers\' Association)' },
+  { value: 'TICA', label: 'TICA (The International Cat Association)' },
+  { value: 'SCFC', label: 'SCFC (Siam Cat Fanciers\' Club)' },
+  { value: 'WCF', label: 'WCF (World Cat Federation)' },
+  { value: 'other', label: 'อื่นๆ' },
+]
 
 const BREEDS =[
   'เปอร์เซีย', 'สกอตติชโฟลด์', 'บริติชชอร์ตแฮร์', 'เมนคูน', 'แรกดอลล์',
@@ -62,8 +71,11 @@ export default function CreateCatPage() {
     description: '', photoURL: '',
     vaccinated: false, sterilized: false,
     lookingFor: 'any', location: '', color: '',
+    registry: '', registryNumber: '', catteryName: '', certPhotoURL: '',
   })
   const fileInputRef = useRef()
+  const certInputRef = useRef()
+  const [certUploading, setCertUploading] = useState(false)
 
   useEffect(() => {
     if (!isEdit) return
@@ -101,6 +113,20 @@ export default function CreateCatPage() {
     }
     setUploading(false)
     setUploadProgress(null)
+  }
+
+  const handleCertFileSelect = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    e.target.value = ''
+    if (file.size > 50 * 1024 * 1024) { alert('ไฟล์ใหญ่เกินไป (สูงสุด 50 MB)'); return }
+    setCertUploading(true)
+    try {
+      const blob = await prepareImage(file, 900)
+      const base64 = await blobToBase64(blob)
+      set('certPhotoURL', base64)
+    } catch { alert('ไม่สามารถโหลดรูปได้ กรุณาลองไฟล์อื่น') }
+    setCertUploading(false)
   }
 
   const handleSave = async (e) => {
@@ -403,6 +429,74 @@ export default function CreateCatPage() {
                 </div>
               </label>
             ))}
+          </Section>
+
+          {/* Pedigree section */}
+          <Section title="ข้อมูล Pedigree (ถ้ามี)">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+              <Award size={15} color="#F97316" />
+              <span style={{ fontSize: 13, color: '#666', fontWeight: 500 }}>
+                ใส่ข้อมูลนี้เพื่อช่วยในการจับคู่สายเลือดและออกใบ Pedigree
+              </span>
+              <Link to="/registries" style={{ fontSize: 12, color: '#F97316', fontWeight: 700, textDecoration: 'none', marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                <BookOpen size={12} /> เรียนรู้เพิ่มเติม
+              </Link>
+            </div>
+
+            <Field label="ชมรม/สมาคม Registry">
+              <select value={form.registry} onChange={e => set('registry', e.target.value)}
+                style={{ ...inputStyle, cursor: 'pointer' }}
+                onFocus={e => e.target.style.borderColor = '#F97316'}
+                onBlur={e => e.target.style.borderColor = '#e5e7eb'}
+              >
+                {REGISTRY_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
+            </Field>
+
+            {form.registry && (
+              <>
+                <Field label="หมายเลขทะเบียน" hint="ระบุตามที่ปรากฏในใบทะเบียน">
+                  <input type="text" value={form.registryNumber} onChange={e => set('registryNumber', e.target.value)}
+                    placeholder="เช่น TH-2024-00123" style={inputStyle}
+                    onFocus={e => e.target.style.borderColor = '#F97316'}
+                    onBlur={e => e.target.style.borderColor = '#e5e7eb'}
+                  />
+                </Field>
+
+                <Field label="ชื่อฟาร์ม / Cattery">
+                  <input type="text" value={form.catteryName} onChange={e => set('catteryName', e.target.value)}
+                    placeholder="ชื่อ cattery หรือชื่อฟาร์มแมว" style={inputStyle}
+                    onFocus={e => e.target.style.borderColor = '#F97316'}
+                    onBlur={e => e.target.style.borderColor = '#e5e7eb'}
+                  />
+                </Field>
+
+                <Field label="ใบทะเบียน (รูปถ่าย)" hint="ถ่ายรูปหรืออัปโหลดใบทะเบียนแมว">
+                  <input ref={certInputRef} type="file" accept={ACCEPT_IMAGE_TYPES}
+                    onChange={handleCertFileSelect} style={{ display: 'none' }} />
+                  {form.certPhotoURL ? (
+                    <div style={{ position: 'relative', display: 'inline-block' }}>
+                      <img src={form.certPhotoURL} alt="ใบทะเบียน"
+                        style={{ height: 100, borderRadius: 10, objectFit: 'cover', border: '1.5px solid #e5e7eb' }} />
+                      <button type="button" onClick={() => set('certPhotoURL', '')}
+                        style={{ position: 'absolute', top: -8, right: -8, width: 22, height: 22, borderRadius: '50%', backgroundColor: '#ef4444', border: '2px solid #fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                        <X size={10} color="#fff" />
+                      </button>
+                    </div>
+                  ) : (
+                    <button type="button" disabled={certUploading} onClick={() => certInputRef.current.click()}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 7, padding: '9px 16px', borderRadius: 10,
+                        border: '1.5px dashed #e5e7eb', backgroundColor: '#fafafa', color: '#888',
+                        fontSize: 13, fontWeight: 700, cursor: certUploading ? 'not-allowed' : 'pointer',
+                        fontFamily: 'Space Grotesk, sans-serif',
+                      }}>
+                      <Upload size={13} /> {certUploading ? 'กำลังโหลด...' : 'อัปโหลดใบทะเบียน'}
+                    </button>
+                  )}
+                </Field>
+              </>
+            )}
           </Section>
 
           <button type="submit" disabled={saving || uploading} style={{
