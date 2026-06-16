@@ -9,6 +9,7 @@ import {
   Home, Coffee, HeartPulse, Stethoscope, Fish, TreePine, MapPin, Phone,
   FileText, ShieldCheck, AlertCircle, Clock, Eye, Headphones, Send,
   CalendarDays, CheckCircle, XCircle, ToggleLeft, ToggleRight,
+  PawPrint, Search, Syringe, Scissors, Heart,
 } from 'lucide-react'
 import { db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
@@ -459,6 +460,8 @@ export default function AdminPage() {
   const [venueSubTab, setVenueSubTab] = useState('venues')
   const [bookingFilter, setBookingFilter] = useState('all')
   const [pendingBookingsCount, setPendingBookingsCount] = useState(0)
+  const [cats, setCats] = useState([])
+  const [catSearch, setCatSearch] = useState('')
 
   useEffect(() => {
     if (!isAdmin) return
@@ -495,6 +498,12 @@ export default function AdminPage() {
     const q = query(collection(db, 'bookings'), orderBy('createdAt', 'desc'))
     return onSnapshot(q, snap => setBookings(snap.docs.map(d => ({ id: d.id, ...d.data() }))), () => {})
   }, [isAdmin, activeTab, venueSubTab])
+
+  useEffect(() => {
+    if (!isAdmin || activeTab !== 'cats') return
+    const q = query(collection(db, 'cats'), orderBy('createdAt', 'desc'))
+    return onSnapshot(q, snap => setCats(snap.docs.map(d => ({ id: d.id, ...d.data() }))), () => {})
+  }, [isAdmin, activeTab])
 
   if (!isAdmin) {
     return (
@@ -554,6 +563,7 @@ export default function AdminPage() {
 
   const TABS = [
     { id: 'directory', label: 'Directory', icon: Building2 },
+    { id: 'cats', label: 'แมวทั้งหมด', icon: PawPrint },
     { id: 'users', label: 'ผู้ใช้', icon: Users },
     { id: 'documents', label: 'เอกสาร', icon: FileText },
     { id: 'venues', label: 'สถานที่', icon: Home },
@@ -903,6 +913,157 @@ export default function AdminPage() {
             </AnimatePresence>
           </>
         )}
+
+        {/* Cats tab */}
+        {activeTab === 'cats' && (() => {
+          const LOOKING_FOR_LABEL = {
+            mate: 'หาคู่ผสมพันธุ์', friend: 'หาเพื่อนเล่น', adopt: 'หาบ้าน',
+            foster: 'Foster', sell: 'ขาย', exchange: 'แลกเปลี่ยน',
+            any: 'ทุกอย่าง', other: 'อื่นๆ',
+          }
+          const filtered = cats.filter(c => {
+            if (!catSearch.trim()) return true
+            const q = catSearch.toLowerCase()
+            return (
+              c.name?.toLowerCase().includes(q) ||
+              c.breed?.toLowerCase().includes(q) ||
+              c.ownerName?.toLowerCase().includes(q) ||
+              c.location?.toLowerCase().includes(q)
+            )
+          })
+          return (
+            <>
+              {/* search + count */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
+                <div style={{ position: 'relative', flex: 1, minWidth: 200 }}>
+                  <Search size={14} color="#bbb" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+                  <input
+                    value={catSearch} onChange={e => setCatSearch(e.target.value)}
+                    placeholder="ค้นหาชื่อแมว, สายพันธุ์, เจ้าของ, ที่อยู่..."
+                    style={{ width: '100%', padding: '9px 13px 9px 34px', borderRadius: 10, border: '1.5px solid #e5e7eb', fontSize: 13, fontFamily: 'Space Grotesk, sans-serif', outline: 'none', boxSizing: 'border-box' }}
+                    onFocus={e => e.target.style.borderColor = '#F97316'}
+                    onBlur={e => e.target.style.borderColor = '#e5e7eb'}
+                  />
+                </div>
+                <span style={{ fontSize: 13, color: '#888', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                  {filtered.length}/{cats.length} ตัว
+                </span>
+              </div>
+
+              {filtered.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '60px 20px', backgroundColor: '#fff', borderRadius: 14 }}>
+                  <PawPrint size={32} color="#e5e7eb" style={{ marginBottom: 10 }} />
+                  <p style={{ fontSize: 14, color: '#aaa', fontWeight: 600 }}>
+                    {catSearch ? 'ไม่พบแมวที่ค้นหา' : 'ยังไม่มีแมวในระบบ'}
+                  </p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {filtered.map(cat => {
+                    const lookingTags = Array.isArray(cat.lookingFor)
+                      ? cat.lookingFor : cat.lookingFor ? [cat.lookingFor] : []
+                    const ageStr = [
+                      cat.ageYears ? `${cat.ageYears} ปี` : '',
+                      cat.ageMonths ? `${cat.ageMonths} เดือน` : '',
+                    ].filter(Boolean).join(' ') || '-'
+
+                    return (
+                      <div key={cat.id} style={{
+                        backgroundColor: '#fff', borderRadius: 14, padding: '14px 16px',
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+                        display: 'flex', gap: 13, alignItems: 'flex-start', flexWrap: 'wrap',
+                      }}>
+                        {/* photo */}
+                        <div style={{
+                          width: 58, height: 58, borderRadius: 14, flexShrink: 0,
+                          backgroundImage: cat.photoURL ? `url(${cat.photoURL})` : 'none',
+                          backgroundSize: 'cover', backgroundPosition: 'center',
+                          backgroundColor: '#FFF7ED',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          border: '2px solid rgba(249,115,22,0.15)',
+                        }}>
+                          {!cat.photoURL && <PawPrint size={24} color="#F97316" style={{ opacity: 0.4 }} />}
+                        </div>
+
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          {/* name + gender + breed */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap', marginBottom: 3 }}>
+                            <span style={{ fontSize: 15, fontWeight: 900, color: '#000' }}>{cat.name}</span>
+                            <span style={{
+                              fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 999,
+                              backgroundColor: cat.gender === 'female' ? '#fce7f3' : '#eff6ff',
+                              color: cat.gender === 'female' ? '#be185d' : '#1d4ed8',
+                            }}>
+                              {cat.gender === 'female' ? '♀ ตัวเมีย' : '♂ ตัวผู้'}
+                            </span>
+                            <span style={{ fontSize: 11, fontWeight: 700, color: '#F97316', backgroundColor: '#FFF7ED', padding: '2px 8px', borderRadius: 999 }}>
+                              {cat.breed}
+                            </span>
+                          </div>
+
+                          {/* owner + age + weight + location */}
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2px 14px', marginBottom: 7 }}>
+                            <span style={{ fontSize: 12, color: '#555', fontWeight: 600 }}>
+                              เจ้าของ: <strong>{cat.ownerName || '-'}</strong>
+                            </span>
+                            <span style={{ fontSize: 12, color: '#888', fontWeight: 500 }}>อายุ {ageStr}</span>
+                            {cat.weight && <span style={{ fontSize: 12, color: '#888', fontWeight: 500 }}>{cat.weight} กก.</span>}
+                            {cat.location && (
+                              <span style={{ fontSize: 12, color: '#888', fontWeight: 500, display: 'flex', alignItems: 'center', gap: 3 }}>
+                                <MapPin size={10} /> {cat.location}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* health badges */}
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: lookingTags.length ? 6 : 0 }}>
+                            {cat.vaccinated && (
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 10, fontWeight: 700, color: '#065f46', backgroundColor: '#D1FAE5', padding: '2px 8px', borderRadius: 999 }}>
+                                <Syringe size={10} /> วัคซีนครบ
+                              </span>
+                            )}
+                            {cat.sterilized && (
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 10, fontWeight: 700, color: '#5b21b6', backgroundColor: '#ede9fe', padding: '2px 8px', borderRadius: 999 }}>
+                                <Scissors size={10} /> ทำหมันแล้ว
+                              </span>
+                            )}
+                            {cat.microchipped && (
+                              <span style={{ fontSize: 10, fontWeight: 700, color: '#1e40af', backgroundColor: '#dbeafe', padding: '2px 8px', borderRadius: 999 }}>ไมโครชิป</span>
+                            )}
+                            {cat.fivFelvTested && (
+                              <span style={{ fontSize: 10, fontWeight: 700, color: '#92400e', backgroundColor: '#fef3c7', padding: '2px 8px', borderRadius: 999 }}>FIV/FeLV ✓</span>
+                            )}
+                            {cat.registry && (
+                              <span style={{ fontSize: 10, fontWeight: 700, color: '#F97316', backgroundColor: '#FFF7ED', padding: '2px 8px', borderRadius: 999 }}>
+                                📋 {cat.registry}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* looking for tags */}
+                          {lookingTags.length > 0 && (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                              {lookingTags.map(tag => (
+                                <span key={tag} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 10, fontWeight: 700, color: '#fff', backgroundColor: '#F97316', padding: '2px 9px', borderRadius: 999 }}>
+                                  <Heart size={9} /> {LOOKING_FOR_LABEL[tag] || tag}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* date */}
+                        <div style={{ fontSize: 10, color: '#ccc', fontWeight: 600, flexShrink: 0, whiteSpace: 'nowrap' }}>
+                          {cat.createdAt?.toDate ? cat.createdAt.toDate().toLocaleDateString('th-TH') : ''}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </>
+          )
+        })()}
 
         {/* Support tab */}
         {activeTab === 'support' && <SupportPanel user={user} />}
