@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { collection, addDoc, updateDoc, getDoc, doc, serverTimestamp } from 'firebase/firestore'
-import { ArrowLeft, Save, Syringe, Scissors, Heart, Home, Users, Sparkles, Camera, Upload, X, PawPrint, Award, BookOpen } from 'lucide-react'
+import { ArrowLeft, Save, Syringe, Scissors, Heart, Home, Users, Sparkles, Camera, Upload, X, PawPrint, Award, BookOpen, HeartHandshake, Tag, ArrowLeftRight, HelpCircle, Stethoscope, Droplets, ShieldCheck, Microscope, Cpu, FileText, Pill } from 'lucide-react'
 import { db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
 import { prepareImage, blobToBase64, ACCEPT_IMAGE_TYPES } from '../utils/imageUtils'
@@ -28,7 +28,24 @@ const LOOKING_FOR = [
   { value: 'mate', label: 'หาคู่ผสมพันธุ์', icon: Heart },
   { value: 'friend', label: 'หาเพื่อนเล่น', icon: Users },
   { value: 'adopt', label: 'หาบ้าน (ยกให้)', icon: Home },
+  { value: 'foster', label: 'รับเลี้ยงชั่วคราว (Foster)', icon: HeartHandshake },
+  { value: 'sell', label: 'ขาย', icon: Tag },
+  { value: 'exchange', label: 'แลกเปลี่ยน', icon: ArrowLeftRight },
   { value: 'any', label: 'ทุกอย่าง', icon: Sparkles },
+  { value: 'other', label: 'อื่นๆ', icon: HelpCircle },
+]
+
+const HEALTH_ITEMS = [
+  { field: 'vaccinated', label: 'ฉีดวัคซีนครบแล้ว', desc: 'วัคซีนป้องกันโรคแมวครบตามอายุ', icon: Syringe, color: '#10b981' },
+  { field: 'sterilized', label: 'ทำหมันแล้ว', desc: 'ผ่าตัดทำหมันเรียบร้อยแล้ว', icon: Scissors, color: '#8b5cf6' },
+  { field: 'annualCheckup', label: 'ตรวจสุขภาพประจำปีแล้ว', desc: 'พบสัตวแพทย์ครบตามกำหนด', icon: Stethoscope, color: '#3b82f6' },
+  { field: 'bloodTest', label: 'ตรวจเลือดแล้ว (Blood test)', desc: 'ผ่านการตรวจค่าเลือดล่าสุดแล้ว', icon: Droplets, color: '#ef4444' },
+  { field: 'noGeneticDisease', label: 'ไม่มีโรคทางพันธุกรรม', desc: 'ไม่พบโรคที่ถ่ายทอดทางพันธุกรรม', icon: ShieldCheck, color: '#06b6d4' },
+  { field: 'fivFelvTested', label: 'ผ่านการตรวจ FIV/FeLV แล้ว', desc: 'ตรวจโรคภูมิคุ้มกันและมะเร็งเม็ดเลือดขาว', icon: Microscope, color: '#f59e0b' },
+  { field: 'microchipped', label: 'มีไมโครชิป', desc: 'ฝังชิประบุตัวตน (ISO 11784)', icon: Cpu, color: '#6366f1' },
+  { field: 'hasVaccinationBook', label: 'มีสมุดวัคซีน / เอกสารสุขภาพ', desc: 'มีเอกสารรับรองสุขภาพอย่างเป็นทางการ', icon: FileText, color: '#84cc16' },
+  { field: 'underTreatment', label: 'กำลังรักษาอยู่', desc: 'อยู่ในระหว่างการรักษา (โปรดระบุ)', icon: Pill, color: '#f97316', noteField: 'treatmentNote' },
+  { field: 'healthOther', label: 'อื่นๆ', desc: 'ข้อมูลสุขภาพเพิ่มเติม', icon: HelpCircle, color: '#6b7280', noteField: 'healthOtherNote' },
 ]
 
 const inputStyle = {
@@ -70,7 +87,11 @@ export default function CreateCatPage() {
     ageYears: 0, ageMonths: 0, weight: '',
     description: '', photoURL: '',
     vaccinated: false, sterilized: false,
-    lookingFor: 'any', location: '', color: '',
+    annualCheckup: false, bloodTest: false, noGeneticDisease: false,
+    fivFelvTested: false, microchipped: false, hasVaccinationBook: false,
+    underTreatment: false, treatmentNote: '',
+    healthOther: false, healthOtherNote: '',
+    lookingFor: [], lookingForOther: '', location: '', color: '',
     registry: '', registryNumber: '', catteryName: '', certPhotoURL: '',
   })
   const fileInputRef = useRef()
@@ -80,7 +101,12 @@ export default function CreateCatPage() {
   useEffect(() => {
     if (!isEdit) return
     getDoc(doc(db, 'cats', catId)).then(snap => {
-      if (snap.exists()) setForm(prev => ({ ...prev, ...snap.data() }))
+      if (!snap.exists()) return
+      const data = snap.data()
+      if (typeof data.lookingFor === 'string') {
+        data.lookingFor = data.lookingFor ? [data.lookingFor] : []
+      }
+      setForm(prev => ({ ...prev, ...data }))
     })
   }, [catId])
 
@@ -388,46 +414,81 @@ export default function CreateCatPage() {
             <div style={{ marginBottom: 0 }}>
               <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#333', marginBottom: 8 }}>กำลังมองหา</label>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                {LOOKING_FOR.map(({ value, label, icon: Icon }) => (
-                  <button key={value} type="button" onClick={() => set('lookingFor', value)} style={{
-                    display: 'flex', alignItems: 'center', gap: 8,
-                    padding: '10px 12px', borderRadius: 11,
-                    border: form.lookingFor === value ? '2px solid #F97316' : '1.5px solid #e5e7eb',
-                    backgroundColor: form.lookingFor === value ? 'rgba(249,115,22,0.06)' : '#fff',
-                    color: form.lookingFor === value ? '#F97316' : '#555',
-                    fontSize: 13, fontWeight: 700, cursor: 'pointer',
-                    fontFamily: 'Space Grotesk, sans-serif',
-                    textAlign: 'left', transition: 'all 0.15s',
-                  }}>
-                    <Icon size={14} /> {label}
-                  </button>
-                ))}
+                {LOOKING_FOR.map(({ value, label, icon: Icon }) => {
+                  const active = Array.isArray(form.lookingFor) && form.lookingFor.includes(value)
+                  return (
+                    <button key={value} type="button" onClick={() => {
+                      const cur = Array.isArray(form.lookingFor) ? form.lookingFor : []
+                      set('lookingFor', active ? cur.filter(v => v !== value) : [...cur, value])
+                    }} style={{
+                      display: 'flex', alignItems: 'center', gap: 8,
+                      padding: '10px 12px', borderRadius: 11,
+                      border: active ? '2px solid #F97316' : '1.5px solid #e5e7eb',
+                      backgroundColor: active ? 'rgba(249,115,22,0.06)' : '#fff',
+                      color: active ? '#F97316' : '#555',
+                      fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                      fontFamily: 'Space Grotesk, sans-serif',
+                      textAlign: 'left', transition: 'all 0.15s',
+                    }}>
+                      <Icon size={14} /> {label}
+                    </button>
+                  )
+                })}
               </div>
+              {Array.isArray(form.lookingFor) && form.lookingFor.includes('other') && (
+                <input
+                  type="text"
+                  value={form.lookingForOther}
+                  onChange={e => set('lookingForOther', e.target.value)}
+                  placeholder="ระบุสิ่งที่กำลังมองหา..."
+                  style={{ ...inputStyle, marginTop: 8 }}
+                  onFocus={e => e.target.style.borderColor = '#F97316'}
+                  onBlur={e => e.target.style.borderColor = '#e5e7eb'}
+                />
+              )}
             </div>
           </Section>
 
           {/* Health */}
           <Section title="สุขภาพ">
-            {[
-              { field: 'vaccinated', label: 'ฉีดวัคซีนครบแล้ว', desc: 'วัคซีนป้องกันโรคแมว', icon: Syringe, color: '#10b981' },
-              { field: 'sterilized', label: 'ทำหมันแล้ว', desc: 'ผ่าตัดทำหมัน/ตัดแต่ง', icon: Scissors, color: '#8b5cf6' },
-            ].map(({ field, label, desc, icon: Icon, color }) => (
-              <label key={field} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', marginBottom: 14 }} onClick={() => set(field, !form[field])}>
-                <div style={{
-                  width: 22, height: 22, borderRadius: 7,
-                  border: form[field] ? `2px solid ${color}` : '2px solid #e5e7eb',
-                  backgroundColor: form[field] ? color : '#fff',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  flexShrink: 0, transition: 'all 0.15s',
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 10 }}>
+              {HEALTH_ITEMS.map(({ field, label, desc, icon: Icon, color }) => (
+                <label key={field} onClick={() => set(field, !form[field])} style={{
+                  display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer',
+                  padding: '10px 12px', borderRadius: 12,
+                  border: form[field] ? `1.5px solid ${color}30` : '1.5px solid #f0f0f0',
+                  backgroundColor: form[field] ? `${color}08` : '#fafafa',
+                  transition: 'all 0.15s',
                 }}>
-                  {form[field] && <span style={{ color: '#fff', fontSize: 13, fontWeight: 900 }}>✓</span>}
-                </div>
-                <Icon size={16} color={form[field] ? color : '#ccc'} />
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#000' }}>{label}</div>
-                  <div style={{ fontSize: 11, color: '#aaa', fontWeight: 500 }}>{desc}</div>
-                </div>
-              </label>
+                  <div style={{
+                    width: 20, height: 20, borderRadius: 6, flexShrink: 0, marginTop: 1,
+                    border: form[field] ? `2px solid ${color}` : '2px solid #e5e7eb',
+                    backgroundColor: form[field] ? color : '#fff',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    transition: 'all 0.15s',
+                  }}>
+                    {form[field] && <span style={{ color: '#fff', fontSize: 11, fontWeight: 900 }}>✓</span>}
+                  </div>
+                  <Icon size={15} color={form[field] ? color : '#ccc'} style={{ flexShrink: 0, marginTop: 2 }} />
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: form[field] ? '#111' : '#444', lineHeight: 1.3 }}>{label}</div>
+                    <div style={{ fontSize: 11, color: '#aaa', fontWeight: 500, marginTop: 2, lineHeight: 1.4 }}>{desc}</div>
+                  </div>
+                </label>
+              ))}
+            </div>
+            {HEALTH_ITEMS.filter(item => item.noteField && form[item.field]).map(({ field, noteField, label, color }) => (
+              <div key={noteField} style={{ marginTop: 10 }}>
+                <input
+                  type="text"
+                  value={form[noteField]}
+                  onChange={e => set(noteField, e.target.value)}
+                  placeholder={field === 'underTreatment' ? 'ระบุโรคหรืออาการที่กำลังรักษา...' : 'ระบุข้อมูลสุขภาพเพิ่มเติม...'}
+                  style={{ ...inputStyle, borderColor: `${color}50` }}
+                  onFocus={e => e.target.style.borderColor = color}
+                  onBlur={e => e.target.style.borderColor = `${color}50`}
+                />
+              </div>
             ))}
           </Section>
 
