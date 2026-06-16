@@ -218,51 +218,36 @@ export default function CreateCatPage() {
       fontFamily: 'Space Grotesk, sans-serif',
       paddingBottom: 96,
     }}>
-      {/* ── Header banner ── */}
-      <div style={{
-        background: 'linear-gradient(135deg,#F97316 0%,#FB923C 50%,#F59E0B 100%)',
-        padding: '18px 20px 56px',
-        position: 'relative', overflow: 'hidden',
-      }}>
-        {/* decorative blobs */}
-        <div style={{ position: 'absolute', top: -30, right: -30, width: 140, height: 140, borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.08)' }} />
-        <div style={{ position: 'absolute', bottom: -50, left: -20, width: 180, height: 180, borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.06)' }} />
-        <div style={{ position: 'absolute', top: 20, right: 60, width: 60, height: 60, borderRadius: '50%', backgroundColor: 'rgba(255,255,255,0.10)' }} />
+      <div style={{ maxWidth: 600, margin: '0 auto', padding: '20px 16px 0' }}>
+        {/* ── Page header (inline, consistent with other pages) ── */}
+        <button onClick={() => navigate('/my-cats')} style={{
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+          background: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.18)',
+          borderRadius: 10, padding: '7px 14px', cursor: 'pointer',
+          fontSize: 13, fontWeight: 700, color: '#F97316',
+          fontFamily: 'Space Grotesk, sans-serif', marginBottom: 18,
+        }}>
+          <ArrowLeft size={14} /> กลับ
+        </button>
 
-        <div style={{ maxWidth: 600, margin: '0 auto', position: 'relative' }}>
-          <button onClick={() => navigate('/my-cats')} style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            background: 'rgba(255,255,255,0.20)', backdropFilter: 'blur(8px)',
-            border: '1px solid rgba(255,255,255,0.30)', borderRadius: 10,
-            padding: '7px 14px', cursor: 'pointer',
-            fontSize: 13, fontWeight: 700, color: '#fff',
-            fontFamily: 'Space Grotesk, sans-serif', marginBottom: 20,
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 22 }}>
+          <div style={{
+            width: 46, height: 46, borderRadius: 14, flexShrink: 0,
+            background: 'linear-gradient(135deg,#F97316,#F59E0B)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(249,115,22,0.30)',
           }}>
-            <ArrowLeft size={14} /> กลับ
-          </button>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{
-              width: 48, height: 48, borderRadius: 16,
-              backgroundColor: 'rgba(255,255,255,0.22)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <PawPrint size={24} color="#fff" />
-            </div>
-            <div>
-              <h1 style={{ fontSize: 22, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.2 }}>
-                {isEdit ? 'แก้ไขโปรไฟล์แมว' : 'เพิ่มโปรไฟล์แมว'}
-              </h1>
-              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.80)', fontWeight: 500, margin: '4px 0 0' }}>
-                กรอกข้อมูลน้องแมวเพื่อให้ผู้อื่นค้นพบ
-              </p>
-            </div>
+            <PawPrint size={22} color="#fff" />
+          </div>
+          <div>
+            <h1 style={{ fontSize: 21, fontWeight: 900, color: '#1C1917', margin: 0, lineHeight: 1.2 }}>
+              {isEdit ? 'แก้ไขโปรไฟล์แมว' : 'เพิ่มโปรไฟล์แมว'}
+            </h1>
+            <p style={{ fontSize: 12.5, color: '#A8A29E', fontWeight: 500, margin: '3px 0 0' }}>
+              กรอกข้อมูลน้องแมวเพื่อให้ผู้อื่นค้นพบ
+            </p>
           </div>
         </div>
-      </div>
-
-      {/* ── Form body (overlaps banner) ── */}
-      <div style={{ maxWidth: 600, margin: '-36px auto 0', padding: '0 16px' }}>
         <form onSubmit={handleSave}>
 
           {/* ── Photo ── */}
