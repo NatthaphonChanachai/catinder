@@ -1,18 +1,22 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useMotionValue, useTransform, useAnimation, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import {
   collection, query, where, getDocs, doc, setDoc, getDoc, serverTimestamp,
 } from 'firebase/firestore'
-import { Heart, X, MapPin, Plus, RefreshCw, Syringe, Scissors, PawPrint, MessageCircle } from 'lucide-react'
+import { Heart, X, MapPin, Plus, RefreshCw, Syringe, Scissors, PawPrint, MessageCircle, SlidersHorizontal, RotateCcw } from 'lucide-react'
 import { db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
 import { Link as RouterLink } from 'react-router-dom'
+import { BREEDS, REGISTRY_OPTIONS, LOOKING_FOR_LABELS } from '../constants/catOptions'
+import { getCurrentPosition, haversineKm } from '../utils/geo'
 
-const LOOKING_LABELS = { mate: 'หาคู่', friend: 'หาเพื่อน', adopt: 'หาบ้าน', any: 'ทุกอย่าง' }
+const LOOKING_LABELS = LOOKING_FOR_LABELS
+const MAX_RADIUS_KM = 50
+const REGISTRY_FILTER_OPTIONS = REGISTRY_OPTIONS.filter(o => o.value)
 
-function CatSwipeCard({ cat, isTop, zIndex, stackScale, stackOffset, onSwipe, onRegisterTrigger }) {
+function CatSwipeCard({ cat, isTop, zIndex, stackScale, stackOffset, onSwipe, onRegisterTrigger, distanceKm }) {
   const x = useMotionValue(0)
   const rotate = useTransform(x, [-240, 240], [-25, 25])
   const likeOpacity = useTransform(x, [20, 120], [0, 1])
@@ -105,10 +109,12 @@ function CatSwipeCard({ cat, isTop, zIndex, stackScale, stackOffset, onSwipe, on
           )}
         </div>
 
-        {cat.location && (
+        {(cat.location || distanceKm != null) && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 8 }}>
             <MapPin size={11} color="rgba(255,255,255,0.6)" />
-            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>{cat.location}</span>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>
+              {cat.location}{cat.location && distanceKm != null ? ' · ' : ''}{distanceKm != null ? `${distanceKm.toFixed(1)} กม.` : ''}
+            </span>
           </div>
         )}
 
@@ -239,6 +245,104 @@ function MatchModal({ match, myCats, onClose }) {
   )
 }
 
+function ChipGroup({ options, selected, onToggle }) {
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+      {options.map(({ value, label }) => {
+        const active = selected.includes(value)
+        return (
+          <button key={value} type="button" onClick={() => onToggle(value)} style={{
+            padding: '7px 13px', borderRadius: 999,
+            border: active ? 'none' : '1.5px solid #e5e7eb',
+            background: active ? 'linear-gradient(135deg,#F97316,#F59E0B)' : '#fff',
+            color: active ? '#fff' : '#555',
+            fontSize: 12.5, fontWeight: 700, cursor: 'pointer',
+            fontFamily: 'Space Grotesk, sans-serif',
+          }}>{label}</button>
+        )
+      })}
+    </div>
+  )
+}
+
+function FilterPanel({ open, onClose, filters, setFilters, myLocation }) {
+  const toggleIn = (key, value) => setFilters(f => ({
+    ...f, [key]: f[key].includes(value) ? f[key].filter(v => v !== value) : [...f[key], value],
+  }))
+  const reset = () => setFilters({ radiusKm: MAX_RADIUS_KM, breeds: [], registries: [], lookingFor: [] })
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          style={{ position: 'fixed', inset: 0, zIndex: 3000, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+            transition={{ type: 'spring', stiffness: 350, damping: 32 }}
+            onClick={e => e.stopPropagation()}
+            style={{
+              backgroundColor: '#fff', borderRadius: '22px 22px 0 0', padding: '22px 20px 28px',
+              maxWidth: 420, width: '100%', maxHeight: '82dvh', overflowY: 'auto',
+              fontFamily: 'Space Grotesk, sans-serif',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+              <h2 style={{ fontSize: 17, fontWeight: 900, color: '#000', margin: 0 }}>ตัวกรอง</h2>
+              <button onClick={reset} style={{
+                display: 'flex', alignItems: 'center', gap: 5, background: 'none', border: 'none',
+                color: '#F97316', fontSize: 12.5, fontWeight: 700, cursor: 'pointer',
+                fontFamily: 'Space Grotesk, sans-serif',
+              }}><RotateCcw size={12} /> ล้างตัวกรอง</button>
+            </div>
+
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <label style={{ fontSize: 13, fontWeight: 800, color: '#1C1917' }}>รัศมีระยะทาง</label>
+                <span style={{ fontSize: 12.5, fontWeight: 700, color: '#F97316' }}>
+                  {filters.radiusKm >= MAX_RADIUS_KM ? 'ทั้งหมด' : `${filters.radiusKm} กม.`}
+                </span>
+              </div>
+              <input type="range" min={1} max={MAX_RADIUS_KM} value={filters.radiusKm} disabled={!myLocation}
+                onChange={e => setFilters(f => ({ ...f, radiusKm: Number(e.target.value) }))}
+                style={{ width: '100%', accentColor: '#F97316', opacity: myLocation ? 1 : 0.4 }}
+              />
+              {!myLocation && (
+                <p style={{ fontSize: 11, color: '#aaa', fontWeight: 600, marginTop: 4 }}>
+                  เปิดสิทธิ์เข้าถึงตำแหน่งของเบราว์เซอร์เพื่อใช้ตัวกรองนี้
+                </p>
+              )}
+            </div>
+
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 800, color: '#1C1917', marginBottom: 8 }}>สายพันธุ์</label>
+              <ChipGroup options={BREEDS.map(b => ({ value: b, label: b }))} selected={filters.breeds} onToggle={v => toggleIn('breeds', v)} />
+            </div>
+
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 800, color: '#1C1917', marginBottom: 8 }}>ชมรม / Registry</label>
+              <ChipGroup options={REGISTRY_FILTER_OPTIONS} selected={filters.registries} onToggle={v => toggleIn('registries', v)} />
+            </div>
+
+            <div style={{ marginBottom: 24 }}>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 800, color: '#1C1917', marginBottom: 8 }}>กำลังมองหา</label>
+              <ChipGroup options={Object.entries(LOOKING_LABELS).map(([value, label]) => ({ value, label }))} selected={filters.lookingFor} onToggle={v => toggleIn('lookingFor', v)} />
+            </div>
+
+            <button onClick={onClose} style={{
+              width: '100%', padding: '13px 0', borderRadius: 14, border: 'none',
+              background: 'linear-gradient(135deg,#F97316,#F59E0B)', color: '#fff',
+              fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'Space Grotesk, sans-serif',
+            }}>ใช้ตัวกรอง</button>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+}
+
 export default function DiscoverPage() {
   const { user, userProfile } = useAuth()
   const [cats, setCats] = useState([])
@@ -247,6 +351,9 @@ export default function DiscoverPage() {
   const [loading, setLoading] = useState(true)
   const [match, setMatch] = useState(null)
   const [noCats, setNoCats] = useState(false)
+  const [myLocation, setMyLocation] = useState(null)
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const [filters, setFilters] = useState({ radiusKm: MAX_RADIUS_KM, breeds: [], registries: [], lookingFor: [] })
   const swipeTrigger = useRef(null)
 
   useEffect(() => {
@@ -255,6 +362,42 @@ export default function DiscoverPage() {
       checkMissedMatches()
     }
   }, [user])
+
+  useEffect(() => {
+    getCurrentPosition().then(setMyLocation).catch(() => setMyLocation(null))
+  }, [])
+
+  const filtersActive = filters.breeds.length > 0 || filters.registries.length > 0
+    || filters.lookingFor.length > 0 || (myLocation && filters.radiusKm < MAX_RADIUS_KM)
+
+  const catDistances = useMemo(() => {
+    const map = new Map()
+    if (!myLocation) return map
+    for (const c of cats) {
+      if (typeof c.lat === 'number' && typeof c.lng === 'number') {
+        map.set(c.id, haversineKm(myLocation.lat, myLocation.lng, c.lat, c.lng))
+      }
+    }
+    return map
+  }, [cats, myLocation])
+
+  const filteredCats = useMemo(() => {
+    return cats.filter(c => {
+      if (filters.breeds.length > 0 && !filters.breeds.includes(c.breed)) return false
+      if (filters.registries.length > 0 && !filters.registries.includes(c.registry)) return false
+      if (filters.lookingFor.length > 0) {
+        const lf = Array.isArray(c.lookingFor) ? c.lookingFor : (c.lookingFor ? [c.lookingFor] : [])
+        if (!filters.lookingFor.some(v => lf.includes(v))) return false
+      }
+      if (myLocation && filters.radiusKm < MAX_RADIUS_KM) {
+        const d = catDistances.get(c.id)
+        if (d == null || d > filters.radiusKm) return false
+      }
+      return true
+    })
+  }, [cats, filters, myLocation, catDistances])
+
+  useEffect(() => { setIdx(0) }, [filters])
 
   const checkMissedMatches = async () => {
     try {
@@ -357,8 +500,8 @@ export default function DiscoverPage() {
     }
   }, [user, userProfile])
 
-  const visibleCats = cats.slice(idx, idx + 3)
-  const isDone = idx >= cats.length && cats.length > 0
+  const visibleCats = filteredCats.slice(idx, idx + 3)
+  const isDone = idx >= filteredCats.length && filteredCats.length > 0
 
   if (loading) return (
     <div style={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Space Grotesk, sans-serif' }}>
@@ -393,14 +536,26 @@ export default function DiscoverPage() {
   return (
     <div style={{ minHeight: '100dvh', backgroundColor: '#f8f8f8', fontFamily: 'Space Grotesk, sans-serif', paddingBottom: 80 }}>
       <MatchModal match={match} myCats={myCats} onClose={() => setMatch(null)} />
+      <FilterPanel open={filtersOpen} onClose={() => setFiltersOpen(false)} filters={filters} setFilters={setFilters} myLocation={myLocation} />
 
       <div style={{ maxWidth: 420, margin: '0 auto', padding: '24px 16px' }}>
-        <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <h1 style={{ fontSize: 22, fontWeight: 900, color: '#000', marginBottom: 4 }}>Discover</h1>
-          <p style={{ fontSize: 13, color: '#aaa', fontWeight: 500 }}>ลากขวา Like · ลากซ้าย Pass</p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', marginBottom: 24 }}>
+          <div style={{ textAlign: 'center' }}>
+            <h1 style={{ fontSize: 22, fontWeight: 900, color: '#000', marginBottom: 4 }}>Discover</h1>
+            <p style={{ fontSize: 13, color: '#aaa', fontWeight: 500 }}>ลากขวา Like · ลากซ้าย Pass</p>
+          </div>
+          <button onClick={() => setFiltersOpen(true)} style={{
+            position: 'absolute', right: 0, top: 0,
+            width: 38, height: 38, borderRadius: '50%',
+            border: filtersActive ? '1.5px solid #F97316' : '1.5px solid #e5e7eb',
+            backgroundColor: filtersActive ? 'rgba(249,115,22,0.08)' : '#fff',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+          }}>
+            <SlidersHorizontal size={16} color={filtersActive ? '#F97316' : '#888'} />
+          </button>
         </div>
 
-        {isDone || cats.length === 0 ? (
+        {isDone || filteredCats.length === 0 ? (
           <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}
             style={{
               height: 460, borderRadius: 22, border: '2px dashed #e5e7eb',
@@ -412,18 +567,28 @@ export default function DiscoverPage() {
               <PawPrint size={32} color="#F97316" />
             </div>
             <h3 style={{ fontSize: 18, fontWeight: 800, color: '#000' }}>
-              {cats.length === 0 ? 'ยังไม่มีแมวในระบบ' : 'ดูครบทุกตัวแล้ว'}
+              {cats.length === 0 ? 'ยังไม่มีแมวในระบบ' : filteredCats.length === 0 ? 'ไม่พบแมวตามตัวกรอง' : 'ดูครบทุกตัวแล้ว'}
             </h3>
             <p style={{ fontSize: 13, color: '#888', fontWeight: 500, lineHeight: 1.6 }}>
-              {cats.length === 0 ? 'ชวนเพื่อนมาสร้างโปรไฟล์แมวด้วยกัน' : 'รอแมวใหม่เข้าระบบ หรือ refresh'}
+              {cats.length === 0 ? 'ชวนเพื่อนมาสร้างโปรไฟล์แมวด้วยกัน' : filteredCats.length === 0 ? 'ลองปรับรัศมีหรือล้างตัวกรองดู' : 'รอแมวใหม่เข้าระบบ หรือ refresh'}
             </p>
-            <button onClick={loadCats} style={{
-              display: 'flex', alignItems: 'center', gap: 7, backgroundColor: '#F97316', color: '#fff',
-              padding: '11px 22px', borderRadius: 11, border: 'none', cursor: 'pointer',
-              fontSize: 13, fontWeight: 800, fontFamily: 'Space Grotesk, sans-serif',
-            }}>
-              <RefreshCw size={13} /> Refresh
-            </button>
+            {filteredCats.length === 0 && cats.length > 0 ? (
+              <button onClick={() => setFilters({ radiusKm: MAX_RADIUS_KM, breeds: [], registries: [], lookingFor: [] })} style={{
+                display: 'flex', alignItems: 'center', gap: 7, backgroundColor: '#F97316', color: '#fff',
+                padding: '11px 22px', borderRadius: 11, border: 'none', cursor: 'pointer',
+                fontSize: 13, fontWeight: 800, fontFamily: 'Space Grotesk, sans-serif',
+              }}>
+                <RotateCcw size={13} /> ล้างตัวกรอง
+              </button>
+            ) : (
+              <button onClick={loadCats} style={{
+                display: 'flex', alignItems: 'center', gap: 7, backgroundColor: '#F97316', color: '#fff',
+                padding: '11px 22px', borderRadius: 11, border: 'none', cursor: 'pointer',
+                fontSize: 13, fontWeight: 800, fontFamily: 'Space Grotesk, sans-serif',
+              }}>
+                <RefreshCw size={13} /> Refresh
+              </button>
+            )}
           </motion.div>
         ) : (
           <div style={{ position: 'relative', height: 510 }}>
@@ -433,7 +598,7 @@ export default function DiscoverPage() {
               return (
                 <CatSwipeCard key={cat.id} cat={cat} isTop={isTop}
                   zIndex={visibleCats.length - i} stackScale={1 - i * 0.04} stackOffset={i * 14}
-                  onSwipe={handleSwipe}
+                  onSwipe={handleSwipe} distanceKm={catDistances.get(cat.id)}
                   onRegisterTrigger={isTop ? fn => { swipeTrigger.current = fn } : null}
                 />
               )
@@ -441,10 +606,10 @@ export default function DiscoverPage() {
           </div>
         )}
 
-        {!isDone && cats.length > 0 && (
+        {!isDone && filteredCats.length > 0 && (
           <>
             <p style={{ textAlign: 'center', fontSize: 12, color: '#bbb', fontWeight: 600, margin: '12px 0 20px' }}>
-              {cats.length - idx} แมวรอให้ค้นพบ
+              {filteredCats.length - idx} แมวรอให้ค้นพบ
             </p>
             <div style={{ display: 'flex', justifyContent: 'center', gap: 24 }}>
               <motion.button onClick={() => swipeTrigger.current?.('left')} whileTap={{ scale: 0.88 }} whileHover={{ scale: 1.08 }}

@@ -2,27 +2,12 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { collection, addDoc, updateDoc, getDoc, doc, serverTimestamp } from 'firebase/firestore'
-import { ArrowLeft, Save, Syringe, Scissors, Heart, Home, Users, Sparkles, Camera, Upload, X, PawPrint, Award, BookOpen, HeartHandshake, Tag, ArrowLeftRight, HelpCircle, Stethoscope, Droplets, ShieldCheck, Microscope, Cpu, FileText, Pill, ChevronRight } from 'lucide-react'
+import { ArrowLeft, Save, Syringe, Scissors, Heart, Home, Users, Sparkles, Camera, Upload, X, PawPrint, Award, BookOpen, HeartHandshake, Tag, ArrowLeftRight, HelpCircle, Stethoscope, Droplets, ShieldCheck, Microscope, Cpu, FileText, Pill, ChevronRight, LocateFixed } from 'lucide-react'
 import { db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
 import { prepareImage, blobToBase64, ACCEPT_IMAGE_TYPES } from '../utils/imageUtils'
-
-const REGISTRY_OPTIONS = [
-  { value: '', label: '-- ยังไม่ได้จดทะเบียน --' },
-  { value: 'CFA', label: 'CFA (Cat Fanciers\'s Association)' },
-  { value: 'TICA', label: 'TICA (The International Cat Association)' },
-  { value: 'SCFC', label: 'SCFC (Siam Cat Fanciers\' Club)' },
-  { value: 'WCF', label: 'WCF (World Cat Federation)' },
-  { value: 'other', label: 'อื่นๆ' },
-]
-
-const BREEDS = [
-  'เปอร์เซีย', 'สกอตติชโฟลด์', 'บริติชชอร์ตแฮร์', 'เมนคูน', 'แรกดอลล์',
-  'สยาม', 'อเมริกันชอร์ตแฮร์', 'รัสเซียนบลู', 'อเบสซิเนียน', 'เบงกอล',
-  'บาลีนีส', 'บอมเบย์', 'เบอร์มีส', 'สปิงค์ซ์', 'เดวอนเร็กซ์',
-  'ออเซียต', 'ไทย (วิเชียรมาศ)', 'โคราท', 'ขาวมณี', 'สีสวาด',
-  'ศุภลักษณ์', 'อื่นๆ (Mixed)',
-]
+import { getCurrentPosition } from '../utils/geo'
+import { REGISTRY_OPTIONS, BREEDS } from '../constants/catOptions'
 
 const LOOKING_FOR = [
   { value: 'mate',     label: 'หาคู่ผสมพันธุ์',           icon: Heart },
@@ -130,11 +115,25 @@ export default function CreateCatPage() {
     underTreatment: false, treatmentNote: '',
     healthOther: false, healthOtherNote: '',
     lookingFor: [], lookingForOther: '', location: '', color: '',
+    lat: null, lng: null,
     registry: '', registryNumber: '', catteryName: '', certPhotoURL: '',
   })
   const fileInputRef = useRef()
   const certInputRef = useRef()
   const [certUploading, setCertUploading] = useState(false)
+  const [locating, setLocating] = useState(false)
+  const [locateError, setLocateError] = useState('')
+
+  const handleUseCurrentLocation = async () => {
+    setLocating(true); setLocateError('')
+    try {
+      const { lat, lng } = await getCurrentPosition()
+      set('lat', lat); set('lng', lng)
+    } catch {
+      setLocateError('ไม่สามารถระบุตำแหน่งได้ กรุณาอนุญาตการเข้าถึงตำแหน่ง')
+    }
+    setLocating(false)
+  }
 
   useEffect(() => {
     if (!isEdit) return
@@ -412,11 +411,26 @@ export default function CreateCatPage() {
               />
             </Field>
 
-            <Field label="ที่อยู่ / ย่าน">
+            <Field label="ที่อยู่ / ย่าน" hint="กดปุ่มด้านล่างเพื่อบันทึกพิกัด GPS ไว้ใช้คำนวณระยะทางตอน Discover">
               <input type="text" value={form.location} onChange={e => set('location', e.target.value)}
-                placeholder="เช่น กรุงเทพฯ, เชียงใหม่, บางกอกน้อย" style={inp}
+                placeholder="เช่น กรุงเทพฯ, เชียงใหม่, บางกอกน้อย" style={{ ...inp, marginBottom: 8 }}
                 onFocus={focusOrange} onBlur={blurOrange}
               />
+              <button type="button" disabled={locating} onClick={handleUseCurrentLocation} style={{
+                display: 'flex', alignItems: 'center', gap: 7,
+                padding: '9px 14px', borderRadius: 11,
+                border: form.lat != null ? '1.5px solid #10b981' : '1.5px solid rgba(249,115,22,0.30)',
+                backgroundColor: form.lat != null ? 'rgba(16,185,129,0.07)' : '#FFF7ED',
+                color: form.lat != null ? '#059669' : '#F97316',
+                fontSize: 12.5, fontWeight: 700, cursor: locating ? 'not-allowed' : 'pointer',
+                fontFamily: 'Space Grotesk, sans-serif',
+              }}>
+                <LocateFixed size={13} />
+                {locating ? 'กำลังค้นหาตำแหน่ง...' : form.lat != null ? '✓ บันทึกพิกัดแล้ว · กดเพื่ออัปเดต' : 'ใช้ตำแหน่งปัจจุบัน'}
+              </button>
+              {locateError && (
+                <p style={{ fontSize: 11, color: '#ef4444', marginTop: 6, fontWeight: 600 }}>{locateError}</p>
+              )}
             </Field>
 
             {/* Looking for — multi-select */}
