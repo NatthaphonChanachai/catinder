@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { LanguageProvider } from './contexts/LanguageContext'
 import AuthModal from './components/AuthModal'
@@ -7,6 +7,7 @@ import NotificationPrompt from './components/NotificationPrompt'
 import ProfileSetupModal from './components/ProfileSetupModal'
 import Navbar from './components/Navbar'
 import AppNavbar from './components/AppNavbar'
+import ErrorBoundary from './components/ErrorBoundary'
 import LandingPage from './pages/LandingPage'
 import DashboardPage from './pages/DashboardPage'
 import DiscoverPage from './pages/DiscoverPage'
@@ -44,6 +45,12 @@ function ProtectedRoute({ children }) {
   return children
 }
 
+// Resets the boundary on every navigation (including param-only changes) by remounting via `key`
+function PageBoundary({ children }) {
+  const location = useLocation()
+  return <ErrorBoundary key={location.pathname} fullPage>{children}</ErrorBoundary>
+}
+
 function AppRoutes() {
   const { user, loading } = useAuth()
   if (loading) return <LoadingScreen />
@@ -60,29 +67,29 @@ function AppRoutes() {
           user ? <Navigate to="/dashboard" replace /> : (
             <div style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
               <Navbar />
-              <LandingPage />
+              <PageBoundary><LandingPage /></PageBoundary>
             </div>
           )
         } />
 
-        <Route path="/dashboard" element={<ProtectedRoute><AppNavbar /><DashboardPage /></ProtectedRoute>} />
-        <Route path="/discover" element={<ProtectedRoute><AppNavbar /><DiscoverPage /></ProtectedRoute>} />
-        <Route path="/my-cats" element={<ProtectedRoute><AppNavbar /><MyCatsPage /></ProtectedRoute>} />
-        <Route path="/my-cats/new" element={<ProtectedRoute><AppNavbar /><CreateCatPage /></ProtectedRoute>} />
-        <Route path="/my-cats/:catId/edit" element={<ProtectedRoute><AppNavbar /><CreateCatPage /></ProtectedRoute>} />
-        <Route path="/my-cats/:catId/health" element={<ProtectedRoute><AppNavbar /><HealthPassportPage /></ProtectedRoute>} />
-        <Route path="/chat" element={<ProtectedRoute><AppNavbar /><ChatPage /></ProtectedRoute>} />
-        <Route path="/chat/:chatId" element={<ProtectedRoute><AppNavbar /><ChatPage /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><AppNavbar /><PageBoundary><DashboardPage /></PageBoundary></ProtectedRoute>} />
+        <Route path="/discover" element={<ProtectedRoute><AppNavbar /><PageBoundary><DiscoverPage /></PageBoundary></ProtectedRoute>} />
+        <Route path="/my-cats" element={<ProtectedRoute><AppNavbar /><PageBoundary><MyCatsPage /></PageBoundary></ProtectedRoute>} />
+        <Route path="/my-cats/new" element={<ProtectedRoute><AppNavbar /><PageBoundary><CreateCatPage /></PageBoundary></ProtectedRoute>} />
+        <Route path="/my-cats/:catId/edit" element={<ProtectedRoute><AppNavbar /><PageBoundary><CreateCatPage /></PageBoundary></ProtectedRoute>} />
+        <Route path="/my-cats/:catId/health" element={<ProtectedRoute><AppNavbar /><PageBoundary><HealthPassportPage /></PageBoundary></ProtectedRoute>} />
+        <Route path="/chat" element={<ProtectedRoute><AppNavbar /><PageBoundary><ChatPage /></PageBoundary></ProtectedRoute>} />
+        <Route path="/chat/:chatId" element={<ProtectedRoute><AppNavbar /><PageBoundary><ChatPage /></PageBoundary></ProtectedRoute>} />
 
         <Route path="/directory" element={
-          <>{user ? <AppNavbar /> : <Navbar />}<DirectoryPage /></>
+          <>{user ? <AppNavbar /> : <Navbar />}<PageBoundary><DirectoryPage /></PageBoundary></>
         } />
 
-        <Route path="/admin" element={<ProtectedRoute><AppNavbar /><AdminPage /></ProtectedRoute>} />
-        <Route path="/support" element={<ProtectedRoute><AppNavbar /><SupportChatPage /></ProtectedRoute>} />
-        <Route path="/venues" element={<ProtectedRoute><AppNavbar /><VenuePage /></ProtectedRoute>} />
-        <Route path="/pedigree" element={<ProtectedRoute><AppNavbar /><PedigreeFormPage /></ProtectedRoute>} />
-        <Route path="/registries" element={<>{user ? <AppNavbar /> : <Navbar />}<RegistriesPage /></>} />
+        <Route path="/admin" element={<ProtectedRoute><AppNavbar /><PageBoundary><AdminPage /></PageBoundary></ProtectedRoute>} />
+        <Route path="/support" element={<ProtectedRoute><AppNavbar /><PageBoundary><SupportChatPage /></PageBoundary></ProtectedRoute>} />
+        <Route path="/venues" element={<ProtectedRoute><AppNavbar /><PageBoundary><VenuePage /></PageBoundary></ProtectedRoute>} />
+        <Route path="/pedigree" element={<ProtectedRoute><AppNavbar /><PageBoundary><PedigreeFormPage /></PageBoundary></ProtectedRoute>} />
+        <Route path="/registries" element={<>{user ? <AppNavbar /> : <Navbar />}<PageBoundary><RegistriesPage /></PageBoundary></>} />
         <Route path="/profile" element={<ProtectedRoute><Navigate to="/dashboard" replace /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
