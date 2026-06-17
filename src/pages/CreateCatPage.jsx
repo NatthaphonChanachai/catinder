@@ -2,12 +2,13 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { collection, addDoc, updateDoc, getDoc, doc, serverTimestamp } from 'firebase/firestore'
-import { ArrowLeft, Save, Syringe, Scissors, Heart, Home, Users, Sparkles, Camera, Upload, X, PawPrint, Award, BookOpen, HeartHandshake, Tag, ArrowLeftRight, HelpCircle, Stethoscope, Droplets, ShieldCheck, Microscope, Cpu, FileText, Pill, ChevronRight, LocateFixed } from 'lucide-react'
+import { ArrowLeft, Save, Syringe, Scissors, Heart, Home, Users, Sparkles, Camera, Upload, X, PawPrint, Award, BookOpen, HeartHandshake, Tag, ArrowLeftRight, HelpCircle, Stethoscope, Droplets, ShieldCheck, Microscope, Cpu, FileText, Pill, ChevronRight, LocateFixed, Map } from 'lucide-react'
 import { db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
 import { prepareImage, blobToBase64, ACCEPT_IMAGE_TYPES } from '../utils/imageUtils'
 import { getCurrentPosition } from '../utils/geo'
 import { REGISTRY_OPTIONS, BREEDS } from '../constants/catOptions'
+import LocationPickerModal from '../components/LocationPickerModal'
 
 const LOOKING_FOR = [
   { value: 'mate',     label: 'หาคู่ผสมพันธุ์',           icon: Heart },
@@ -123,6 +124,7 @@ export default function CreateCatPage() {
   const [certUploading, setCertUploading] = useState(false)
   const [locating, setLocating] = useState(false)
   const [locateError, setLocateError] = useState('')
+  const [showMapPicker, setShowMapPicker] = useState(false)
 
   const handleUseCurrentLocation = async () => {
     setLocating(true); setLocateError('')
@@ -133,6 +135,12 @@ export default function CreateCatPage() {
       setLocateError('ไม่สามารถระบุตำแหน่งได้ กรุณาอนุญาตการเข้าถึงตำแหน่ง')
     }
     setLocating(false)
+  }
+
+  const handleMapConfirm = ({ lat, lng, address }) => {
+    set('lat', lat); set('lng', lng)
+    if (address) set('location', address)
+    setShowMapPicker(false)
   }
 
   useEffect(() => {
@@ -411,23 +419,35 @@ export default function CreateCatPage() {
               />
             </Field>
 
-            <Field label="ที่อยู่ / ย่าน" hint="กดปุ่มด้านล่างเพื่อบันทึกพิกัด GPS ไว้ใช้คำนวณระยะทางตอน Discover">
+            <Field label="ที่อยู่ / ย่าน" hint="เลือกตำแหน่งบนแผนที่เพื่อความแม่นยำ ใช้คำนวณระยะทางตอน Discover">
               <input type="text" value={form.location} onChange={e => set('location', e.target.value)}
                 placeholder="เช่น กรุงเทพฯ, เชียงใหม่, บางกอกน้อย" style={{ ...inp, marginBottom: 8 }}
                 onFocus={focusOrange} onBlur={blurOrange}
               />
-              <button type="button" disabled={locating} onClick={handleUseCurrentLocation} style={{
-                display: 'flex', alignItems: 'center', gap: 7,
-                padding: '9px 14px', borderRadius: 11,
-                border: form.lat != null ? '1.5px solid #10b981' : '1.5px solid rgba(249,115,22,0.30)',
-                backgroundColor: form.lat != null ? 'rgba(16,185,129,0.07)' : '#FFF7ED',
-                color: form.lat != null ? '#059669' : '#F97316',
-                fontSize: 12.5, fontWeight: 700, cursor: locating ? 'not-allowed' : 'pointer',
-                fontFamily: 'Space Grotesk, sans-serif',
-              }}>
-                <LocateFixed size={13} />
-                {locating ? 'กำลังค้นหาตำแหน่ง...' : form.lat != null ? '✓ บันทึกพิกัดแล้ว · กดเพื่ออัปเดต' : 'ใช้ตำแหน่งปัจจุบัน'}
-              </button>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <button type="button" onClick={() => setShowMapPicker(true)} style={{
+                  display: 'flex', alignItems: 'center', gap: 7,
+                  padding: '9px 14px', borderRadius: 11,
+                  border: form.lat != null ? '1.5px solid #10b981' : '1.5px solid rgba(249,115,22,0.30)',
+                  backgroundColor: form.lat != null ? 'rgba(16,185,129,0.07)' : '#FFF7ED',
+                  color: form.lat != null ? '#059669' : '#F97316',
+                  fontSize: 12.5, fontWeight: 700, cursor: 'pointer',
+                  fontFamily: 'Space Grotesk, sans-serif',
+                }}>
+                  <Map size={13} />
+                  {form.lat != null ? '✓ บันทึกพิกัดแล้ว · กดเพื่อแก้ไข' : 'เลือกบนแผนที่'}
+                </button>
+                <button type="button" disabled={locating} onClick={handleUseCurrentLocation} style={{
+                  display: 'flex', alignItems: 'center', gap: 7,
+                  padding: '9px 14px', borderRadius: 11,
+                  border: '1.5px solid #E7E5E4', backgroundColor: '#FAFAF9', color: '#78716C',
+                  fontSize: 12.5, fontWeight: 700, cursor: locating ? 'not-allowed' : 'pointer',
+                  fontFamily: 'Space Grotesk, sans-serif',
+                }}>
+                  <LocateFixed size={13} />
+                  {locating ? 'กำลังค้นหา...' : 'ใช้ตำแหน่งปัจจุบัน'}
+                </button>
+              </div>
               {locateError && (
                 <p style={{ fontSize: 11, color: '#ef4444', marginTop: 6, fontWeight: 600 }}>{locateError}</p>
               )}
@@ -656,6 +676,14 @@ export default function CreateCatPage() {
 
         </form>
       </div>
+
+      <LocationPickerModal
+        open={showMapPicker}
+        initialLat={form.lat}
+        initialLng={form.lng}
+        onConfirm={handleMapConfirm}
+        onClose={() => setShowMapPicker(false)}
+      />
     </div>
   )
 }
