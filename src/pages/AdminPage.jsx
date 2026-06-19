@@ -9,10 +9,12 @@ import {
   Home, Coffee, HeartPulse, Stethoscope, Fish, TreePine, MapPin, Phone,
   FileText, ShieldCheck, AlertCircle, Clock, Eye, Headphones, Send,
   CalendarDays, CheckCircle, XCircle, ToggleLeft, ToggleRight,
-  PawPrint, Search, Syringe, Scissors, Heart,
+  PawPrint, Search, Syringe, Scissors, Heart, Hotel, Loader2,
 } from 'lucide-react'
 import { db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
+import { loadProvinces } from '../utils/thailandGeo'
+import { searchAddress } from '../utils/geo'
 
 const VENUE_FACILITIES = ['ac', 'cctv', 'wifi', 'vet_nearby', 'separate_rooms', 'playground']
 const VENUE_FACILITY_LABELS = { ac: 'แอร์', cctv: 'CCTV', wifi: 'Wi-Fi', vet_nearby: 'คลินิกใกล้', separate_rooms: 'ห้องแยก', playground: 'สนามเล่น' }
@@ -156,6 +158,7 @@ const CATEGORIES = [
   { id: 'clinic', label: 'คลินิก', icon: Stethoscope },
   { id: 'food', label: 'ร้านอาหารแมว', icon: Fish },
   { id: 'place', label: 'ที่เที่ยว Cat-Friendly', icon: TreePine },
+  { id: 'hotel', label: 'โรงแรมแมว', icon: Hotel },
 ]
 
 function getCatIcon(catId) {
@@ -163,10 +166,97 @@ function getCatIcon(catId) {
   return c ? c.icon : Building2
 }
 
-const EMPTY_FORM = { name: '', category: 'cafe', address: '', phone: '', website: '', description: '', verified: false }
+const EMPTY_FORM = {
+  name: '', category: 'cafe', address: '', phone: '', website: '', description: '', verified: false,
+  priceType: 'free', price: 0,
+  province: '', provinceCode: null, district: '', districtCode: null, subdistrict: '', subdistrictCode: null,
+  lat: null, lng: null,
+}
+
+function HotelLocationFields({ form, setForm }) {
+  const [provinces, setProvinces] = useState(null)
+  const [geocoding, setGeocoding] = useState(false)
+  const [geocodeMsg, setGeocodeMsg] = useState('')
+
+  useEffect(() => { loadProvinces().then(setProvinces) }, [])
+
+  const province = provinces?.find(p => p.code === form.provinceCode)
+  const district = province?.districts.find(d => d.code === form.districtCode)
+
+  const handleProvinceChange = (code) => {
+    const p = provinces.find(x => x.code === Number(code))
+    setForm(f => ({
+      ...f, provinceCode: p?.code || null, province: p?.name_th || '',
+      districtCode: null, district: '', subdistrictCode: null, subdistrict: '',
+    }))
+  }
+  const handleDistrictChange = (code) => {
+    const d = province?.districts.find(x => x.code === Number(code))
+    setForm(f => ({ ...f, districtCode: d?.code || null, district: d?.name_th || '', subdistrictCode: null, subdistrict: '' }))
+  }
+  const handleSubdistrictChange = (code) => {
+    const s = district?.subdistricts.find(x => x.code === Number(code))
+    setForm(f => ({ ...f, subdistrictCode: s?.code || null, subdistrict: s?.name_th || '' }))
+  }
+
+  const handleGeocode = async () => {
+    const query = [form.address, form.subdistrict, form.district, form.province].filter(Boolean).join(' ')
+    if (!query.trim()) { setGeocodeMsg('กรอกที่อยู่หรือเลือกจังหวัด/อำเภอก่อน'); return }
+    setGeocoding(true)
+    setGeocodeMsg('')
+    try {
+      const results = await searchAddress(query)
+      if (results.length > 0) {
+        setForm(f => ({ ...f, lat: results[0].lat, lng: results[0].lng }))
+        setGeocodeMsg(`พบตำแหน่งแล้ว ✓ (${results[0].lat.toFixed(4)}, ${results[0].lng.toFixed(4)})`)
+      } else {
+        setGeocodeMsg('ไม่พบตำแหน่ง ลองแก้ไขที่อยู่')
+      }
+    } catch {
+      setGeocodeMsg('ค้นหาตำแหน่งไม่สำเร็จ')
+    }
+    setGeocoding(false)
+  }
+
+  const selectStyle = { width: '100%', padding: '10px 13px', borderRadius: 10, border: '1.5px solid #e5e7eb', fontSize: 14, fontFamily: 'Space Grotesk, sans-serif', outline: 'none', boxSizing: 'border-box', backgroundColor: '#fff' }
+
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <label style={{ fontSize: 12, fontWeight: 700, color: '#555', display: 'block', marginBottom: 5 }}>ที่ตั้งโรงแรม</label>
+      {!provinces ? (
+        <p style={{ fontSize: 12, color: '#aaa' }}>กำลังโหลดข้อมูลจังหวัด...</p>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+          <select value={form.provinceCode || ''} onChange={e => handleProvinceChange(e.target.value)} style={selectStyle}>
+            <option value="">จังหวัด</option>
+            {provinces.map(p => <option key={p.code} value={p.code}>{p.name_th}</option>)}
+          </select>
+          <select value={form.districtCode || ''} onChange={e => handleDistrictChange(e.target.value)} disabled={!province} style={selectStyle}>
+            <option value="">อำเภอ/เขต</option>
+            {province?.districts.map(d => <option key={d.code} value={d.code}>{d.name_th}</option>)}
+          </select>
+          <select value={form.subdistrictCode || ''} onChange={e => handleSubdistrictChange(e.target.value)} disabled={!district} style={selectStyle}>
+            <option value="">ตำบล/แขวง</option>
+            {district?.subdistricts.map(s => <option key={s.code} value={s.code}>{s.name_th}</option>)}
+          </select>
+        </div>
+      )}
+
+      <button type="button" onClick={handleGeocode} disabled={geocoding} style={{
+        marginTop: 9, display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px',
+        borderRadius: 9, border: '1.5px solid #e5e7eb', backgroundColor: '#fff', cursor: geocoding ? 'default' : 'pointer',
+        fontSize: 12, fontWeight: 700, color: '#555', fontFamily: 'Space Grotesk, sans-serif',
+      }}>
+        {geocoding ? <Loader2 size={13} className="animate-spin" /> : <MapPin size={13} />}
+        {geocoding ? 'กำลังค้นหา...' : 'ค้นหาตำแหน่งจากที่อยู่'}
+      </button>
+      {geocodeMsg && <p style={{ fontSize: 11.5, color: form.lat ? '#059669' : '#dc2626', fontWeight: 600, marginTop: 6 }}>{geocodeMsg}</p>}
+    </div>
+  )
+}
 
 function ListingModal({ initial, onSave, onClose }) {
-  const [form, setForm] = useState(initial || EMPTY_FORM)
+  const [form, setForm] = useState(initial ? { ...EMPTY_FORM, ...initial } : EMPTY_FORM)
   const [saving, setSaving] = useState(false)
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
@@ -174,7 +264,7 @@ function ListingModal({ initial, onSave, onClose }) {
   const handleSave = async () => {
     if (!form.name.trim()) return
     setSaving(true)
-    await onSave(form)
+    await onSave(form.category === 'hotel' ? { ...form, price: form.priceType === 'paid' ? Number(form.price) || 0 : 0 } : form)
     setSaving(false)
     onClose()
   }
@@ -232,6 +322,35 @@ function ListingModal({ initial, onSave, onClose }) {
             })}
           </div>
         </div>
+
+        {form.category === 'hotel' && (
+          <>
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: '#555', display: 'block', marginBottom: 5 }}>ค่าใช้จ่ายสำหรับแมว</label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7, marginBottom: form.priceType === 'paid' ? 8 : 0 }}>
+                {[{ v: 'free', l: 'พักฟรี' }, { v: 'paid', l: 'เสียค่าใช้จ่าย' }].map(opt => {
+                  const active = form.priceType === opt.v
+                  return (
+                    <button key={opt.v} type="button" onClick={() => set('priceType', opt.v)} style={{
+                      padding: '10px 12px', borderRadius: 10, border: `1.5px solid ${active ? '#F97316' : '#e5e7eb'}`,
+                      backgroundColor: active ? '#FFF7ED' : '#fff', cursor: 'pointer',
+                      fontFamily: 'Space Grotesk, sans-serif', fontSize: 13, fontWeight: active ? 800 : 600,
+                      color: active ? '#F97316' : '#555',
+                    }}>{opt.l}</button>
+                  )
+                })}
+              </div>
+              {form.priceType === 'paid' && (
+                <input type="number" value={form.price || ''} onChange={e => set('price', e.target.value)} placeholder="ราคาต่อคืน (บาท)" min="0"
+                  style={{ width: '100%', padding: '10px 13px', borderRadius: 10, border: '1.5px solid #e5e7eb', fontSize: 14, fontFamily: 'Space Grotesk, sans-serif', outline: 'none', boxSizing: 'border-box' }}
+                  onFocus={e => e.target.style.borderColor = '#F97316'} onBlur={e => e.target.style.borderColor = '#e5e7eb'}
+                />
+              )}
+            </div>
+
+            <HotelLocationFields form={form} setForm={setForm} />
+          </>
+        )}
 
         <div style={{ marginBottom: 14 }}>
           <label style={{ fontSize: 12, fontWeight: 700, color: '#555', display: 'block', marginBottom: 5 }}>รายละเอียด</label>

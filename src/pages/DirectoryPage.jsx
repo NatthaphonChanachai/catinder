@@ -6,11 +6,13 @@ import {
 } from 'firebase/firestore'
 import {
   MapPin, Phone, Clock, Globe, Search, ExternalLink,
-  Home, Coffee, HeartPulse, Stethoscope, Fish, TreePine,
-  Star, X, Send,
+  Home, Coffee, HeartPulse, Stethoscope, Fish, TreePine, Hotel,
+  Star, X, Send, Navigation, Banknote, Gift,
 } from 'lucide-react'
 import { db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
+import { getCurrentPosition, haversineKm } from '../utils/geo'
+import { loadProvinces } from '../utils/thailandGeo'
 
 const CATEGORIES = [
   { value: 'all', label: 'ทั้งหมด', icon: MapPin },
@@ -20,6 +22,7 @@ const CATEGORIES = [
   { value: 'clinic', label: 'คลินิก', icon: Stethoscope },
   { value: 'food', label: 'ร้านอาหารแมว', icon: Fish },
   { value: 'place', label: 'ที่เที่ยว', icon: TreePine },
+  { value: 'hotel', label: 'โรงแรมแมว', icon: Hotel },
 ]
 
 const CAT_STYLES = {
@@ -29,6 +32,7 @@ const CAT_STYLES = {
   clinic: { color: '#0284c7', bg: '#f0f9ff' },
   food: { color: '#d97706', bg: '#fffbeb' },
   place: { color: '#dc2626', bg: '#fef2f2' },
+  hotel: { color: '#0d9488', bg: '#f0fdfa' },
 }
 
 function StarRating({ value, onChange, readonly }) {
@@ -143,7 +147,7 @@ function ReviewModal({ listing, onClose, onSubmit }) {
   )
 }
 
-function ListingCard({ listing, onReview }) {
+function ListingCard({ listing, onReview, distanceKm }) {
   const { user } = useAuth()
   const cat = CATEGORIES.find(c => c.value === listing.category)
   const styles = CAT_STYLES[listing.category] || CAT_STYLES.farm
@@ -197,6 +201,25 @@ function ListingCard({ listing, onReview }) {
           )}
         </div>
 
+        {listing.category === 'hotel' && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
+            <span style={{
+              display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 800,
+              color: listing.priceType === 'free' ? '#059669' : '#0d9488',
+              backgroundColor: listing.priceType === 'free' ? '#f0fdf4' : '#f0fdfa',
+              padding: '3px 9px', borderRadius: 999,
+            }}>
+              {listing.priceType === 'free' ? <Gift size={11} /> : <Banknote size={11} />}
+              {listing.priceType === 'free' ? 'พักฟรี' : `${listing.price?.toLocaleString() || 0} บาท/คืน`}
+            </span>
+            {typeof distanceKm === 'number' && (
+              <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 700, color: '#888' }}>
+                <Navigation size={10} /> {distanceKm.toFixed(1)} กม.
+              </span>
+            )}
+          </div>
+        )}
+
         {/* Rating display */}
         {listing.avgRating > 0 && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
@@ -218,6 +241,14 @@ function ListingCard({ listing, onReview }) {
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
               <MapPin size={11} color="#aaa" style={{ flexShrink: 0, marginTop: 2 }} />
               <span style={{ fontSize: 12, color: '#666', fontWeight: 500, lineHeight: 1.4 }}>{listing.address}</span>
+            </div>
+          )}
+          {listing.category === 'hotel' && (listing.district || listing.province) && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <MapPin size={11} color="#aaa" />
+              <span style={{ fontSize: 12, color: '#666', fontWeight: 500 }}>
+                {[listing.subdistrict, listing.district, listing.province].filter(Boolean).join(', ')}
+              </span>
             </div>
           )}
           {listing.phone && (
@@ -302,6 +333,13 @@ export default function DirectoryPage() {
   const [loading, setLoading] = useState(true)
   const [reviewTarget, setReviewTarget] = useState(null)
 
+  const [provinces, setProvinces] = useState(null)
+  const [provinceFilter, setProvinceFilter] = useState('')
+  const [districtFilter, setDistrictFilter] = useState('')
+  const [myLocation, setMyLocation] = useState(null)
+  const [locating, setLocating] = useState(false)
+  const [locationError, setLocationError] = useState('')
+
   useEffect(() => {
     async function load() {
       setLoading(true)
@@ -315,14 +353,43 @@ export default function DirectoryPage() {
   }, [])
 
   useEffect(() => {
+    if (category === 'hotel' && !provinces) loadProvinces().then(setProvinces)
+  }, [category, provinces])
+
+  const selectedProvince = provinces?.find(p => p.name_th === provinceFilter)
+
+  const handleFindNearMe = async () => {
+    if (myLocation) { setMyLocation(null); return }
+    setLocating(true)
+    setLocationError('')
+    try {
+      setMyLocation(await getCurrentPosition())
+    } catch {
+      setLocationError('ไม่สามารถเข้าถึงตำแหน่งได้ กรุณาอนุญาตการเข้าถึงตำแหน่ง')
+    }
+    setLocating(false)
+  }
+
+  useEffect(() => {
     let r = listings
     if (category !== 'all') r = r.filter(l => l.category === category)
     if (search.trim()) {
       const s = search.toLowerCase()
       r = r.filter(l => l.name?.toLowerCase().includes(s) || l.description?.toLowerCase().includes(s) || l.address?.toLowerCase().includes(s))
     }
+    if (category === 'hotel') {
+      if (provinceFilter) r = r.filter(l => l.province === provinceFilter)
+      if (districtFilter) r = r.filter(l => l.district === districtFilter)
+      if (myLocation) {
+        r = [...r].sort((a, b) => {
+          const da = (a.lat != null && a.lng != null) ? haversineKm(myLocation.lat, myLocation.lng, a.lat, a.lng) : Infinity
+          const db_ = (b.lat != null && b.lng != null) ? haversineKm(myLocation.lat, myLocation.lng, b.lat, b.lng) : Infinity
+          return da - db_
+        })
+      }
+    }
     setFiltered(r)
-  }, [listings, category, search])
+  }, [listings, category, search, provinceFilter, districtFilter, myLocation])
 
   const handleReviewSubmit = async ({ rating, comment }) => {
     if (!user || !reviewTarget) return
@@ -406,6 +473,53 @@ export default function DirectoryPage() {
           ))}
         </div>
 
+        {category === 'hotel' && (
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+            <button
+              onClick={handleFindNearMe} disabled={locating}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 999,
+                border: myLocation ? '2px solid #F97316' : '1.5px solid #e5e7eb',
+                backgroundColor: myLocation ? '#FFF7ED' : '#fff',
+                color: myLocation ? '#F97316' : '#666',
+                fontSize: 13, fontWeight: 700, cursor: locating ? 'default' : 'pointer',
+                fontFamily: 'Space Grotesk, sans-serif',
+              }}
+            >
+              <Navigation size={13} /> {locating ? 'กำลังหาตำแหน่ง...' : myLocation ? 'ใกล้ฉัน ✓' : 'ใกล้ฉัน'}
+            </button>
+
+            <select
+              value={provinceFilter}
+              onChange={e => { setProvinceFilter(e.target.value); setDistrictFilter('') }}
+              style={{
+                padding: '8px 12px', borderRadius: 999, border: '1.5px solid #e5e7eb',
+                fontSize: 13, fontWeight: 700, color: '#666', fontFamily: 'Space Grotesk, sans-serif',
+                backgroundColor: '#fff', outline: 'none',
+              }}
+            >
+              <option value="">ทุกจังหวัด</option>
+              {provinces?.map(p => <option key={p.code} value={p.name_th}>{p.name_th}</option>)}
+            </select>
+
+            <select
+              value={districtFilter}
+              onChange={e => setDistrictFilter(e.target.value)}
+              disabled={!selectedProvince}
+              style={{
+                padding: '8px 12px', borderRadius: 999, border: '1.5px solid #e5e7eb',
+                fontSize: 13, fontWeight: 700, color: '#666', fontFamily: 'Space Grotesk, sans-serif',
+                backgroundColor: '#fff', outline: 'none',
+              }}
+            >
+              <option value="">ทุกอำเภอ/เขต</option>
+              {selectedProvince?.districts.map(d => <option key={d.code} value={d.name_th}>{d.name_th}</option>)}
+            </select>
+
+            {locationError && <span style={{ fontSize: 12, color: '#dc2626', fontWeight: 600, alignSelf: 'center' }}>{locationError}</span>}
+          </div>
+        )}
+
         {loading ? (
           <div style={{ textAlign: 'center', padding: '60px 0', color: '#aaa' }}>กำลังโหลด...</div>
         ) : filtered.length === 0 ? (
@@ -425,7 +539,12 @@ export default function DirectoryPage() {
             <p style={{ fontSize: 12, color: '#aaa', fontWeight: 600, marginBottom: 16 }}>พบ {filtered.length} สถานที่</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: 16, paddingBottom: 20 }}>
               {filtered.map(listing => (
-                <ListingCard key={listing.id} listing={listing} onReview={setReviewTarget} />
+                <ListingCard
+                  key={listing.id} listing={listing} onReview={setReviewTarget}
+                  distanceKm={myLocation && listing.lat != null && listing.lng != null
+                    ? haversineKm(myLocation.lat, myLocation.lng, listing.lat, listing.lng)
+                    : undefined}
+                />
               ))}
             </div>
           </>
