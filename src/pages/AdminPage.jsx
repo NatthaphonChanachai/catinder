@@ -158,7 +158,7 @@ const CATEGORIES = [
   { id: 'clinic', label: 'คลินิก', icon: Stethoscope },
   { id: 'food', label: 'ร้านอาหารแมว', icon: Fish },
   { id: 'place', label: 'ที่เที่ยว Cat-Friendly', icon: TreePine },
-  { id: 'hotel', label: 'โรงแรมแมว', icon: Hotel },
+  { id: 'hotel', label: 'โรงแรม (Cat Friendly)', icon: Hotel },
 ]
 
 function getCatIcon(catId) {

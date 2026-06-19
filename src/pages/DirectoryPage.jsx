@@ -22,7 +22,7 @@ const CATEGORIES = [
   { value: 'clinic', label: 'คลินิก', icon: Stethoscope },
   { value: 'food', label: 'ร้านอาหารแมว', icon: Fish },
   { value: 'place', label: 'ที่เที่ยว', icon: TreePine },
-  { value: 'hotel', label: 'โรงแรมแมว', icon: Hotel },
+  { value: 'hotel', label: 'โรงแรม (Cat Friendly)', icon: Hotel },
 ]
 
 const CAT_STYLES = {
