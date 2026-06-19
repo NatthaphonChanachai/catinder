@@ -453,14 +453,14 @@ export default function DirectoryPage() {
 
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 16px' }}>
         {/* Category tabs */}
-        <div style={{ display: 'flex', gap: 7, overflowX: 'auto', padding: '16px 0', scrollbarWidth: 'none' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, padding: '16px 0' }}>
           {CATEGORIES.map(({ value, label, icon: Icon }) => (
             <button
               key={value}
               onClick={() => setCategory(value)}
               style={{
                 display: 'flex', alignItems: 'center', gap: 6,
-                padding: '7px 14px', borderRadius: 999, flexShrink: 0,
+                padding: '7px 14px', borderRadius: 999,
                 border: category === value ? '2px solid #F97316' : '1.5px solid #e5e7eb',
                 backgroundColor: category === value ? '#FFF7ED' : '#fff',
                 color: category === value ? '#F97316' : '#666',
