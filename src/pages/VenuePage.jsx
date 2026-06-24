@@ -4,17 +4,83 @@ import { collection, query, where, getDocs, addDoc, serverTimestamp } from 'fire
 import { MapPin, X, Check, PawPrint, ChevronRight, Home, Calendar } from 'lucide-react'
 import { db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
+import { useLanguage } from '../contexts/LanguageContext'
 
 const FACILITY_LABELS = {
-  ac: 'แอร์',
-  cctv: 'CCTV',
-  wifi: 'Wi-Fi',
-  vet_nearby: 'คลินิกใกล้',
-  separate_rooms: 'ห้องแยก',
-  playground: 'สนามเล่น',
+  th: {
+    ac: 'แอร์',
+    cctv: 'CCTV',
+    wifi: 'Wi-Fi',
+    vet_nearby: 'คลินิกใกล้',
+    separate_rooms: 'ห้องแยก',
+    playground: 'สนามเล่น',
+  },
+  en: {
+    ac: 'A/C',
+    cctv: 'CCTV',
+    wifi: 'Wi-Fi',
+    vet_nearby: 'Nearby Clinic',
+    separate_rooms: 'Separate Rooms',
+    playground: 'Playground',
+  },
+}
+
+const COPY = {
+  th: {
+    notSpecified: 'ไม่ระบุ',
+    bookingDone: 'ส่งคำขอจองแล้ว!',
+    bookingDoneSub: 'ทีมงานจะติดต่อยืนยันภายใน 24 ชั่วโมง',
+    done: 'เสร็จสิ้น',
+    bookVenue: 'จองสถานที่',
+    selectCat: 'เลือกน้องแมว *',
+    addCatFirst: 'กรุณาเพิ่มโปรไฟล์แมวก่อนจอง',
+    checkIn: 'เช็คอิน *',
+    checkOut: 'เช็คเอาท์ *',
+    notesLabel: 'หมายเหตุเพิ่มเติม',
+    notesPlaceholder: 'เช่น สายพันธุ์ที่ต้องการจับคู่, ข้อกังวลพิเศษ...',
+    perSession: 'ครั้ง',
+    perNight: 'คืน',
+    priceConfirmNote: 'ราคาจะได้รับการยืนยันจากทีมงานอีกครั้ง',
+    sendingRequest: 'กำลังส่งคำขอ...',
+    sendBookingRequest: 'ส่งคำขอจอง',
+    serviceLabel: 'บริการ',
+    pageTitle: 'สถานที่ผสมพันธุ์',
+    pageSubtitle: 'สถานที่มาตรฐาน ปลอดภัย รับรองโดยทีม Catinder',
+    all: 'ทั้งหมด',
+    noVenuesNow: 'ยังไม่มีสถานที่ในขณะนี้',
+    noVenuesSub: <>เรากำลังคัดเลือกสถานที่มาตรฐาน<br />ติดตามได้เร็วๆ นี้</>,
+    bookNow: 'จองเลย',
+  },
+  en: {
+    notSpecified: 'Not specified',
+    bookingDone: 'Booking request sent!',
+    bookingDoneSub: 'Our team will contact you to confirm within 24 hours.',
+    done: 'Done',
+    bookVenue: 'Book Venue',
+    selectCat: 'Select Your Cat *',
+    addCatFirst: 'Please add a cat profile before booking',
+    checkIn: 'Check-in *',
+    checkOut: 'Check-out *',
+    notesLabel: 'Additional Notes',
+    notesPlaceholder: 'e.g. preferred breed to match with, special concerns...',
+    perSession: 'session',
+    perNight: 'night',
+    priceConfirmNote: 'Price will be confirmed by our team',
+    sendingRequest: 'Sending request...',
+    sendBookingRequest: 'Send Booking Request',
+    serviceLabel: 'Service',
+    pageTitle: 'Mating Venues',
+    pageSubtitle: 'Standard, safe locations certified by the Catinder team',
+    all: 'All',
+    noVenuesNow: 'No venues available yet',
+    noVenuesSub: <>We're curating standard venues<br />Check back soon</>,
+    bookNow: 'Book Now',
+  },
 }
 
 function BookingModal({ venue, myCats, userId, userProfile, userEmail, onClose }) {
+  const { lang } = useLanguage()
+  const c = COPY[lang]
   const [catId, setCatId] = useState('')
   const [checkIn, setCheckIn] = useState('')
   const [checkOut, setCheckOut] = useState('')
@@ -35,7 +101,7 @@ function BookingModal({ venue, myCats, userId, userProfile, userEmail, onClose }
         venueName: venue.name,
         venueLocation: venue.location || '',
         userId,
-        userName: userProfile?.displayName || userEmail?.split('@')[0] || 'ไม่ระบุ',
+        userName: userProfile?.displayName || userEmail?.split('@')[0] || c.notSpecified,
         userEmail: userEmail || '',
         catId,
         catName: cat?.name || '',
@@ -71,19 +137,19 @@ function BookingModal({ venue, myCats, userId, userProfile, userEmail, onClose }
             <div style={{ width: 64, height: 64, borderRadius: '50%', backgroundColor: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
               <Check size={30} color="#10b981" />
             </div>
-            <h3 style={{ fontSize: 18, fontWeight: 900, color: '#000', marginBottom: 8 }}>ส่งคำขอจองแล้ว!</h3>
+            <h3 style={{ fontSize: 18, fontWeight: 900, color: '#000', marginBottom: 8 }}>{c.bookingDone}</h3>
             <p style={{ fontSize: 13, color: '#888', fontWeight: 500, lineHeight: 1.8, marginBottom: 24 }}>
-              ทีมงานจะติดต่อยืนยันภายใน 24 ชั่วโมง
+              {c.bookingDoneSub}
             </p>
             <button onClick={onClose} style={{ padding: '12px 32px', borderRadius: 999, border: 'none', backgroundColor: '#F97316', color: '#fff', fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'Space Grotesk, sans-serif' }}>
-              เสร็จสิ้น
+              {c.done}
             </button>
           </div>
         ) : (
           <>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
               <div>
-                <h3 style={{ fontSize: 17, fontWeight: 900, color: '#000', marginBottom: 2 }}>จองสถานที่</h3>
+                <h3 style={{ fontSize: 17, fontWeight: 900, color: '#000', marginBottom: 2 }}>{c.bookVenue}</h3>
                 <p style={{ fontSize: 12, color: '#aaa', fontWeight: 600 }}>{venue.name}{venue.location ? ` · ${venue.location}` : ''}</p>
               </div>
               <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
@@ -91,10 +157,10 @@ function BookingModal({ venue, myCats, userId, userProfile, userEmail, onClose }
               </button>
             </div>
 
-            <label style={{ fontSize: 12, fontWeight: 700, color: '#555', display: 'block', marginBottom: 8 }}>เลือกน้องแมว *</label>
+            <label style={{ fontSize: 12, fontWeight: 700, color: '#555', display: 'block', marginBottom: 8 }}>{c.selectCat}</label>
             {myCats.length === 0 ? (
               <div style={{ padding: '14px', backgroundColor: '#FFF7ED', borderRadius: 12, marginBottom: 16 }}>
-                <p style={{ fontSize: 13, color: '#F97316', fontWeight: 700 }}>กรุณาเพิ่มโปรไฟล์แมวก่อนจอง</p>
+                <p style={{ fontSize: 13, color: '#F97316', fontWeight: 700 }}>{c.addCatFirst}</p>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
@@ -126,8 +192,8 @@ function BookingModal({ venue, myCats, userId, userProfile, userEmail, onClose }
             )}
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
-              {[{ label: 'เช็คอิน *', value: checkIn, set: setCheckIn },
-                { label: 'เช็คเอาท์ *', value: checkOut, set: setCheckOut }].map((f, i) => (
+              {[{ label: c.checkIn, value: checkIn, set: setCheckIn },
+                { label: c.checkOut, value: checkOut, set: setCheckOut }].map((f, i) => (
                 <div key={i}>
                   <label style={{ fontSize: 12, fontWeight: 700, color: '#555', display: 'block', marginBottom: 5 }}>{f.label}</label>
                   <input type="date" value={f.value} onChange={e => f.set(e.target.value)} min={today}
@@ -140,8 +206,8 @@ function BookingModal({ venue, myCats, userId, userProfile, userEmail, onClose }
             </div>
 
             <div style={{ marginBottom: 20 }}>
-              <label style={{ fontSize: 12, fontWeight: 700, color: '#555', display: 'block', marginBottom: 5 }}>หมายเหตุเพิ่มเติม</label>
-              <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="เช่น สายพันธุ์ที่ต้องการจับคู่, ข้อกังวลพิเศษ..." rows={2}
+              <label style={{ fontSize: 12, fontWeight: 700, color: '#555', display: 'block', marginBottom: 5 }}>{c.notesLabel}</label>
+              <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder={c.notesPlaceholder} rows={2}
                 style={{ width: '100%', padding: '10px 13px', borderRadius: 10, border: '1.5px solid #e5e7eb', fontSize: 13, fontFamily: 'Space Grotesk, sans-serif', outline: 'none', resize: 'vertical', boxSizing: 'border-box' }}
                 onFocus={e => e.target.style.borderColor = '#F97316'}
                 onBlur={e => e.target.style.borderColor = '#e5e7eb'}
@@ -152,9 +218,9 @@ function BookingModal({ venue, myCats, userId, userProfile, userEmail, onClose }
               <Calendar size={16} color="#F97316" />
               <div>
                 <div style={{ fontSize: 13, fontWeight: 800, color: '#F97316' }}>
-                  ฿{venue.price?.toLocaleString() || '0'} / {venue.priceUnit === 'session' ? 'ครั้ง' : 'คืน'}
+                  ฿{venue.price?.toLocaleString() || '0'} / {venue.priceUnit === 'session' ? c.perSession : c.perNight}
                 </div>
-                <div style={{ fontSize: 11, color: '#f97316bb', fontWeight: 500 }}>ราคาจะได้รับการยืนยันจากทีมงานอีกครั้ง</div>
+                <div style={{ fontSize: 11, color: '#f97316bb', fontWeight: 500 }}>{c.priceConfirmNote}</div>
               </div>
             </div>
 
@@ -166,7 +232,7 @@ function BookingModal({ venue, myCats, userId, userProfile, userEmail, onClose }
               cursor: valid && myCats.length > 0 ? 'pointer' : 'not-allowed',
               fontFamily: 'Space Grotesk, sans-serif',
             }}>
-              {submitting ? 'กำลังส่งคำขอ...' : 'ส่งคำขอจอง'}
+              {submitting ? c.sendingRequest : c.sendBookingRequest}
             </button>
           </>
         )}
@@ -177,6 +243,8 @@ function BookingModal({ venue, myCats, userId, userProfile, userEmail, onClose }
 
 export default function VenuePage() {
   const { user, userProfile } = useAuth()
+  const { lang } = useLanguage()
+  const c = COPY[lang]
   const [venues, setVenues] = useState([])
   const [loading, setLoading] = useState(true)
   const [myCats, setMyCats] = useState([])
@@ -204,9 +272,9 @@ export default function VenuePage() {
     <div style={{ minHeight: '100dvh', backgroundColor: '#f8f8f8', fontFamily: 'Space Grotesk, sans-serif' }}>
       <div style={{ backgroundColor: '#fff', borderBottom: '1px solid #f0f0f0', padding: '20px 20px 0' }}>
         <div style={{ maxWidth: 900, margin: '0 auto', paddingBottom: 16 }}>
-          <p style={{ fontSize: 12, color: '#aaa', fontWeight: 600, marginBottom: 2 }}>บริการ</p>
-          <h1 style={{ fontSize: 22, fontWeight: 900, color: '#000', marginBottom: 4 }}>สถานที่ผสมพันธุ์</h1>
-          <p style={{ fontSize: 13, color: '#888', fontWeight: 500 }}>สถานที่มาตรฐาน ปลอดภัย รับรองโดยทีม Catinder</p>
+          <p style={{ fontSize: 12, color: '#aaa', fontWeight: 600, marginBottom: 2 }}>{c.serviceLabel}</p>
+          <h1 style={{ fontSize: 22, fontWeight: 900, color: '#000', marginBottom: 4 }}>{c.pageTitle}</h1>
+          <p style={{ fontSize: 13, color: '#888', fontWeight: 500 }}>{c.pageSubtitle}</p>
         </div>
         {allProvinces.length > 0 && (
           <div style={{ maxWidth: 900, margin: '0 auto' }}>
@@ -219,7 +287,7 @@ export default function VenuePage() {
                   fontSize: 12, fontWeight: 700, cursor: 'pointer',
                   fontFamily: 'Space Grotesk, sans-serif', transition: 'all 0.15s',
                 }}>
-                  {p === 'all' ? 'ทั้งหมด' : p}
+                  {p === 'all' ? c.all : p}
                 </button>
               ))}
             </div>
@@ -237,9 +305,9 @@ export default function VenuePage() {
             <div style={{ width: 64, height: 64, borderRadius: 18, backgroundColor: '#FFF7ED', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
               <Home size={30} color="#F97316" />
             </div>
-            <h3 style={{ fontSize: 16, fontWeight: 900, color: '#000', marginBottom: 6 }}>ยังไม่มีสถานที่ในขณะนี้</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 900, color: '#000', marginBottom: 6 }}>{c.noVenuesNow}</h3>
             <p style={{ fontSize: 13, color: '#aaa', fontWeight: 500, lineHeight: 1.7 }}>
-              เรากำลังคัดเลือกสถานที่มาตรฐาน<br />ติดตามได้เร็วๆ นี้
+              {c.noVenuesSub}
             </p>
           </div>
         ) : (
@@ -265,7 +333,7 @@ export default function VenuePage() {
                     {!venue.photoURL && <Home size={44} color="#ddd" />}
                     <div style={{ position: 'absolute', top: 12, right: 12, backgroundColor: 'rgba(0,0,0,0.72)', color: '#fff', padding: '5px 12px', borderRadius: 999, fontSize: 13, fontWeight: 800, backdropFilter: 'blur(4px)' }}>
                       ฿{venue.price?.toLocaleString() || '0'}
-                      <span style={{ fontSize: 10, opacity: 0.7 }}>/{venue.priceUnit === 'session' ? 'ครั้ง' : 'คืน'}</span>
+                      <span style={{ fontSize: 10, opacity: 0.7 }}>/{venue.priceUnit === 'session' ? c.perSession : c.perNight}</span>
                     </div>
                   </div>
                   <div style={{ padding: '16px 18px 18px' }}>
@@ -279,7 +347,7 @@ export default function VenuePage() {
                         )}
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 700, color: '#F97316', flexShrink: 0 }}>
-                        จองเลย <ChevronRight size={14} />
+                        {c.bookNow} <ChevronRight size={14} />
                       </div>
                     </div>
                     {venue.description && (
@@ -291,7 +359,7 @@ export default function VenuePage() {
                       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                         {venue.facilities.slice(0, 5).map(f => (
                           <span key={f} style={{ fontSize: 11, fontWeight: 700, color: '#666', backgroundColor: '#f5f5f5', padding: '3px 9px', borderRadius: 999 }}>
-                            {FACILITY_LABELS[f] || f}
+                            {FACILITY_LABELS[lang][f] || f}
                           </span>
                         ))}
                         {venue.facilities.length > 5 && (

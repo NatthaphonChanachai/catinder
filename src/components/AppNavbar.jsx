@@ -8,24 +8,46 @@ import {
 import { collection, query, where, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
+import { useLanguage } from '../contexts/LanguageContext'
 import EditProfileModal from './EditProfileModal'
 
 const NAV = [
-  { path: '/discover', label: 'Discover', icon: Compass },
-  { path: '/my-cats', label: 'แมวของฉัน', icon: PawPrint },
-  { path: '/chat', label: 'แชท', icon: MessageCircle },
-  { path: '/directory', label: 'ไดเรกทอรี', icon: MapPin },
-  { path: '/venues', label: 'สถานที่', icon: Building2 },
-  { path: '/registries', label: 'Registry', icon: BookOpen },
+  { path: '/discover', label: { th: 'ค้นพบ', en: 'Discover' }, icon: Compass },
+  { path: '/my-cats', label: { th: 'แมวของฉัน', en: 'My Cats' }, icon: PawPrint },
+  { path: '/chat', label: { th: 'แชท', en: 'Chat' }, icon: MessageCircle },
+  { path: '/directory', label: { th: 'ไดเรกทอรี', en: 'Directory' }, icon: MapPin },
+  { path: '/venues', label: { th: 'สถานที่', en: 'Venues' }, icon: Building2 },
+  { path: '/registries', label: { th: 'รีจิสทรี', en: 'Registry' }, icon: BookOpen },
 ]
+
+const COPY = {
+  th: {
+    firestoreWarning: 'Firestore ยังไม่พร้อม — ไปที่ Firebase Console สร้าง Firestore Database ก่อน',
+    admin: 'Admin',
+    contactSupport: 'ติดต่อทีมงาน',
+    editProfile: 'แก้ไขโปรไฟล์',
+    signOut: 'ออกจากระบบ',
+    defaultUser: 'ผู้ใช้',
+  },
+  en: {
+    firestoreWarning: 'Firestore is not ready — go to Firebase Console and create a Firestore Database first.',
+    admin: 'Admin',
+    contactSupport: 'Contact Support',
+    editProfile: 'Edit Profile',
+    signOut: 'Log Out',
+    defaultUser: 'User',
+  },
+}
 
 export default function AppNavbar() {
   const { user, userProfile, isAdmin, logout, firestoreReady } = useAuth()
+  const { lang, toggleLang } = useLanguage()
   const location = useLocation()
   const [dropOpen, setDropOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [unread, setUnread] = useState(0)
   const [showEditProfile, setShowEditProfile] = useState(false)
+  const c = COPY[lang]
 
   useEffect(() => {
     if (!user) return
@@ -70,7 +92,7 @@ export default function AppNavbar() {
         onMouseLeave={e => { if (!active) { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#555' }}}
       >
         <Icon size={15} />
-        {label}
+        {label[lang]}
         {isChatLink && unread > 0 && (
           <span style={{ position: 'absolute', top: 3, right: 3, width: 8, height: 8, borderRadius: '50%', backgroundColor: '#ef4444', border: '1.5px solid #fff' }} />
         )}
@@ -90,7 +112,7 @@ export default function AppNavbar() {
         {/* Firestore warning banner */}
         {!firestoreReady && (
           <div style={{ backgroundColor: '#fef3c7', padding: '8px 20px', fontSize: 12, fontWeight: 700, color: '#92400e', textAlign: 'center' }}>
-            Firestore ยังไม่พร้อม — ไปที่ Firebase Console สร้าง Firestore Database ก่อน
+            {c.firestoreWarning}
           </div>
         )}
 
@@ -114,13 +136,31 @@ export default function AppNavbar() {
                 backgroundColor: location.pathname.startsWith('/admin') ? 'rgba(124,58,237,0.08)' : 'transparent',
                 transition: 'all 0.15s',
               }}>
-                <Shield size={15} /> Admin
+                <Shield size={15} /> {c.admin}
               </Link>
             )}
           </div>
 
+          {/* Language toggle — desktop */}
+          <div style={{ display: 'flex', border: '1.5px solid #e5e7eb', borderRadius: 999, overflow: 'hidden', flexShrink: 0, marginLeft: 'auto' }} className="app-desktop-nav">
+            {['th', 'en'].map((l) => (
+              <button key={l} onClick={() => l !== lang && toggleLang()}
+                style={{
+                  padding: '6px 11px', border: 'none', cursor: 'pointer',
+                  fontSize: 11, fontWeight: 700, letterSpacing: '0.05em',
+                  fontFamily: 'Space Grotesk, sans-serif',
+                  backgroundColor: lang === l ? '#F97316' : '#fff',
+                  color: lang === l ? '#fff' : '#888',
+                  transition: 'background 0.2s, color 0.2s',
+                }}
+              >
+                {l.toUpperCase()}
+              </button>
+            ))}
+          </div>
+
           {/* Profile dropdown — desktop */}
-          <div style={{ position: 'relative', marginLeft: 'auto', flexShrink: 0 }} className="app-desktop-nav">
+          <div style={{ position: 'relative', marginLeft: 12, flexShrink: 0 }} className="app-desktop-nav">
             <button onClick={() => setDropOpen(!dropOpen)} style={{
               display: 'flex', alignItems: 'center', gap: 7,
               padding: '5px 10px 5px 5px', borderRadius: 999,
@@ -175,14 +215,14 @@ export default function AppNavbar() {
                       </div>
                       <div style={{ overflow: 'hidden' }}>
                         <div style={{ fontSize: 13, fontWeight: 800, color: '#000', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {userProfile?.displayName || 'ผู้ใช้'}
+                          {userProfile?.displayName || c.defaultUser}
                         </div>
                         <div style={{ fontSize: 11, color: '#888', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email}</div>
                       </div>
                     </div>
                     {isAdmin && (
                       <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#7c3aed', fontWeight: 800, backgroundColor: 'rgba(124,58,237,0.08)', padding: '2px 8px', borderRadius: 999, marginTop: 8 }}>
-                        <Shield size={9} /> Admin
+                        <Shield size={9} /> {c.admin}
                       </div>
                     )}
                   </div>
@@ -201,7 +241,7 @@ export default function AppNavbar() {
                     onMouseEnter={e => e.currentTarget.style.backgroundColor = '#FFF7ED'}
                     onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
-                    <Headphones size={14} /> ติดต่อทีมงาน
+                    <Headphones size={14} /> {c.contactSupport}
                   </Link>
 
                   {/* Edit profile */}
@@ -217,7 +257,7 @@ export default function AppNavbar() {
                     onMouseEnter={e => e.currentTarget.style.backgroundColor = '#f9f9f9'}
                     onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
-                    <UserPen size={14} /> แก้ไขโปรไฟล์
+                    <UserPen size={14} /> {c.editProfile}
                   </button>
 
                   {/* Logout */}
@@ -232,7 +272,7 @@ export default function AppNavbar() {
                     onMouseEnter={e => e.currentTarget.style.backgroundColor = '#fef2f2'}
                     onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
-                    <LogOut size={14} /> ออกจากระบบ
+                    <LogOut size={14} /> {c.signOut}
                   </button>
                 </motion.div>
               )}
@@ -276,7 +316,7 @@ export default function AppNavbar() {
                       color: active ? '#F97316' : '#333',
                       borderBottom: '1px solid #f5f5f5', position: 'relative',
                     }}>
-                      <Icon size={17} /> {label}
+                      <Icon size={17} /> {label[lang]}
                       {isChatLink && unread > 0 && (
                         <span style={{ backgroundColor: '#ef4444', color: '#fff', fontSize: 10, fontWeight: 800, padding: '1px 6px', borderRadius: 999, marginLeft: 4 }}>{unread}</span>
                       )}
@@ -289,9 +329,27 @@ export default function AppNavbar() {
                     textDecoration: 'none', fontSize: 15, fontWeight: 700, color: '#7c3aed',
                     borderBottom: '1px solid #f5f5f5',
                   }}>
-                    <Shield size={17} /> Admin
+                    <Shield size={17} /> {c.admin}
                   </Link>
                 )}
+
+                {/* Language toggle — mobile */}
+                <div style={{ display: 'flex', border: '1.5px solid #e5e7eb', borderRadius: 999, overflow: 'hidden', width: 'fit-content', margin: '12px 8px 0' }}>
+                  {['th', 'en'].map((l) => (
+                    <button key={l} onClick={() => l !== lang && toggleLang()}
+                      style={{
+                        padding: '7px 13px', border: 'none', cursor: 'pointer',
+                        fontSize: 12, fontWeight: 700, letterSpacing: '0.05em',
+                        fontFamily: 'Space Grotesk, sans-serif',
+                        backgroundColor: lang === l ? '#F97316' : '#fff',
+                        color: lang === l ? '#fff' : '#888',
+                        transition: 'background 0.2s, color 0.2s',
+                      }}
+                    >
+                      {l.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
 
                 {/* Mobile user section */}
                 <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid #f5f5f5' }}>
@@ -302,7 +360,7 @@ export default function AppNavbar() {
                         : <span style={{ fontSize: 15, fontWeight: 800, color: '#F97316' }}>{avatarLetter}</span>}
                     </div>
                     <div style={{ overflow: 'hidden' }}>
-                      <div style={{ fontSize: 14, fontWeight: 800, color: '#000' }}>{userProfile?.displayName || 'ผู้ใช้'}</div>
+                      <div style={{ fontSize: 14, fontWeight: 800, color: '#000' }}>{userProfile?.displayName || c.defaultUser}</div>
                       <div style={{ fontSize: 11, color: '#aaa', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email}</div>
                     </div>
                   </div>
@@ -312,7 +370,7 @@ export default function AppNavbar() {
                     cursor: 'pointer', fontSize: 14, fontWeight: 700, color: '#333',
                     fontFamily: 'Space Grotesk, sans-serif', borderBottom: '1px solid #f5f5f5',
                   }}>
-                    <UserPen size={16} /> แก้ไขโปรไฟล์
+                    <UserPen size={16} /> {c.editProfile}
                   </button>
                   <button onClick={() => { setMobileOpen(false); logout() }} style={{
                     display: 'flex', alignItems: 'center', gap: 10, padding: '10px 8px',
@@ -320,7 +378,7 @@ export default function AppNavbar() {
                     cursor: 'pointer', fontSize: 14, fontWeight: 700, color: '#ef4444',
                     fontFamily: 'Space Grotesk, sans-serif',
                   }}>
-                    <LogOut size={16} /> ออกจากระบบ
+                    <LogOut size={16} /> {c.signOut}
                   </button>
                 </div>
               </div>

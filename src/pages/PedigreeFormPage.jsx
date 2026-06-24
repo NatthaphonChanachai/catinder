@@ -8,9 +8,157 @@ import {
 } from 'lucide-react'
 import { db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
+import { useLanguage } from '../contexts/LanguageContext'
 import { prepareImage, blobToBase64, ACCEPT_IMAGE_TYPES } from '../utils/imageUtils'
 
-const REGISTRIES = ['CFA', 'TICA', 'SCFC', 'WCF', 'อื่นๆ']
+const COPY = {
+  th: {
+    registryOther: 'อื่นๆ',
+    imageLoadFailed: 'โหลดรูปไม่ได้ กรุณาลองไฟล์อื่น',
+    catName: 'ชื่อแมว',
+    catNamePlaceholder: 'ชื่อแมว',
+    registry: 'ชมรม/สมาคม',
+    selectPlaceholder: '-- เลือก --',
+    regNumber: 'หมายเลขทะเบียน',
+    regNumberPlaceholder: 'เช่น TH-2024-00123',
+    cattery: 'ชื่อ Cattery / ฟาร์ม',
+    catteryPlaceholder: 'ชื่อฟาร์มหรือ cattery',
+    ownerName: 'ชื่อเจ้าของ',
+    ownerNamePlaceholder: 'ชื่อ-นามสกุล',
+    ownerPhone: 'เบอร์โทรศัพท์',
+    ownerPhonePlaceholder: '08x-xxx-xxxx',
+    farmRegNumber: "หมายเลขจดทะเบียนฟาร์ม (Dam's Owner)",
+    farmRegNumberHint: 'ใช้สำหรับยื่นกับสมาคม',
+    farmRegNumberPlaceholder: 'หมายเลขจดทะเบียนฟาร์ม',
+    regImg: 'รูปใบทะเบียน',
+    regImgHint: 'ถ่ายรูปใบทะเบียนแมวเพื่อแนบประกอบ',
+    regImgAlt: 'ใบทะเบียน',
+    loading: 'กำลังโหลด...',
+    uploadRegImg: 'อัปโหลดใบทะเบียน',
+    sameRegistry: same => `✅ ทั้งคู่อยู่ใน ${same} เหมือนกัน — สามารถออกใบ Pedigree ได้`,
+    diffRegistry: (sireReg, damReg) => `⚠️ พ่ออยู่ใน ${sireReg}, แม่อยู่ใน ${damReg}`,
+    diffRegistryNote: 'ลูกแมวอาจออกใบเพ็ดดีกรีไม่ได้ เนื่องจากพ่อแม่อยู่ต่างชมรม — แนะนำให้ปรึกษาสมาคมก่อนดำเนินการ',
+    sireCat: 'พ่อแมว',
+    damCat: 'แม่แมว',
+    sireOwner: 'เจ้าของพ่อ',
+    damOwner: 'เจ้าของแม่',
+    litterBirthDate: 'วันคลอดลูก',
+    litterCount: 'จำนวนลูก',
+    litterCountUnit: n => `${n} ตัว`,
+    litterColorSex: 'สีขน / เพศ',
+    ownerSignature: 'ลายเซ็นเจ้าของ',
+    hasAttachment: 'มีไฟล์แนบ',
+    noAttachment: 'ไม่มี',
+    damFarmRegNumberShort: 'หมายเลขจดทะเบียนฟาร์ม (Dam)',
+    saveSuccess: 'บันทึกข้อมูลสำเร็จ',
+    saveSuccessHint: 'ตรวจสอบรายการด้านล่างก่อนส่งเอกสารไปยังสมาคม',
+    refCode: 'รหัสอ้างอิง',
+    checklistTitle: 'Checklist เอกสาร Pedigree',
+    notSpecified: 'ยังไม่ระบุ',
+    nextStepsPrefix: 'ขั้นตอนต่อไป:',
+    nextSteps: registry => ` นำรายการนี้ไปยื่นที่สมาคม ${registry} พร้อมเอกสารต้นฉบับ เพื่อออกใบ Pedigree ให้กับลูกแมว`,
+    registeredFallback: 'ที่ลงทะเบียน',
+    fillAgain: 'กรอกใหม่',
+    backToDiscover: 'กลับหน้า Discover',
+    back: 'กลับ',
+    pageTitle: 'เตรียมเอกสาร Pedigree',
+    pageSubtitle: 'กรอกข้อมูลพ่อแม่แมวและลูกแมวเพื่อเตรียมยื่นกับสมาคม',
+    sireSectionTitle: '🐾 สายพ่อ (Sire)',
+    damSectionTitle: '🐾 สายแม่ (Dam)',
+    litterSectionTitle: 'ข้อมูลลูกแมว (Litter)',
+    birthDate: 'วันที่คลอด',
+    litterCountField: 'จำนวนลูก (ตัว)',
+    litterCountPlaceholder: 'เช่น 4',
+    litterDescLabel: 'รายละเอียดลูกแมว',
+    litterDescHint: 'เช่น สีขน, เพศ (ตัวผู้ 2 ตัว สีส้ม, ตัวเมีย 2 ตัว สีขาว)',
+    litterDescPlaceholder: 'ระบุสีขนและเพศของลูกแมวแต่ละตัว',
+    signatureSectionTitle: 'ลายเซ็นเจ้าของ / หนังสือยินยอม',
+    signatureIntro: 'อัปโหลดลายเซ็นเจ้าของหรือเอกสารยินยอมการผสมพันธุ์ (ถ้ามี)',
+    signatureAlt: 'ลายเซ็น',
+    uploadSignature: 'อัปโหลดลายเซ็น / เอกสารยินยอม',
+    notesSectionTitle: 'หมายเหตุเพิ่มเติม',
+    notesPlaceholder: 'หมายเหตุอื่นๆ สำหรับการยื่นเอกสาร...',
+    saving: 'กำลังบันทึก...',
+    saveAndCreate: 'บันทึกและสร้าง Checklist',
+    sigUploadFailed: 'โหลดรูปไม่ได้',
+    fillRequiredAlert: 'กรุณากรอกชื่อแมวและชมรมทั้งสองฝ่าย',
+    saveErrorAlert: 'เกิดข้อผิดพลาด กรุณาลองใหม่',
+  },
+  en: {
+    registryOther: 'Other',
+    imageLoadFailed: 'Could not load image. Please try a different file.',
+    catName: 'Cat Name',
+    catNamePlaceholder: 'Cat name',
+    registry: 'Registry / Association',
+    selectPlaceholder: '-- Select --',
+    regNumber: 'Registration Number',
+    regNumberPlaceholder: 'e.g. TH-2024-00123',
+    cattery: 'Cattery / Farm Name',
+    catteryPlaceholder: 'Farm or cattery name',
+    ownerName: 'Owner Name',
+    ownerNamePlaceholder: 'Full name',
+    ownerPhone: 'Phone Number',
+    ownerPhonePlaceholder: '08x-xxx-xxxx',
+    farmRegNumber: "Farm Registration Number (Dam's Owner)",
+    farmRegNumberHint: 'Used when filing with the registry',
+    farmRegNumberPlaceholder: 'Farm registration number',
+    regImg: 'Registration Certificate Photo',
+    regImgHint: "Take a photo of the cat's registration certificate to attach",
+    regImgAlt: 'Registration certificate',
+    loading: 'Uploading...',
+    uploadRegImg: 'Upload Registration Certificate',
+    sameRegistry: same => `✅ Both are registered with ${same} — a Pedigree certificate can be issued`,
+    diffRegistry: (sireReg, damReg) => `⚠️ Sire is registered with ${sireReg}, Dam is registered with ${damReg}`,
+    diffRegistryNote: 'The kittens may not be eligible for a pedigree certificate since the parents are registered with different associations — we recommend checking with the registry before proceeding.',
+    sireCat: 'Sire',
+    damCat: 'Dam',
+    sireOwner: "Sire's Owner",
+    damOwner: "Dam's Owner",
+    litterBirthDate: 'Litter Birth Date',
+    litterCount: 'Number of Kittens',
+    litterCountUnit: n => `${n} kitten(s)`,
+    litterColorSex: 'Coat Color / Sex',
+    ownerSignature: "Owner's Signature",
+    hasAttachment: 'Attached',
+    noAttachment: 'None',
+    damFarmRegNumberShort: 'Farm Registration Number (Dam)',
+    saveSuccess: 'Saved successfully',
+    saveSuccessHint: 'Review the checklist below before submitting documents to the registry.',
+    refCode: 'Reference code',
+    checklistTitle: 'Pedigree Document Checklist',
+    notSpecified: 'Not specified',
+    nextStepsPrefix: 'Next steps:',
+    nextSteps: registry => ` Submit this checklist to the ${registry} registry along with the original documents to obtain a Pedigree certificate for the kittens.`,
+    registeredFallback: 'registered',
+    fillAgain: 'Fill Again',
+    backToDiscover: 'Back to Discover',
+    back: 'Back',
+    pageTitle: 'Prepare Pedigree Documents',
+    pageSubtitle: "Fill in the parent cats' and litter's information to prepare for registry submission",
+    sireSectionTitle: '🐾 Sire Line',
+    damSectionTitle: '🐾 Dam Line',
+    litterSectionTitle: 'Litter Information',
+    birthDate: 'Birth Date',
+    litterCountField: 'Number of Kittens',
+    litterCountPlaceholder: 'e.g. 4',
+    litterDescLabel: 'Litter Details',
+    litterDescHint: 'e.g. coat color, sex (2 male orange, 2 female white)',
+    litterDescPlaceholder: 'Describe each kitten\'s coat color and sex',
+    signatureSectionTitle: "Owner's Signature / Consent Form",
+    signatureIntro: "Upload the owner's signature or breeding consent document (if available)",
+    signatureAlt: 'Signature',
+    uploadSignature: 'Upload Signature / Consent Document',
+    notesSectionTitle: 'Additional Notes',
+    notesPlaceholder: 'Any other notes for the submission...',
+    saving: 'Saving...',
+    saveAndCreate: 'Save and Create Checklist',
+    sigUploadFailed: 'Could not load image',
+    fillRequiredAlert: "Please fill in both cats' names and registries",
+    saveErrorAlert: 'An error occurred. Please try again.',
+  },
+}
+
+const REGISTRIES_BASE = ['CFA', 'TICA', 'SCFC', 'WCF']
 
 const inputStyle = {
   width: '100%',
@@ -72,9 +220,10 @@ const Field = ({ label, hint, required, children }) => (
   </div>
 )
 
-function CatPartySection({ title, prefix, form, set, accent }) {
+function CatPartySection({ title, prefix, form, set, accent, c }) {
   const fileRef = useRef()
   const [uploading, setUploading] = useState(false)
+  const registries = [...REGISTRIES_BASE, c.registryOther]
 
   const handleFile = async e => {
     const file = e.target.files?.[0]
@@ -86,7 +235,7 @@ function CatPartySection({ title, prefix, form, set, accent }) {
       const b64 = await blobToBase64(blob)
       set(prefix + 'RegImg', b64)
     } catch {
-      alert('โหลดรูปไม่ได้ กรุณาลองไฟล์อื่น')
+      alert(c.imageLoadFailed)
     }
     setUploading(false)
   }
@@ -96,12 +245,12 @@ function CatPartySection({ title, prefix, form, set, accent }) {
 
   return (
     <Section title={title} accent={accent}>
-      <Field label="ชื่อแมว" required>
+      <Field label={c.catName} required>
         <input
           type="text"
           value={fv('CatName')}
           onChange={e => fset('CatName', e.target.value)}
-          placeholder="ชื่อแมว"
+          placeholder={c.catNamePlaceholder}
           style={inputStyle}
           onFocus={e => (e.target.style.borderColor = accent)}
           onBlur={e => (e.target.style.borderColor = '#e5e7eb')}
@@ -109,7 +258,7 @@ function CatPartySection({ title, prefix, form, set, accent }) {
       </Field>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        <Field label="ชมรม/สมาคม" required>
+        <Field label={c.registry} required>
           <select
             value={fv('Registry')}
             onChange={e => fset('Registry', e.target.value)}
@@ -117,8 +266,8 @@ function CatPartySection({ title, prefix, form, set, accent }) {
             onFocus={e => (e.target.style.borderColor = accent)}
             onBlur={e => (e.target.style.borderColor = '#e5e7eb')}
           >
-            <option value="">-- เลือก --</option>
-            {REGISTRIES.map(r => (
+            <option value="">{c.selectPlaceholder}</option>
+            {registries.map(r => (
               <option key={r} value={r}>
                 {r}
               </option>
@@ -126,12 +275,12 @@ function CatPartySection({ title, prefix, form, set, accent }) {
           </select>
         </Field>
 
-        <Field label="หมายเลขทะเบียน" required>
+        <Field label={c.regNumber} required>
           <input
             type="text"
             value={fv('RegNumber')}
             onChange={e => fset('RegNumber', e.target.value)}
-            placeholder="เช่น TH-2024-00123"
+            placeholder={c.regNumberPlaceholder}
             style={inputStyle}
             onFocus={e => (e.target.style.borderColor = accent)}
             onBlur={e => (e.target.style.borderColor = '#e5e7eb')}
@@ -139,12 +288,12 @@ function CatPartySection({ title, prefix, form, set, accent }) {
         </Field>
       </div>
 
-      <Field label="ชื่อ Cattery / ฟาร์ม">
+      <Field label={c.cattery}>
         <input
           type="text"
           value={fv('Cattery')}
           onChange={e => fset('Cattery', e.target.value)}
-          placeholder="ชื่อฟาร์มหรือ cattery"
+          placeholder={c.catteryPlaceholder}
           style={inputStyle}
           onFocus={e => (e.target.style.borderColor = accent)}
           onBlur={e => (e.target.style.borderColor = '#e5e7eb')}
@@ -152,24 +301,24 @@ function CatPartySection({ title, prefix, form, set, accent }) {
       </Field>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        <Field label="ชื่อเจ้าของ" required>
+        <Field label={c.ownerName} required>
           <input
             type="text"
             value={fv('OwnerName')}
             onChange={e => fset('OwnerName', e.target.value)}
-            placeholder="ชื่อ-นามสกุล"
+            placeholder={c.ownerNamePlaceholder}
             style={inputStyle}
             onFocus={e => (e.target.style.borderColor = accent)}
             onBlur={e => (e.target.style.borderColor = '#e5e7eb')}
           />
         </Field>
 
-        <Field label="เบอร์โทรศัพท์">
+        <Field label={c.ownerPhone}>
           <input
             type="tel"
             value={fv('OwnerPhone')}
             onChange={e => fset('OwnerPhone', e.target.value)}
-            placeholder="08x-xxx-xxxx"
+            placeholder={c.ownerPhonePlaceholder}
             style={inputStyle}
             onFocus={e => (e.target.style.borderColor = accent)}
             onBlur={e => (e.target.style.borderColor = '#e5e7eb')}
@@ -178,12 +327,12 @@ function CatPartySection({ title, prefix, form, set, accent }) {
       </div>
 
       {prefix === 'dam' && (
-        <Field label="หมายเลขจดทะเบียนฟาร์ม (Dam's Owner)" hint="ใช้สำหรับยื่นกับสมาคม">
+        <Field label={c.farmRegNumber} hint={c.farmRegNumberHint}>
           <input
             type="text"
             value={fv('FarmRegNumber')}
             onChange={e => fset('FarmRegNumber', e.target.value)}
-            placeholder="หมายเลขจดทะเบียนฟาร์ม"
+            placeholder={c.farmRegNumberPlaceholder}
             style={inputStyle}
             onFocus={e => (e.target.style.borderColor = accent)}
             onBlur={e => (e.target.style.borderColor = '#e5e7eb')}
@@ -192,7 +341,7 @@ function CatPartySection({ title, prefix, form, set, accent }) {
       )}
 
       {/* Reg cert upload */}
-      <Field label="รูปใบทะเบียน" hint="ถ่ายรูปใบทะเบียนแมวเพื่อแนบประกอบ">
+      <Field label={c.regImg} hint={c.regImgHint}>
         <input
           ref={fileRef}
           type="file"
@@ -204,7 +353,7 @@ function CatPartySection({ title, prefix, form, set, accent }) {
           <div style={{ position: 'relative', display: 'inline-block' }}>
             <img
               src={fv('RegImg')}
-              alt="ใบทะเบียน"
+              alt={c.regImgAlt}
               style={{
                 height: 100,
                 borderRadius: 10,
@@ -254,7 +403,7 @@ function CatPartySection({ title, prefix, form, set, accent }) {
             }}
           >
             <Upload size={13} />
-            {uploading ? 'กำลังโหลด...' : 'อัปโหลดใบทะเบียน'}
+            {uploading ? c.loading : c.uploadRegImg}
           </button>
         )}
       </Field>
@@ -262,7 +411,7 @@ function CatPartySection({ title, prefix, form, set, accent }) {
   )
 }
 
-function RegistryWarning({ sireReg, damReg }) {
+function RegistryWarning({ sireReg, damReg, c }) {
   if (!sireReg || !damReg) return null
   const same = sireReg === damReg
   return (
@@ -293,13 +442,12 @@ function RegistryWarning({ sireReg, damReg }) {
           }}
         >
           {same
-            ? `✅ ทั้งคู่อยู่ใน ${sireReg} เหมือนกัน — สามารถออกใบ Pedigree ได้`
-            : `⚠️ พ่ออยู่ใน ${sireReg}, แม่อยู่ใน ${damReg}`}
+            ? c.sameRegistry(sireReg)
+            : c.diffRegistry(sireReg, damReg)}
         </div>
         {!same && (
           <div style={{ fontSize: 12, color: '#78350f', fontWeight: 500, lineHeight: 1.5 }}>
-            ลูกแมวอาจออกใบเพ็ดดีกรีไม่ได้ เนื่องจากพ่อแม่อยู่ต่างชมรม —
-            แนะนำให้ปรึกษาสมาคมก่อนดำเนินการ
+            {c.diffRegistryNote}
           </div>
         )}
       </div>
@@ -307,18 +455,18 @@ function RegistryWarning({ sireReg, damReg }) {
   )
 }
 
-function SuccessView({ form, docId }) {
+function SuccessView({ form, docId, c }) {
   const navigate = useNavigate()
   const items = [
-    { label: 'พ่อแมว', value: form.sireCatName, sub: `${form.sireRegistry} · ${form.sireRegNumber}`, done: !!form.sireRegNumber },
-    { label: 'แม่แมว', value: form.damCatName, sub: `${form.damRegistry} · ${form.damRegNumber}`, done: !!form.damRegNumber },
-    { label: 'เจ้าของพ่อ', value: form.sireOwnerName, sub: form.sireOwnerPhone, done: !!form.sireOwnerName },
-    { label: 'เจ้าของแม่', value: form.damOwnerName, sub: form.damOwnerPhone, done: !!form.damOwnerName },
-    { label: 'วันคลอดลูก', value: form.litterBirthDate, done: !!form.litterBirthDate },
-    { label: 'จำนวนลูก', value: form.litterCount ? `${form.litterCount} ตัว` : '', done: !!form.litterCount },
-    { label: 'สีขน / เพศ', value: form.litterDesc, done: !!form.litterDesc },
-    { label: 'ลายเซ็นเจ้าของ', value: form.signatureImg ? 'มีไฟล์แนบ' : 'ไม่มี', done: !!form.signatureImg },
-    { label: 'หมายเลขจดทะเบียนฟาร์ม (Dam)', value: form.damFarmRegNumber, done: !!form.damFarmRegNumber },
+    { label: c.sireCat, value: form.sireCatName, sub: `${form.sireRegistry} · ${form.sireRegNumber}`, done: !!form.sireRegNumber },
+    { label: c.damCat, value: form.damCatName, sub: `${form.damRegistry} · ${form.damRegNumber}`, done: !!form.damRegNumber },
+    { label: c.sireOwner, value: form.sireOwnerName, sub: form.sireOwnerPhone, done: !!form.sireOwnerName },
+    { label: c.damOwner, value: form.damOwnerName, sub: form.damOwnerPhone, done: !!form.damOwnerName },
+    { label: c.litterBirthDate, value: form.litterBirthDate, done: !!form.litterBirthDate },
+    { label: c.litterCount, value: form.litterCount ? c.litterCountUnit(form.litterCount) : '', done: !!form.litterCount },
+    { label: c.litterColorSex, value: form.litterDesc, done: !!form.litterDesc },
+    { label: c.ownerSignature, value: form.signatureImg ? c.hasAttachment : c.noAttachment, done: !!form.signatureImg },
+    { label: c.damFarmRegNumberShort, value: form.damFarmRegNumber, done: !!form.damFarmRegNumber },
   ]
 
   return (
@@ -352,14 +500,14 @@ function SuccessView({ form, docId }) {
           <CheckCircle2 size={28} color="#10b981" />
         </div>
         <h2 style={{ fontSize: 20, fontWeight: 900, color: '#000', marginBottom: 6 }}>
-          บันทึกข้อมูลสำเร็จ
+          {c.saveSuccess}
         </h2>
         <p style={{ fontSize: 13, color: '#555', fontWeight: 500, lineHeight: 1.6, marginBottom: 0 }}>
-          ตรวจสอบรายการด้านล่างก่อนส่งเอกสารไปยังสมาคม
+          {c.saveSuccessHint}
         </p>
         {docId && (
           <p style={{ fontSize: 11, color: '#aaa', fontWeight: 600, marginTop: 6 }}>
-            รหัสอ้างอิง: {docId}
+            {c.refCode}: {docId}
           </p>
         )}
       </div>
@@ -376,7 +524,7 @@ function SuccessView({ form, docId }) {
       >
         <div style={{ padding: '14px 18px', borderBottom: '1px solid #f5f5f5' }}>
           <h3 style={{ fontSize: 14, fontWeight: 800, color: '#000', margin: 0 }}>
-            Checklist เอกสาร Pedigree
+            {c.checklistTitle}
           </h3>
         </div>
         {items.map((item, i) => (
@@ -427,7 +575,7 @@ function SuccessView({ form, docId }) {
                   borderRadius: 99,
                 }}
               >
-                ยังไม่ระบุ
+                {c.notSpecified}
               </span>
             )}
           </div>
@@ -444,9 +592,8 @@ function SuccessView({ form, docId }) {
         }}
       >
         <p style={{ fontSize: 13, color: '#444', fontWeight: 500, lineHeight: 1.7, margin: 0 }}>
-          📋 <strong>ขั้นตอนต่อไป:</strong> นำรายการนี้ไปยื่นที่สมาคม{' '}
-          {form.damRegistry || form.sireRegistry || 'ที่ลงทะเบียน'} พร้อมเอกสารต้นฉบับ
-          เพื่อออกใบ Pedigree ให้กับลูกแมว
+          📋 <strong>{c.nextStepsPrefix}</strong>
+          {c.nextSteps(form.damRegistry || form.sireRegistry || c.registeredFallback)}
         </p>
       </div>
 
@@ -466,7 +613,7 @@ function SuccessView({ form, docId }) {
             fontFamily: 'Space Grotesk, sans-serif',
           }}
         >
-          กรอกใหม่
+          {c.fillAgain}
         </button>
         <Link
           to="/discover"
@@ -486,7 +633,7 @@ function SuccessView({ form, docId }) {
             boxShadow: '0 4px 14px rgba(249,115,22,0.3)',
           }}
         >
-          <PawPrint size={14} /> กลับหน้า Discover
+          <PawPrint size={14} /> {c.backToDiscover}
         </Link>
       </div>
     </motion.div>
@@ -495,6 +642,8 @@ function SuccessView({ form, docId }) {
 
 export default function PedigreeFormPage() {
   const { user, userProfile } = useAuth()
+  const { lang } = useLanguage()
+  const c = COPY[lang]
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const [saving, setSaving] = useState(false)
@@ -540,7 +689,7 @@ export default function PedigreeFormPage() {
       const b64 = await blobToBase64(blob)
       set('signatureImg', b64)
     } catch {
-      alert('โหลดรูปไม่ได้')
+      alert(c.sigUploadFailed)
     }
     setSigUploading(false)
   }
@@ -548,7 +697,7 @@ export default function PedigreeFormPage() {
   const handleSubmit = async e => {
     e.preventDefault()
     if (!form.sireCatName || !form.damCatName || !form.sireRegistry || !form.damRegistry) {
-      alert('กรุณากรอกชื่อแมวและชมรมทั้งสองฝ่าย')
+      alert(c.fillRequiredAlert)
       return
     }
     setSaving(true)
@@ -565,12 +714,12 @@ export default function PedigreeFormPage() {
       setDone(true)
     } catch (err) {
       console.error(err)
-      alert('เกิดข้อผิดพลาด กรุณาลองใหม่')
+      alert(c.saveErrorAlert)
     }
     setSaving(false)
   }
 
-  if (done) return <SuccessView form={form} docId={savedDocId} />
+  if (done) return <SuccessView form={form} docId={savedDocId} c={c} />
 
   return (
     <div
@@ -599,7 +748,7 @@ export default function PedigreeFormPage() {
             fontFamily: 'Space Grotesk, sans-serif',
           }}
         >
-          <ArrowLeft size={15} /> กลับ
+          <ArrowLeft size={15} /> {c.back}
         </button>
 
         <div style={{ marginBottom: 24 }}>
@@ -618,37 +767,39 @@ export default function PedigreeFormPage() {
               <FileText size={18} color="#F97316" />
             </div>
             <h1 style={{ fontSize: 22, fontWeight: 900, color: '#000', margin: 0 }}>
-              เตรียมเอกสาร Pedigree
+              {c.pageTitle}
             </h1>
           </div>
           <p style={{ fontSize: 13, color: '#aaa', fontWeight: 500, marginBottom: 0 }}>
-            กรอกข้อมูลพ่อแม่แมวและลูกแมวเพื่อเตรียมยื่นกับสมาคม
+            {c.pageSubtitle}
           </p>
         </div>
 
-        <RegistryWarning sireReg={form.sireRegistry} damReg={form.damRegistry} />
+        <RegistryWarning sireReg={form.sireRegistry} damReg={form.damRegistry} c={c} />
 
         <form onSubmit={handleSubmit}>
           <CatPartySection
-            title="🐾 สายพ่อ (Sire)"
+            title={c.sireSectionTitle}
             prefix="sire"
             form={form}
             set={set}
             accent="#1d4ed8"
+            c={c}
           />
 
           <CatPartySection
-            title="🐾 สายแม่ (Dam)"
+            title={c.damSectionTitle}
             prefix="dam"
             form={form}
             set={set}
             accent="#be123c"
+            c={c}
           />
 
           {/* Litter info */}
-          <Section title="ข้อมูลลูกแมว (Litter)">
+          <Section title={c.litterSectionTitle}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              <Field label="วันที่คลอด" required>
+              <Field label={c.birthDate} required>
                 <input
                   type="date"
                   value={form.litterBirthDate}
@@ -658,14 +809,14 @@ export default function PedigreeFormPage() {
                   onBlur={e => (e.target.style.borderColor = '#e5e7eb')}
                 />
               </Field>
-              <Field label="จำนวนลูก (ตัว)" required>
+              <Field label={c.litterCountField} required>
                 <input
                   type="number"
                   min="1"
                   max="20"
                   value={form.litterCount}
                   onChange={e => set('litterCount', e.target.value)}
-                  placeholder="เช่น 4"
+                  placeholder={c.litterCountPlaceholder}
                   style={{ ...inputStyle, textAlign: 'center' }}
                   onFocus={e => (e.target.style.borderColor = '#F97316')}
                   onBlur={e => (e.target.style.borderColor = '#e5e7eb')}
@@ -674,14 +825,14 @@ export default function PedigreeFormPage() {
             </div>
 
             <Field
-              label="รายละเอียดลูกแมว"
-              hint="เช่น สีขน, เพศ (ตัวผู้ 2 ตัว สีส้ม, ตัวเมีย 2 ตัว สีขาว)"
+              label={c.litterDescLabel}
+              hint={c.litterDescHint}
               required
             >
               <textarea
                 value={form.litterDesc}
                 onChange={e => set('litterDesc', e.target.value)}
-                placeholder="ระบุสีขนและเพศของลูกแมวแต่ละตัว"
+                placeholder={c.litterDescPlaceholder}
                 rows={3}
                 style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.6 }}
                 onFocus={e => (e.target.style.borderColor = '#F97316')}
@@ -691,7 +842,7 @@ export default function PedigreeFormPage() {
           </Section>
 
           {/* Signature */}
-          <Section title="ลายเซ็นเจ้าของ / หนังสือยินยอม">
+          <Section title={c.signatureSectionTitle}>
             <input
               ref={sigRef}
               type="file"
@@ -708,13 +859,13 @@ export default function PedigreeFormPage() {
                 marginBottom: 14,
               }}
             >
-              อัปโหลดลายเซ็นเจ้าของหรือเอกสารยินยอมการผสมพันธุ์ (ถ้ามี)
+              {c.signatureIntro}
             </p>
             {form.signatureImg ? (
               <div style={{ position: 'relative', display: 'inline-block' }}>
                 <img
                   src={form.signatureImg}
-                  alt="ลายเซ็น"
+                  alt={c.signatureAlt}
                   style={{
                     height: 120,
                     borderRadius: 10,
@@ -766,17 +917,17 @@ export default function PedigreeFormPage() {
                 }}
               >
                 <Upload size={14} />
-                {sigUploading ? 'กำลังโหลด...' : 'อัปโหลดลายเซ็น / เอกสารยินยอม'}
+                {sigUploading ? c.loading : c.uploadSignature}
               </button>
             )}
           </Section>
 
           {/* Notes */}
-          <Section title="หมายเหตุเพิ่มเติม">
+          <Section title={c.notesSectionTitle}>
             <textarea
               value={form.notes}
               onChange={e => set('notes', e.target.value)}
-              placeholder="หมายเหตุอื่นๆ สำหรับการยื่นเอกสาร..."
+              placeholder={c.notesPlaceholder}
               rows={3}
               style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.6 }}
               onFocus={e => (e.target.style.borderColor = '#F97316')}
@@ -806,7 +957,7 @@ export default function PedigreeFormPage() {
             }}
           >
             <Save size={15} />
-            {saving ? 'กำลังบันทึก...' : 'บันทึกและสร้าง Checklist'}
+            {saving ? c.saving : c.saveAndCreate}
           </button>
         </form>
       </div>

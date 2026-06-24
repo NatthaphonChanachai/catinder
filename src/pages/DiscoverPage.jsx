@@ -11,12 +11,98 @@ import { useAuth } from '../contexts/AuthContext'
 import { Link as RouterLink } from 'react-router-dom'
 import { BREEDS, REGISTRY_OPTIONS, LOOKING_FOR_LABELS } from '../constants/catOptions'
 import { getCurrentPosition, haversineKm } from '../utils/geo'
+import { useLanguage } from '../contexts/LanguageContext'
 
 const LOOKING_LABELS = LOOKING_FOR_LABELS
 const MAX_RADIUS_KM = 50
 const REGISTRY_FILTER_OPTIONS = REGISTRY_OPTIONS.filter(o => o.value)
 
+const COPY = {
+  th: {
+    male: '(ตัวผู้)', female: '(ตัวเมีย)',
+    years: 'ปี', months: 'เดือน', km: 'กม.',
+    vaccinated: 'วัคซีนครบ', sterilized: 'ทำหมัน',
+    like: 'LIKE', nope: 'NOPE',
+    registryCompatible: (otherReg) => `✅ ทั้งคู่อยู่ใน ${otherReg} — ออกใบ Pedigree ได้`,
+    registryIncompatible: (myReg, otherReg) => `⚠️ แมวคุณอยู่ใน ${myReg} · แมวนี้อยู่ใน ${otherReg}`,
+    registryWarningDetail: 'ลูกแมวอาจออกใบเพ็ดดีกรีไม่ได้ เนื่องจากพ่อแม่อยู่ต่างชมรม',
+    itsAMatch: "It's a Match!",
+    matchedWith: (name) => <>คุณ Match กับ<br />{name}</>,
+    startChatting: (name) => `เริ่มต้นพูดคุยกับ ${name} ได้เลย`,
+    chatNow: 'แชทเลย',
+    keepDiscovering: 'Discover ต่อ',
+    preparePedigree: '📋 เตรียมเอกสาร Pedigree',
+    filters: 'ตัวกรอง',
+    clearFilters: 'ล้างตัวกรอง',
+    distanceRadius: 'รัศมีระยะทาง',
+    all: 'ทั้งหมด',
+    enableLocationForFilter: 'เปิดสิทธิ์เข้าถึงตำแหน่งของเบราว์เซอร์เพื่อใช้ตัวกรองนี้',
+    breed: 'สายพันธุ์',
+    registryLabel: 'ชมรม / Registry',
+    lookingForLabel: 'กำลังมองหา',
+    applyFilters: 'ใช้ตัวกรอง',
+    loading: 'กำลังโหลด...',
+    createCatProfileFirst: 'สร้างโปรไฟล์แมวก่อนเลย',
+    needAtLeastOneCat: 'คุณต้องมีโปรไฟล์แมวอย่างน้อย 1 ตัว',
+    addCatProfile: 'เพิ่มโปรไฟล์แมว',
+    swipeHint: 'ลากขวา Like · ลากซ้าย Pass',
+    noCatsInSystem: 'ยังไม่มีแมวในระบบ',
+    noCatsMatchFilter: 'ไม่พบแมวตามตัวกรอง',
+    seenAllCats: 'ดูครบทุกตัวแล้ว',
+    inviteFriends: 'ชวนเพื่อนมาสร้างโปรไฟล์แมวด้วยกัน',
+    tryAdjustFilter: 'ลองปรับรัศมีหรือล้างตัวกรองดู',
+    waitForNewCats: 'รอแมวใหม่เข้าระบบ หรือ refresh',
+    refresh: 'Refresh',
+    catsWaiting: (n) => `${n} แมวรอให้ค้นพบ`,
+    unknown: 'ไม่ทราบ',
+    newMatchNotifTitle: 'Match ใหม่!',
+    newMatchNotifBody: (name) => `คุณ Match กับ ${name}`,
+  },
+  en: {
+    male: '(Male)', female: '(Female)',
+    years: 'yrs', months: 'mo', km: 'km',
+    vaccinated: 'Vaccinated', sterilized: 'Sterilized',
+    like: 'LIKE', nope: 'NOPE',
+    registryCompatible: (otherReg) => `✅ Both in ${otherReg} — Pedigree can be issued`,
+    registryIncompatible: (myReg, otherReg) => `⚠️ Your cat is in ${myReg} · This cat is in ${otherReg}`,
+    registryWarningDetail: 'Kittens may not be eligible for a pedigree certificate since the parents belong to different registries.',
+    itsAMatch: "It's a Match!",
+    matchedWith: (name) => <>You matched with<br />{name}</>,
+    startChatting: (name) => `Start chatting with ${name} now`,
+    chatNow: 'Chat Now',
+    keepDiscovering: 'Keep Discovering',
+    preparePedigree: '📋 Prepare Pedigree Documents',
+    filters: 'Filters',
+    clearFilters: 'Clear Filters',
+    distanceRadius: 'Distance Radius',
+    all: 'All',
+    enableLocationForFilter: 'Enable browser location access to use this filter',
+    breed: 'Breed',
+    registryLabel: 'Club / Registry',
+    lookingForLabel: 'Looking For',
+    applyFilters: 'Apply Filters',
+    loading: 'Loading...',
+    createCatProfileFirst: 'Create a Cat Profile First',
+    needAtLeastOneCat: 'You need at least 1 cat profile',
+    addCatProfile: 'Add Cat Profile',
+    swipeHint: 'Swipe right to Like · Swipe left to Pass',
+    noCatsInSystem: 'No cats in the system yet',
+    noCatsMatchFilter: 'No cats match your filters',
+    seenAllCats: "You've seen them all",
+    inviteFriends: 'Invite friends to create cat profiles too',
+    tryAdjustFilter: 'Try adjusting the radius or clearing filters',
+    waitForNewCats: 'Wait for new cats to join, or refresh',
+    refresh: 'Refresh',
+    catsWaiting: (n) => `${n} cats waiting to be discovered`,
+    unknown: 'Unknown',
+    newMatchNotifTitle: 'New Match!',
+    newMatchNotifBody: (name) => `You matched with ${name}`,
+  },
+}
+
 function CatSwipeCard({ cat, isTop, zIndex, stackScale, stackOffset, onSwipe, onRegisterTrigger, distanceKm }) {
+  const { lang } = useLanguage()
+  const c = COPY[lang]
   const x = useMotionValue(0)
   const rotate = useTransform(x, [-240, 240], [-25, 25])
   const likeOpacity = useTransform(x, [20, 120], [0, 1])
@@ -42,8 +128,8 @@ function CatSwipeCard({ cat, isTop, zIndex, stackScale, stackOffset, onSwipe, on
   }, [controls, triggerSwipe])
 
   const ageStr = cat.ageYears > 0
-    ? `${cat.ageYears} ปี${cat.ageMonths > 0 ? ` ${cat.ageMonths} เดือน` : ''}`
-    : cat.ageMonths > 0 ? `${cat.ageMonths} เดือน` : ''
+    ? `${cat.ageYears} ${c.years}${cat.ageMonths > 0 ? ` ${cat.ageMonths} ${c.months}` : ''}`
+    : cat.ageMonths > 0 ? `${cat.ageMonths} ${c.months}` : ''
 
   return (
     <motion.div
@@ -80,7 +166,7 @@ function CatSwipeCard({ cat, isTop, zIndex, stackScale, stackOffset, onSwipe, on
           padding: '4px 14px', borderRadius: 10, transform: 'rotate(-12deg)',
           fontFamily: 'Space Grotesk, sans-serif', backgroundColor: 'rgba(0,0,0,0.4)',
           letterSpacing: 1,
-        }}>LIKE</motion.div>
+        }}>{c.like}</motion.div>
       )}
       {isTop && (
         <motion.div style={{
@@ -89,14 +175,14 @@ function CatSwipeCard({ cat, isTop, zIndex, stackScale, stackOffset, onSwipe, on
           padding: '4px 14px', borderRadius: 10, transform: 'rotate(12deg)',
           fontFamily: 'Space Grotesk, sans-serif', backgroundColor: 'rgba(0,0,0,0.4)',
           letterSpacing: 1,
-        }}>NOPE</motion.div>
+        }}>{c.nope}</motion.div>
       )}
 
       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '18px 18px 22px', fontFamily: 'Space Grotesk, sans-serif' }}>
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 5 }}>
           <div>
             <div style={{ fontSize: 24, fontWeight: 900, color: '#fff', lineHeight: 1.1 }}>
-              {cat.name} <span style={{ fontSize: 16, fontWeight: 600 }}>{cat.gender === 'male' ? '(ตัวผู้)' : '(ตัวเมีย)'}</span>
+              {cat.name} <span style={{ fontSize: 16, fontWeight: 600 }}>{cat.gender === 'male' ? c.male : c.female}</span>
             </div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', fontWeight: 600, marginTop: 2 }}>
               {cat.breed}{ageStr ? ` · ${ageStr}` : ''}
@@ -113,7 +199,7 @@ function CatSwipeCard({ cat, isTop, zIndex, stackScale, stackOffset, onSwipe, on
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 8 }}>
             <MapPin size={11} color="rgba(255,255,255,0.6)" />
             <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>
-              {cat.location}{cat.location && distanceKm != null ? ' · ' : ''}{distanceKm != null ? `${distanceKm.toFixed(1)} กม.` : ''}
+              {cat.location}{cat.location && distanceKm != null ? ' · ' : ''}{distanceKm != null ? `${distanceKm.toFixed(1)} ${c.km}` : ''}
             </span>
           </div>
         )}
@@ -124,12 +210,12 @@ function CatSwipeCard({ cat, isTop, zIndex, stackScale, stackOffset, onSwipe, on
           </span>
           {cat.vaccinated && (
             <span style={{ display: 'flex', alignItems: 'center', gap: 3, backgroundColor: 'rgba(16,185,129,0.25)', borderRadius: 999, padding: '2px 9px', fontSize: 11, fontWeight: 600, color: '#fff' }}>
-              <Syringe size={10} /> วัคซีนครบ
+              <Syringe size={10} /> {c.vaccinated}
             </span>
           )}
           {cat.sterilized && (
             <span style={{ display: 'flex', alignItems: 'center', gap: 3, backgroundColor: 'rgba(99,102,241,0.25)', borderRadius: 999, padding: '2px 9px', fontSize: 11, fontWeight: 600, color: '#fff' }}>
-              <Scissors size={10} /> ทำหมัน
+              <Scissors size={10} /> {c.sterilized}
             </span>
           )}
         </div>
@@ -139,9 +225,11 @@ function CatSwipeCard({ cat, isTop, zIndex, stackScale, stackOffset, onSwipe, on
 }
 
 function RegistryBadge({ match, myCats }) {
+  const { lang } = useLanguage()
+  const c = COPY[lang]
   const otherReg = match?.otherRegistry
   if (!otherReg) return null
-  const myReg = myCats.find(c => c.registry)?.registry
+  const myReg = myCats.find(cat => cat.registry)?.registry
   if (!myReg) return null
   const compatible = myReg === otherReg
   return (
@@ -156,12 +244,12 @@ function RegistryBadge({ match, myCats }) {
         color: compatible ? '#065f46' : '#92400e', marginBottom: 3,
       }}>
         {compatible
-          ? `✅ ทั้งคู่อยู่ใน ${otherReg} — ออกใบ Pedigree ได้`
-          : `⚠️ แมวคุณอยู่ใน ${myReg} · แมวนี้อยู่ใน ${otherReg}`}
+          ? c.registryCompatible(otherReg)
+          : c.registryIncompatible(myReg, otherReg)}
       </div>
       {!compatible && (
         <div style={{ fontSize: 11, color: '#78350f', fontWeight: 500, lineHeight: 1.5 }}>
-          ลูกแมวอาจออกใบเพ็ดดีกรีไม่ได้ เนื่องจากพ่อแม่อยู่ต่างชมรม
+          {c.registryWarningDetail}
         </div>
       )}
     </div>
@@ -169,6 +257,8 @@ function RegistryBadge({ match, myCats }) {
 }
 
 function MatchModal({ match, myCats, onClose }) {
+  const { lang } = useLanguage()
+  const c = COPY[lang]
   return (
     <AnimatePresence>
       {match && (
@@ -196,13 +286,13 @@ function MatchModal({ match, myCats, onClose }) {
               <Heart size={32} color="#ef4444" fill="#ef4444" />
             </div>
             <div style={{ fontSize: 11, fontWeight: 800, color: '#F97316', letterSpacing: '0.12em', marginBottom: 6, textTransform: 'uppercase' }}>
-              It's a Match!
+              {c.itsAMatch}
             </div>
             <h2 style={{ fontSize: 22, fontWeight: 900, color: '#000', marginBottom: 8 }}>
-              คุณ Match กับ<br />{match.otherName}
+              {c.matchedWith(match.otherName)}
             </h2>
             <p style={{ fontSize: 13, color: '#888', fontWeight: 500, lineHeight: 1.6, marginBottom: 18 }}>
-              เริ่มต้นพูดคุยกับ {match.otherName} ได้เลย
+              {c.startChatting(match.otherName)}
             </p>
 
             <RegistryBadge match={match} myCats={myCats} />
@@ -215,7 +305,7 @@ function MatchModal({ match, myCats, onClose }) {
                   textDecoration: 'none', fontSize: 13, fontWeight: 800, textAlign: 'center',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
                 }}>
-                  <MessageCircle size={14} /> แชทเลย
+                  <MessageCircle size={14} /> {c.chatNow}
                 </Link>
                 <button onClick={onClose} style={{
                   flex: 1, padding: '11px', borderRadius: 11,
@@ -223,7 +313,7 @@ function MatchModal({ match, myCats, onClose }) {
                   fontSize: 13, fontWeight: 700, cursor: 'pointer',
                   color: '#555', fontFamily: 'Space Grotesk, sans-serif',
                 }}>
-                  Discover ต่อ
+                  {c.keepDiscovering}
                 </button>
               </div>
               {match.otherRegistry && (
@@ -234,7 +324,7 @@ function MatchModal({ match, myCats, onClose }) {
                   fontSize: 13, fontWeight: 800, textAlign: 'center',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
                 }}>
-                  📋 เตรียมเอกสาร Pedigree
+                  {c.preparePedigree}
                 </Link>
               )}
             </div>
@@ -266,6 +356,8 @@ function ChipGroup({ options, selected, onToggle }) {
 }
 
 function FilterPanel({ open, onClose, filters, setFilters, myLocation }) {
+  const { lang } = useLanguage()
+  const c = COPY[lang]
   const toggleIn = (key, value) => setFilters(f => ({
     ...f, [key]: f[key].includes(value) ? f[key].filter(v => v !== value) : [...f[key], value],
   }))
@@ -290,19 +382,19 @@ function FilterPanel({ open, onClose, filters, setFilters, myLocation }) {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
-              <h2 style={{ fontSize: 17, fontWeight: 900, color: '#000', margin: 0 }}>ตัวกรอง</h2>
+              <h2 style={{ fontSize: 17, fontWeight: 900, color: '#000', margin: 0 }}>{c.filters}</h2>
               <button onClick={reset} style={{
                 display: 'flex', alignItems: 'center', gap: 5, background: 'none', border: 'none',
                 color: '#F97316', fontSize: 12.5, fontWeight: 700, cursor: 'pointer',
                 fontFamily: 'Space Grotesk, sans-serif',
-              }}><RotateCcw size={12} /> ล้างตัวกรอง</button>
+              }}><RotateCcw size={12} /> {c.clearFilters}</button>
             </div>
 
             <div style={{ marginBottom: 20 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                <label style={{ fontSize: 13, fontWeight: 800, color: '#1C1917' }}>รัศมีระยะทาง</label>
+                <label style={{ fontSize: 13, fontWeight: 800, color: '#1C1917' }}>{c.distanceRadius}</label>
                 <span style={{ fontSize: 12.5, fontWeight: 700, color: '#F97316' }}>
-                  {filters.radiusKm >= MAX_RADIUS_KM ? 'ทั้งหมด' : `${filters.radiusKm} กม.`}
+                  {filters.radiusKm >= MAX_RADIUS_KM ? c.all : `${filters.radiusKm} ${c.km}`}
                 </span>
               </div>
               <input type="range" min={1} max={MAX_RADIUS_KM} value={filters.radiusKm} disabled={!myLocation}
@@ -311,23 +403,23 @@ function FilterPanel({ open, onClose, filters, setFilters, myLocation }) {
               />
               {!myLocation && (
                 <p style={{ fontSize: 11, color: '#aaa', fontWeight: 600, marginTop: 4 }}>
-                  เปิดสิทธิ์เข้าถึงตำแหน่งของเบราว์เซอร์เพื่อใช้ตัวกรองนี้
+                  {c.enableLocationForFilter}
                 </p>
               )}
             </div>
 
             <div style={{ marginBottom: 20 }}>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 800, color: '#1C1917', marginBottom: 8 }}>สายพันธุ์</label>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 800, color: '#1C1917', marginBottom: 8 }}>{c.breed}</label>
               <ChipGroup options={BREEDS.map(b => ({ value: b, label: b }))} selected={filters.breeds} onToggle={v => toggleIn('breeds', v)} />
             </div>
 
             <div style={{ marginBottom: 20 }}>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 800, color: '#1C1917', marginBottom: 8 }}>ชมรม / Registry</label>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 800, color: '#1C1917', marginBottom: 8 }}>{c.registryLabel}</label>
               <ChipGroup options={REGISTRY_FILTER_OPTIONS} selected={filters.registries} onToggle={v => toggleIn('registries', v)} />
             </div>
 
             <div style={{ marginBottom: 24 }}>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 800, color: '#1C1917', marginBottom: 8 }}>กำลังมองหา</label>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 800, color: '#1C1917', marginBottom: 8 }}>{c.lookingForLabel}</label>
               <ChipGroup options={Object.entries(LOOKING_LABELS).map(([value, label]) => ({ value, label }))} selected={filters.lookingFor} onToggle={v => toggleIn('lookingFor', v)} />
             </div>
 
@@ -335,7 +427,7 @@ function FilterPanel({ open, onClose, filters, setFilters, myLocation }) {
               width: '100%', padding: '13px 0', borderRadius: 14, border: 'none',
               background: 'linear-gradient(135deg,#F97316,#F59E0B)', color: '#fff',
               fontSize: 14, fontWeight: 800, cursor: 'pointer', fontFamily: 'Space Grotesk, sans-serif',
-            }}>ใช้ตัวกรอง</button>
+            }}>{c.applyFilters}</button>
           </motion.div>
         </motion.div>
       )}
@@ -345,6 +437,8 @@ function FilterPanel({ open, onClose, filters, setFilters, myLocation }) {
 
 export default function DiscoverPage() {
   const { user, userProfile } = useAuth()
+  const { lang } = useLanguage()
+  const c = COPY[lang]
   const [cats, setCats] = useState([])
   const [myCats, setMyCats] = useState([])
   const [idx, setIdx] = useState(0)
@@ -420,7 +514,7 @@ export default function DiscoverPage() {
         const catData = catSnap.exists() ? catSnap.data() : {}
         const names = {
           [user.uid]: userProfile?.displayName || user.email.split('@')[0],
-          [toOwnerId]: catData.ownerName || 'ไม่ทราบ',
+          [toOwnerId]: catData.ownerName || c.unknown,
         }
         const photos = {
           [user.uid]: userProfile?.photoURL || '',
@@ -486,7 +580,7 @@ export default function DiscoverPage() {
             confetti({ particleCount: 160, spread: 90, origin: { y: 0.5 }, colors: ['#F97316', '#fb923c', '#fff'] })
             setMatch({ otherName: cat.ownerName, otherRegistry: cat.registry || '', catId: cat.id, matchId })
             if (Notification?.permission === 'granted') {
-              new Notification('Match ใหม่!', { body: `คุณ Match กับ ${cat.ownerName}`, icon: '/favicon.svg' })
+              new Notification(c.newMatchNotifTitle, { body: c.newMatchNotifBody(cat.ownerName), icon: '/favicon.svg' })
             }
           }
         } else {
@@ -507,7 +601,7 @@ export default function DiscoverPage() {
     <div style={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Space Grotesk, sans-serif' }}>
       <div style={{ textAlign: 'center' }}>
         <PawPrint size={40} color="#F97316" style={{ marginBottom: 12 }} />
-        <p style={{ fontSize: 14, color: '#aaa', fontWeight: 600 }}>กำลังโหลด...</p>
+        <p style={{ fontSize: 14, color: '#aaa', fontWeight: 600 }}>{c.loading}</p>
       </div>
     </div>
   )
@@ -518,16 +612,16 @@ export default function DiscoverPage() {
         <div style={{ width: 72, height: 72, borderRadius: 20, backgroundColor: '#FFF7ED', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
           <PawPrint size={36} color="#F97316" />
         </div>
-        <h2 style={{ fontSize: 20, fontWeight: 900, color: '#000', marginBottom: 8 }}>สร้างโปรไฟล์แมวก่อนเลย</h2>
+        <h2 style={{ fontSize: 20, fontWeight: 900, color: '#000', marginBottom: 8 }}>{c.createCatProfileFirst}</h2>
         <p style={{ fontSize: 13, color: '#888', fontWeight: 500, marginBottom: 22, lineHeight: 1.6 }}>
-          คุณต้องมีโปรไฟล์แมวอย่างน้อย 1 ตัว
+          {c.needAtLeastOneCat}
         </p>
         <Link to="/my-cats/new" style={{
           display: 'inline-flex', alignItems: 'center', gap: 7,
           backgroundColor: '#F97316', color: '#fff', padding: '12px 24px', borderRadius: 11,
           textDecoration: 'none', fontSize: 14, fontWeight: 800,
         }}>
-          <Plus size={15} /> เพิ่มโปรไฟล์แมว
+          <Plus size={15} /> {c.addCatProfile}
         </Link>
       </div>
     </div>
@@ -542,7 +636,7 @@ export default function DiscoverPage() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', marginBottom: 24 }}>
           <div style={{ textAlign: 'center' }}>
             <h1 style={{ fontSize: 22, fontWeight: 900, color: '#000', marginBottom: 4 }}>Discover</h1>
-            <p style={{ fontSize: 13, color: '#aaa', fontWeight: 500 }}>ลากขวา Like · ลากซ้าย Pass</p>
+            <p style={{ fontSize: 13, color: '#aaa', fontWeight: 500 }}>{c.swipeHint}</p>
           </div>
           <button onClick={() => setFiltersOpen(true)} style={{
             position: 'absolute', right: 0, top: 0,
@@ -567,10 +661,10 @@ export default function DiscoverPage() {
               <PawPrint size={32} color="#F97316" />
             </div>
             <h3 style={{ fontSize: 18, fontWeight: 800, color: '#000' }}>
-              {cats.length === 0 ? 'ยังไม่มีแมวในระบบ' : filteredCats.length === 0 ? 'ไม่พบแมวตามตัวกรอง' : 'ดูครบทุกตัวแล้ว'}
+              {cats.length === 0 ? c.noCatsInSystem : filteredCats.length === 0 ? c.noCatsMatchFilter : c.seenAllCats}
             </h3>
             <p style={{ fontSize: 13, color: '#888', fontWeight: 500, lineHeight: 1.6 }}>
-              {cats.length === 0 ? 'ชวนเพื่อนมาสร้างโปรไฟล์แมวด้วยกัน' : filteredCats.length === 0 ? 'ลองปรับรัศมีหรือล้างตัวกรองดู' : 'รอแมวใหม่เข้าระบบ หรือ refresh'}
+              {cats.length === 0 ? c.inviteFriends : filteredCats.length === 0 ? c.tryAdjustFilter : c.waitForNewCats}
             </p>
             {filteredCats.length === 0 && cats.length > 0 ? (
               <button onClick={() => setFilters({ radiusKm: MAX_RADIUS_KM, breeds: [], registries: [], lookingFor: [] })} style={{
@@ -578,7 +672,7 @@ export default function DiscoverPage() {
                 padding: '11px 22px', borderRadius: 11, border: 'none', cursor: 'pointer',
                 fontSize: 13, fontWeight: 800, fontFamily: 'Space Grotesk, sans-serif',
               }}>
-                <RotateCcw size={13} /> ล้างตัวกรอง
+                <RotateCcw size={13} /> {c.clearFilters}
               </button>
             ) : (
               <button onClick={loadCats} style={{
@@ -586,7 +680,7 @@ export default function DiscoverPage() {
                 padding: '11px 22px', borderRadius: 11, border: 'none', cursor: 'pointer',
                 fontSize: 13, fontWeight: 800, fontFamily: 'Space Grotesk, sans-serif',
               }}>
-                <RefreshCw size={13} /> Refresh
+                <RefreshCw size={13} /> {c.refresh}
               </button>
             )}
           </motion.div>
@@ -609,7 +703,7 @@ export default function DiscoverPage() {
         {!isDone && filteredCats.length > 0 && (
           <>
             <p style={{ textAlign: 'center', fontSize: 12, color: '#bbb', fontWeight: 600, margin: '12px 0 20px' }}>
-              {filteredCats.length - idx} แมวรอให้ค้นพบ
+              {c.catsWaiting(filteredCats.length - idx)}
             </p>
             <div style={{ display: 'flex', justifyContent: 'center', gap: 24 }}>
               <motion.button onClick={() => swipeTrigger.current?.('left')} whileTap={{ scale: 0.88 }} whileHover={{ scale: 1.08 }}

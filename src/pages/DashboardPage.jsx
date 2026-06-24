@@ -5,16 +5,68 @@ import { collection, query, where, getDocs } from 'firebase/firestore'
 import { Compass, PawPrint, MessageCircle, MapPin, Heart, Plus, ArrowRight, Cat, Home } from 'lucide-react'
 import { db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
+import { useLanguage } from '../contexts/LanguageContext'
 
-const QUICK_ACTIONS = [
-  { path: '/discover', icon: Compass, label: 'Discover', desc: 'Swipe เจอแมวน่ารักใกล้คุณ', color: '#F97316', bg: '#FFF7ED', border: '#fed7aa' },
-  { path: '/my-cats', icon: PawPrint, label: 'แมวของฉัน', desc: 'จัดการโปรไฟล์น้องแมว', color: '#0ea5e9', bg: '#f0f9ff', border: '#bae6fd' },
-  { path: '/chat', icon: MessageCircle, label: 'แชทและ Match', desc: 'คุยกับพ่อแม่แมวที่ match', color: '#10b981', bg: '#f0fdf4', border: '#a7f3d0' },
-  { path: '/directory', icon: MapPin, label: 'ไดเรกทอรี', desc: 'ค้นหาสถานที่เกี่ยวกับแมว', color: '#8b5cf6', bg: '#faf5ff', border: '#ddd6fe' },
-]
+const COPY = {
+  th: {
+    quickActions: [
+      { path: '/discover', label: 'Discover', desc: 'Swipe เจอแมวน่ารักใกล้คุณ' },
+      { path: '/my-cats', label: 'แมวของฉัน', desc: 'จัดการโปรไฟล์น้องแมว' },
+      { path: '/chat', label: 'แชทและ Match', desc: 'คุยกับพ่อแม่แมวที่ match' },
+      { path: '/directory', label: 'ไดเรกทอรี', desc: 'ค้นหาสถานที่เกี่ยวกับแมว' },
+    ],
+    welcome: 'ยินดีต้อนรับ',
+    you: 'คุณ',
+    statCats: 'น้องแมว',
+    statMatches: 'Matches',
+    menu: 'เมนู',
+    venueTitle: 'สถานที่ผสมพันธุ์',
+    venueDesc: 'จองสถานที่มาตรฐาน ปลอดภัย ราคาเริ่มต้น',
+    myCats: 'น้องแมวของฉัน',
+    viewAll: 'ดูทั้งหมด',
+    addFirstCat: 'เพิ่มโปรไฟล์แมวตัวแรก',
+    addFirstCatDesc: 'สร้างโปรไฟล์น้องแมวเพื่อเริ่ม Discover',
+    addCat: 'เพิ่มแมว',
+    matchBannerTitle: (n) => `คุณมี ${n} Match`,
+    matchBannerDesc: 'เริ่มพูดคุยกับพ่อแม่แมวได้เลย',
+  },
+  en: {
+    quickActions: [
+      { path: '/discover', label: 'Discover', desc: 'Swipe to find cute cats near you' },
+      { path: '/my-cats', label: 'My Cats', desc: 'Manage your cats\' profiles' },
+      { path: '/chat', label: 'Chat & Matches', desc: 'Talk to cat parents you matched with' },
+      { path: '/directory', label: 'Directory', desc: 'Find cat-related places' },
+    ],
+    welcome: 'Welcome',
+    you: 'You',
+    statCats: 'Cats',
+    statMatches: 'Matches',
+    menu: 'Menu',
+    venueTitle: 'Breeding Venues',
+    venueDesc: 'Book a standard, safe venue at a low starting price',
+    myCats: 'My Cats',
+    viewAll: 'View all',
+    addFirstCat: 'Add your first cat profile',
+    addFirstCatDesc: 'Create a cat profile to start Discovering',
+    addCat: 'Add Cat',
+    matchBannerTitle: (n) => `You have ${n} Match${n === 1 ? '' : 'es'}`,
+    matchBannerDesc: 'Start chatting with the cat parents now',
+  },
+}
+
+const ICONS = { '/discover': Compass, '/my-cats': PawPrint, '/chat': MessageCircle, '/directory': MapPin }
+const COLORS = {
+  '/discover': { color: '#F97316', bg: '#FFF7ED', border: '#fed7aa' },
+  '/my-cats': { color: '#0ea5e9', bg: '#f0f9ff', border: '#bae6fd' },
+  '/chat': { color: '#10b981', bg: '#f0fdf4', border: '#a7f3d0' },
+  '/directory': { color: '#8b5cf6', bg: '#faf5ff', border: '#ddd6fe' },
+}
 
 export default function DashboardPage() {
   const { user, userProfile } = useAuth()
+  const { lang } = useLanguage()
+  const c = COPY[lang]
+  const QUICK_ACTIONS = c.quickActions.map(qa => ({ ...qa, icon: ICONS[qa.path], ...COLORS[qa.path] }))
   const [stats, setStats] = useState({ cats: 0, matches: 0 })
   const [myCats, setMyCats] = useState([])
 
@@ -37,14 +89,14 @@ export default function DashboardPage() {
     load()
   }, [user])
 
-  const displayName = userProfile?.displayName || user?.email?.split('@')[0] || 'คุณ'
+  const displayName = userProfile?.displayName || user?.email?.split('@')[0] || c.you
 
   return (
     <div style={{ minHeight: '100dvh', backgroundColor: '#f8f8f8', fontFamily: 'Space Grotesk, sans-serif' }}>
       {/* Header bar */}
       <div style={{ backgroundColor: '#fff', borderBottom: '1px solid #f0f0f0', padding: '20px 20px 20px' }}>
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
-          <p style={{ fontSize: 12, color: '#aaa', fontWeight: 600, marginBottom: 2 }}>ยินดีต้อนรับ</p>
+          <p style={{ fontSize: 12, color: '#aaa', fontWeight: 600, marginBottom: 2 }}>{c.welcome}</p>
           <h1 style={{ fontSize: 22, fontWeight: 900, color: '#000' }}>{displayName}</h1>
         </div>
       </div>
@@ -63,7 +115,7 @@ export default function DashboardPage() {
               </div>
               <div>
                 <div style={{ fontSize: 22, fontWeight: 900, color: '#000', lineHeight: 1 }}>{stats.cats}</div>
-                <div style={{ fontSize: 11, color: '#888', fontWeight: 600, marginTop: 2 }}>น้องแมว</div>
+                <div style={{ fontSize: 11, color: '#888', fontWeight: 600, marginTop: 2 }}>{c.statCats}</div>
               </div>
             </div>
           </div>
@@ -74,7 +126,7 @@ export default function DashboardPage() {
               </div>
               <div>
                 <div style={{ fontSize: 22, fontWeight: 900, color: '#000', lineHeight: 1 }}>{stats.matches}</div>
-                <div style={{ fontSize: 11, color: '#888', fontWeight: 600, marginTop: 2 }}>Matches</div>
+                <div style={{ fontSize: 11, color: '#888', fontWeight: 600, marginTop: 2 }}>{c.statMatches}</div>
               </div>
             </div>
           </div>
@@ -82,7 +134,7 @@ export default function DashboardPage() {
 
         {/* Quick actions */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
-          <h2 style={{ fontSize: 14, fontWeight: 700, color: '#888', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 12 }}>เมนู</h2>
+          <h2 style={{ fontSize: 14, fontWeight: 700, color: '#888', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 12 }}>{c.menu}</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 16 }}>
             {QUICK_ACTIONS.map(({ path, icon: Icon, label, desc, color, bg, border }) => (
               <Link
@@ -128,8 +180,8 @@ export default function DashboardPage() {
                   <Home size={21} color="#fff" />
                 </div>
                 <div>
-                  <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', marginBottom: 2 }}>สถานที่ผสมพันธุ์</div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', fontWeight: 500 }}>จองสถานที่มาตรฐาน ปลอดภัย ราคาเริ่มต้น</div>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', marginBottom: 2 }}>{c.venueTitle}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', fontWeight: 500 }}>{c.venueDesc}</div>
                 </div>
               </div>
               <ArrowRight size={18} color="rgba(255,255,255,0.55)" />
@@ -140,9 +192,9 @@ export default function DashboardPage() {
         {/* My cats */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <h2 style={{ fontSize: 14, fontWeight: 700, color: '#888', letterSpacing: '0.06em', textTransform: 'uppercase' }}>น้องแมวของฉัน</h2>
+            <h2 style={{ fontSize: 14, fontWeight: 700, color: '#888', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{c.myCats}</h2>
             <Link to="/my-cats" style={{ fontSize: 12, fontWeight: 700, color: '#F97316', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 3 }}>
-              ดูทั้งหมด <ArrowRight size={12} />
+              {c.viewAll} <ArrowRight size={12} />
             </Link>
           </div>
 
@@ -159,15 +211,15 @@ export default function DashboardPage() {
                 <div style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: '#FFF7ED', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
                   <Cat size={24} color="#F97316" />
                 </div>
-                <div style={{ fontSize: 15, fontWeight: 800, color: '#000', marginBottom: 5 }}>เพิ่มโปรไฟล์แมวตัวแรก</div>
-                <div style={{ fontSize: 12, color: '#888', fontWeight: 500, marginBottom: 16 }}>สร้างโปรไฟล์น้องแมวเพื่อเริ่ม Discover</div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: '#000', marginBottom: 5 }}>{c.addFirstCat}</div>
+                <div style={{ fontSize: 12, color: '#888', fontWeight: 500, marginBottom: 16 }}>{c.addFirstCatDesc}</div>
                 <div style={{
                   display: 'inline-flex', alignItems: 'center', gap: 6,
                   backgroundColor: '#F97316', color: '#fff',
                   padding: '9px 18px', borderRadius: 999,
                   fontSize: 13, fontWeight: 800,
                 }}>
-                  <Plus size={13} /> เพิ่มแมว
+                  <Plus size={13} /> {c.addCat}
                 </div>
               </div>
             </Link>
@@ -204,7 +256,7 @@ export default function DashboardPage() {
               onMouseEnter={e => e.currentTarget.style.borderColor = '#F97316'}
               onMouseLeave={e => e.currentTarget.style.borderColor = '#e5e7eb'}
               >
-                <Plus size={22} /> เพิ่มแมว
+                <Plus size={22} /> {c.addCat}
               </Link>
             </div>
           )}
@@ -223,8 +275,8 @@ export default function DashboardPage() {
                     <Heart size={20} color="#F97316" fill="#F97316" />
                   </div>
                   <div>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>คุณมี {stats.matches} Match</div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>เริ่มพูดคุยกับพ่อแม่แมวได้เลย</div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>{c.matchBannerTitle(stats.matches)}</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>{c.matchBannerDesc}</div>
                   </div>
                 </div>
                 <ArrowRight size={18} color="rgba(255,255,255,0.4)" />

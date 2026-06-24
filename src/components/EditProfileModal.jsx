@@ -2,7 +2,37 @@ import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Camera, Upload, PawPrint, AlertCircle, Check } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { useLanguage } from '../contexts/LanguageContext'
 import { prepareImage, blobToBase64, ACCEPT_IMAGE_TYPES } from '../utils/imageUtils'
+
+const COPY = {
+  th: {
+    uploadError: 'ไม่สามารถโหลดรูปได้',
+    saveFailed: 'บันทึกไม่สำเร็จ: ',
+    editProfile: 'แก้ไขโปรไฟล์',
+    uploading: 'กำลังโหลด...',
+    uploadFromDevice: 'อัพโหลดจากเครื่อง',
+    orChooseAvatar: 'หรือเลือกรูปแมวสำเร็จรูป',
+    displayName: 'ชื่อที่แสดง',
+    namePlaceholder: 'ชื่อของคุณ',
+    saved: 'บันทึกแล้ว',
+    saving: 'กำลังบันทึก...',
+    save: 'บันทึก',
+  },
+  en: {
+    uploadError: 'Could not load the image',
+    saveFailed: 'Save failed: ',
+    editProfile: 'Edit Profile',
+    uploading: 'Uploading...',
+    uploadFromDevice: 'Upload from device',
+    orChooseAvatar: 'Or choose a ready-made cat avatar',
+    displayName: 'Display Name',
+    namePlaceholder: 'Your name',
+    saved: 'Saved',
+    saving: 'Saving...',
+    save: 'Save',
+  },
+}
 
 function genCatAvatar(idx) {
   const palettes = [
@@ -42,6 +72,8 @@ const CAT_AVATARS = [0, 1, 2, 3, 4, 5].map(genCatAvatar)
 
 export default function EditProfileModal({ onClose }) {
   const { user, userProfile, updateUserProfile } = useAuth()
+  const { lang } = useLanguage()
+  const c = COPY[lang]
   const [name, setName] = useState(userProfile?.displayName || user?.displayName || '')
   const [selectedAvatarIdx, setSelectedAvatarIdx] = useState(null)
   const [uploadedPhoto, setUploadedPhoto] = useState(null)
@@ -67,7 +99,7 @@ export default function EditProfileModal({ onClose }) {
       setUploadedPhoto({ previewUrl: base64, base64 })
       setSelectedAvatarIdx(null)
     } catch {
-      setError('ไม่สามารถโหลดรูปได้')
+      setError(c.uploadError)
     }
     setUploading(false)
     e.target.value = ''
@@ -87,7 +119,7 @@ export default function EditProfileModal({ onClose }) {
     const res = await updateUserProfile(name.trim(), photoURL)
     setSaving(false)
     if (res?.error) {
-      setError('บันทึกไม่สำเร็จ: ' + res.error)
+      setError(c.saveFailed + res.error)
     } else {
       setSaved(true)
       setTimeout(() => { setSaved(false); onClose() }, 900)
@@ -120,7 +152,7 @@ export default function EditProfileModal({ onClose }) {
         >
           {/* Header */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-            <h2 style={{ fontSize: 18, fontWeight: 900, color: '#000' }}>แก้ไขโปรไฟล์</h2>
+            <h2 style={{ fontSize: 18, fontWeight: 900, color: '#000' }}>{c.editProfile}</h2>
             <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', width: 32, height: 32, borderRadius: '50%', backgroundColor: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <X size={16} color="#888" />
             </button>
@@ -157,14 +189,14 @@ export default function EditProfileModal({ onClose }) {
               background: 'none', border: 'none', cursor: 'pointer',
               fontFamily: 'Space Grotesk, sans-serif',
             }}>
-              <Upload size={12} /> {uploading ? 'กำลังโหลด...' : 'อัพโหลดจากเครื่อง'}
+              <Upload size={12} /> {uploading ? c.uploading : c.uploadFromDevice}
             </button>
           </div>
 
           {/* Cat avatars */}
           <div style={{ marginBottom: 22 }}>
             <p style={{ fontSize: 12, fontWeight: 700, color: '#aaa', textAlign: 'center', marginBottom: 10 }}>
-              หรือเลือกรูปแมวสำเร็จรูป
+              {c.orChooseAvatar}
             </p>
             <div style={{ display: 'flex', justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
               {CAT_AVATARS.map((av, i) => (
@@ -186,11 +218,11 @@ export default function EditProfileModal({ onClose }) {
           {/* Name */}
           <div style={{ marginBottom: 22 }}>
             <label style={{ fontSize: 13, fontWeight: 700, color: '#333', display: 'block', marginBottom: 7 }}>
-              ชื่อที่แสดง <span style={{ color: '#F97316' }}>*</span>
+              {c.displayName} <span style={{ color: '#F97316' }}>*</span>
             </label>
             <input
               type="text" value={name} onChange={e => setName(e.target.value)}
-              placeholder="ชื่อของคุณ" maxLength={30}
+              placeholder={c.namePlaceholder} maxLength={30}
               style={{
                 width: '100%', padding: '13px 16px', borderRadius: 13,
                 border: '1.5px solid #e5e7eb', fontSize: 15,
@@ -219,7 +251,7 @@ export default function EditProfileModal({ onClose }) {
             fontFamily: 'Space Grotesk, sans-serif', transition: 'background 0.2s',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
           }}>
-            {saved ? <><Check size={16} /> บันทึกแล้ว</> : saving ? 'กำลังบันทึก...' : 'บันทึก'}
+            {saved ? <><Check size={16} /> {c.saved}</> : saving ? c.saving : c.save}
           </button>
         </motion.div>
       </motion.div>

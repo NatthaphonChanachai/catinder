@@ -5,6 +5,44 @@ import { collection, query, where, orderBy, onSnapshot, addDoc, updateDoc, doc, 
 import { Send, ArrowLeft, MessageCircle, Compass, PawPrint } from 'lucide-react'
 import { db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
+import { useLanguage } from '../contexts/LanguageContext'
+
+const COPY = {
+  th: {
+    matchAndChat: 'Match & แชท',
+    conversationsCount: (n) => `${n} การสนทนา`,
+    noMatchYet: 'ยังไม่มี Match',
+    goDiscover: 'ไป Discover เพื่อ Match กับแมวตัวอื่น',
+    discover: 'Discover',
+    unknown: 'ไม่ทราบ',
+    justMatched: 'เพิ่ง Match',
+    selectConversation: 'เลือกการสนทนา',
+    selectMatchToChat: 'เลือก Match จากรายการเพื่อเริ่มแชท',
+    newMatch: 'Match ใหม่!',
+    sendFirstMessage: (name) => `ส่งข้อความแรกให้กับ ${name}`,
+    match: 'Match',
+    messagePlaceholder: (name) => `ข้อความถึง ${name}...`,
+    today: 'วันนี้',
+    yesterday: 'เมื่อวาน',
+  },
+  en: {
+    matchAndChat: 'Matches & Chat',
+    conversationsCount: (n) => `${n} conversation${n === 1 ? '' : 's'}`,
+    noMatchYet: 'No matches yet',
+    goDiscover: 'Go to Discover to match with other cats',
+    discover: 'Discover',
+    unknown: 'Unknown',
+    justMatched: 'Just matched',
+    selectConversation: 'Select a conversation',
+    selectMatchToChat: 'Pick a match from the list to start chatting',
+    newMatch: 'New match!',
+    sendFirstMessage: (name) => `Send the first message to ${name}`,
+    match: 'Match',
+    messagePlaceholder: (name) => `Message ${name}...`,
+    today: 'Today',
+    yesterday: 'Yesterday',
+  },
+}
 
 function formatTime(ts) {
   if (!ts) return ''
@@ -12,17 +50,19 @@ function formatTime(ts) {
   return d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })
 }
 
-function formatDate(ts) {
+function formatDate(ts, c) {
   if (!ts) return ''
   const d = ts.toDate ? ts.toDate() : new Date(ts)
   const diff = Date.now() - d.getTime()
-  if (diff < 86400000) return 'วันนี้'
-  if (diff < 172800000) return 'เมื่อวาน'
+  if (diff < 86400000) return c.today
+  if (diff < 172800000) return c.yesterday
   return d.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' })
 }
 
 export default function ChatPage() {
   const { user, userProfile } = useAuth()
+  const { lang } = useLanguage()
+  const c = COPY[lang]
   const { chatId: routeChatId } = useParams()
   const navigate = useNavigate()
 
@@ -69,7 +109,7 @@ export default function ChatPage() {
 
   const activeChat = chats.find(c => c.id === activeChatId)
   const otherUid = activeChat?.participants?.find(id => id !== user?.uid)
-  const otherName = otherUid ? (activeChat?.participantNames?.[otherUid] || 'ไม่ทราบ') : ''
+  const otherName = otherUid ? (activeChat?.participantNames?.[otherUid] || c.unknown) : ''
   const otherPhoto = otherUid ? (activeChat?.participantPhotos?.[otherUid] || '') : ''
 
   const openChat = (chatId) => {
@@ -98,8 +138,8 @@ export default function ChatPage() {
         } : {}),
       }} className={showSidebar ? 'chat-sidebar open' : 'chat-sidebar'}>
         <div style={{ padding: '18px 18px 14px', borderBottom: '1px solid #f0f0f0' }}>
-          <h2 style={{ fontSize: 17, fontWeight: 900, color: '#000', marginBottom: 1 }}>Match & แชท</h2>
-          <p style={{ fontSize: 12, color: '#aaa', fontWeight: 500 }}>{chats.length} การสนทนา</p>
+          <h2 style={{ fontSize: 17, fontWeight: 900, color: '#000', marginBottom: 1 }}>{c.matchAndChat}</h2>
+          <p style={{ fontSize: 12, color: '#aaa', fontWeight: 500 }}>{c.conversationsCount(chats.length)}</p>
         </div>
 
         <div style={{ flex: 1, overflowY: 'auto' }}>
@@ -108,20 +148,20 @@ export default function ChatPage() {
               <div style={{ width: 52, height: 52, borderRadius: 14, backgroundColor: '#FFF7ED', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
                 <MessageCircle size={24} color="#F97316" />
               </div>
-              <p style={{ fontSize: 13, fontWeight: 800, color: '#000', marginBottom: 5 }}>ยังไม่มี Match</p>
-              <p style={{ fontSize: 12, color: '#aaa', fontWeight: 500, lineHeight: 1.5, marginBottom: 14 }}>ไป Discover เพื่อ Match กับแมวตัวอื่น</p>
+              <p style={{ fontSize: 13, fontWeight: 800, color: '#000', marginBottom: 5 }}>{c.noMatchYet}</p>
+              <p style={{ fontSize: 12, color: '#aaa', fontWeight: 500, lineHeight: 1.5, marginBottom: 14 }}>{c.goDiscover}</p>
               <Link to="/discover" style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6,
                 backgroundColor: '#F97316', color: '#fff',
                 padding: '9px 18px', borderRadius: 9,
                 textDecoration: 'none', fontSize: 12, fontWeight: 800,
               }}>
-                <Compass size={13} /> Discover
+                <Compass size={13} /> {c.discover}
               </Link>
             </div>
           ) : chats.map(chat => {
             const uid = chat.participants?.find(id => id !== user?.uid)
-            const name = chat.participantNames?.[uid] || 'ไม่ทราบ'
+            const name = chat.participantNames?.[uid] || c.unknown
             const photo = chat.participantPhotos?.[uid] || ''
             const active = chat.id === activeChatId
             return (
@@ -148,11 +188,11 @@ export default function ChatPage() {
                 <div style={{ flex: 1, overflow: 'hidden' }}>
                   <div style={{ fontSize: 13, fontWeight: 800, color: '#000' }}>{name}</div>
                   <div style={{ fontSize: 11, color: '#aaa', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {chat.lastMessage || 'เพิ่ง Match'}
+                    {chat.lastMessage || c.justMatched}
                   </div>
                 </div>
                 {chat.lastMessageAt && (
-                  <div style={{ fontSize: 10, color: '#bbb', fontWeight: 600, flexShrink: 0 }}>{formatDate(chat.lastMessageAt)}</div>
+                  <div style={{ fontSize: 10, color: '#bbb', fontWeight: 600, flexShrink: 0 }}>{formatDate(chat.lastMessageAt, c)}</div>
                 )}
               </button>
             )
@@ -167,8 +207,8 @@ export default function ChatPage() {
             <div style={{ width: 72, height: 72, borderRadius: 20, backgroundColor: '#FFF7ED', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
               <MessageCircle size={36} color="#F97316" />
             </div>
-            <h3 style={{ fontSize: 18, fontWeight: 800, color: '#000', marginBottom: 6 }}>เลือกการสนทนา</h3>
-            <p style={{ fontSize: 13, color: '#aaa', fontWeight: 500 }}>เลือก Match จากรายการเพื่อเริ่มแชท</p>
+            <h3 style={{ fontSize: 18, fontWeight: 800, color: '#000', marginBottom: 6 }}>{c.selectConversation}</h3>
+            <p style={{ fontSize: 13, color: '#aaa', fontWeight: 500 }}>{c.selectMatchToChat}</p>
           </div>
         ) : (
           <>
@@ -188,7 +228,7 @@ export default function ChatPage() {
               </div>
               <div>
                 <div style={{ fontSize: 14, fontWeight: 800, color: '#000' }}>{otherName}</div>
-                <div style={{ fontSize: 10, color: '#10b981', fontWeight: 700 }}>Match</div>
+                <div style={{ fontSize: 10, color: '#10b981', fontWeight: 700 }}>{c.match}</div>
               </div>
             </div>
 
@@ -199,8 +239,8 @@ export default function ChatPage() {
                   <div style={{ width: 52, height: 52, borderRadius: 14, backgroundColor: '#FFF7ED', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
                     <MessageCircle size={24} color="#F97316" />
                   </div>
-                  <p style={{ fontSize: 13, fontWeight: 800, color: '#000', marginBottom: 4 }}>Match ใหม่!</p>
-                  <p style={{ fontSize: 12, color: '#aaa', fontWeight: 500 }}>ส่งข้อความแรกให้กับ {otherName}</p>
+                  <p style={{ fontSize: 13, fontWeight: 800, color: '#000', marginBottom: 4 }}>{c.newMatch}</p>
+                  <p style={{ fontSize: 12, color: '#aaa', fontWeight: 500 }}>{c.sendFirstMessage(otherName)}</p>
                 </div>
               )}
 
@@ -211,7 +251,7 @@ export default function ChatPage() {
                 return (
                   <div key={msg.id}>
                     {showDate && msg.createdAt && (
-                      <div style={{ textAlign: 'center', margin: '12px 0 8px', fontSize: 11, color: '#bbb', fontWeight: 600 }}>{formatDate(msg.createdAt)}</div>
+                      <div style={{ textAlign: 'center', margin: '12px 0 8px', fontSize: 11, color: '#bbb', fontWeight: 600 }}>{formatDate(msg.createdAt, c)}</div>
                     )}
                     <div style={{ display: 'flex', justifyContent: isMe ? 'flex-end' : 'flex-start', marginBottom: 5 }}>
                       <div style={{
@@ -239,7 +279,7 @@ export default function ChatPage() {
             <form onSubmit={sendMessage} style={{ padding: '12px 16px 16px', backgroundColor: '#fff', borderTop: '1px solid #f0f0f0', display: 'flex', gap: 9, alignItems: 'center', flexShrink: 0 }}>
               <input
                 type="text" value={text} onChange={e => setText(e.target.value)}
-                placeholder={`ข้อความถึง ${otherName}...`}
+                placeholder={c.messagePlaceholder(otherName)}
                 style={{
                   flex: 1, padding: '11px 15px', borderRadius: 999,
                   border: '1.5px solid #e5e7eb', fontSize: 14,

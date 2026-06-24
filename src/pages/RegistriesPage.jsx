@@ -2,91 +2,173 @@ import { motion } from 'framer-motion'
 import { ExternalLink, CheckCircle2, XCircle, BookOpen, PawPrint, ArrowLeft } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { useLanguage } from '../contexts/LanguageContext'
 
 const REGISTRIES = [
   {
     id: 'CFA',
     name: 'CFA',
     fullName: "Cat Fanciers' Association",
-    origin: 'ก่อตั้ง 1906 · สหรัฐอเมริกา',
+    origin: { th: 'ก่อตั้ง 1906 · สหรัฐอเมริกา', en: 'Founded 1906 · USA' },
     color: '#1d4ed8',
     lightColor: '#eff6ff',
     textColor: '#1e40af',
     borderColor: '#bfdbfe',
-    description:
-      'องค์กรจดทะเบียนแมวที่เก่าแก่และมีชื่อเสียงที่สุดในโลก ยอมรับ 45 สายพันธุ์และมีมาตรฐานสูง',
-    rules: [
-      'ต้องจดทะเบียน Cattery ก่อนจึงจะจดทะเบียนลูกแมวได้',
-      'พ่อแมวและแม่แมวต้องมีใบ CFA ทั้งคู่',
-      'รองรับ 45 สายพันธุ์ที่ได้รับการยอมรับ',
-      'เป็นที่ยอมรับในระดับนานาชาติสูงมาก',
-    ],
+    description: {
+      th: 'องค์กรจดทะเบียนแมวที่เก่าแก่และมีชื่อเสียงที่สุดในโลก ยอมรับ 45 สายพันธุ์และมีมาตรฐานสูง',
+      en: 'The oldest and most prestigious cat registry in the world. Recognizes 45 breeds with high standards.',
+    },
+    rules: {
+      th: [
+        'ต้องจดทะเบียน Cattery ก่อนจึงจะจดทะเบียนลูกแมวได้',
+        'พ่อแมวและแม่แมวต้องมีใบ CFA ทั้งคู่',
+        'รองรับ 45 สายพันธุ์ที่ได้รับการยอมรับ',
+        'เป็นที่ยอมรับในระดับนานาชาติสูงมาก',
+      ],
+      en: [
+        'Must register a Cattery before registering kittens',
+        'Both sire and dam must hold CFA papers',
+        'Recognizes 45 accepted breeds',
+        'Highly recognized internationally',
+      ],
+    },
     website: 'https://cfa.org',
   },
   {
     id: 'TICA',
     name: 'TICA',
     fullName: 'The International Cat Association',
-    origin: 'ก่อตั้ง 1979 · นานาชาติ',
+    origin: { th: 'ก่อตั้ง 1979 · นานาชาติ', en: 'Founded 1979 · International' },
     color: '#047857',
     lightColor: '#ecfdf5',
     textColor: '#065f46',
     borderColor: '#a7f3d0',
-    description:
-      'สมาคมระดับนานาชาติที่ยืดหยุ่นกว่า รองรับสายพันธุ์มากกว่ารวมถึง Bengal และสายพันธุ์ที่กำลังพัฒนา',
-    rules: [
-      'รองรับสายพันธุ์มากกว่า CFA รวมถึง Bengal',
-      'มีระบบจดทะเบียนที่ยืดหยุ่นและเป็นมิตรกว่า',
-      'รองรับการจดทะเบียนนานาชาติทั่วโลก',
-      'เปิดรับสายพันธุ์ใหม่ที่กำลังได้รับการพัฒนา',
-    ],
+    description: {
+      th: 'สมาคมระดับนานาชาติที่ยืดหยุ่นกว่า รองรับสายพันธุ์มากกว่ารวมถึง Bengal และสายพันธุ์ที่กำลังพัฒนา',
+      en: 'A more flexible international association. Recognizes more breeds, including Bengal and breeds still being developed.',
+    },
+    rules: {
+      th: [
+        'รองรับสายพันธุ์มากกว่า CFA รวมถึง Bengal',
+        'มีระบบจดทะเบียนที่ยืดหยุ่นและเป็นมิตรกว่า',
+        'รองรับการจดทะเบียนนานาชาติทั่วโลก',
+        'เปิดรับสายพันธุ์ใหม่ที่กำลังได้รับการพัฒนา',
+      ],
+      en: [
+        'Recognizes more breeds than CFA, including Bengal',
+        'A more flexible and friendly registration system',
+        'Supports international registration worldwide',
+        'Open to new breeds still being developed',
+      ],
+    },
     website: 'https://tica.org',
   },
   {
     id: 'SCFC',
     name: 'SCFC',
     fullName: "Siam Cat Fanciers' Club",
-    origin: 'สมาคมแมวสยาม · ประเทศไทย',
+    origin: { th: 'สมาคมแมวสยาม · ประเทศไทย', en: 'Siam Cat Fanciers Association · Thailand' },
     color: '#be123c',
     lightColor: '#fff1f2',
     textColor: '#9f1239',
     borderColor: '#fecdd3',
-    description:
-      'สมาคมแมวของไทย มี 3 ประเภทการจดทะเบียนเพื่อรองรับแมวหลากหลายที่มาในประเทศไทย',
-    rules: [
-      'ประเภท 1: โอนจากทะเบียนต่างประเทศ',
-      'ประเภท 2: พ่อแม่ต้องจดทะเบียน SCFC ทั้งคู่',
-      'ประเภท 3: Foundation — ห้ามต่อยอดสายเลือดได้',
-      'พ่อแมวและแม่แมวต้องอยู่ในชมรมเดียวกันเท่านั้น',
-    ],
+    description: {
+      th: 'สมาคมแมวของไทย มี 3 ประเภทการจดทะเบียนเพื่อรองรับแมวหลากหลายที่มาในประเทศไทย',
+      en: "Thailand's own cat association, with 3 registration types to accommodate the variety of cats found in Thailand.",
+    },
+    rules: {
+      th: [
+        'ประเภท 1: โอนจากทะเบียนต่างประเทศ',
+        'ประเภท 2: พ่อแม่ต้องจดทะเบียน SCFC ทั้งคู่',
+        'ประเภท 3: Foundation — ห้ามต่อยอดสายเลือดได้',
+        'พ่อแมวและแม่แมวต้องอยู่ในชมรมเดียวกันเท่านั้น',
+      ],
+      en: [
+        'Type 1: Transferred from a foreign registry',
+        'Type 2: Both parents must hold SCFC registration',
+        'Type 3: Foundation — bloodline cannot be carried forward',
+        'Sire and dam must belong to the same club only',
+      ],
+    },
     website: 'https://siamcatthailand.com',
   },
   {
     id: 'WCF',
     name: 'WCF',
     fullName: 'World Cat Federation',
-    origin: 'ก่อตั้ง 1988 · ยุโรป',
+    origin: { th: 'ก่อตั้ง 1988 · ยุโรป', en: 'Founded 1988 · Europe' },
     color: '#7c3aed',
     lightColor: '#f5f3ff',
     textColor: '#6d28d9',
     borderColor: '#ddd6fe',
-    description:
-      'สหพันธ์แมวระดับโลกที่ตั้งอยู่ในยุโรป มีสมาชิกในกว่า 40 ประเทศทั่วโลก',
-    rules: [
-      'เป็นองค์กรระดับยุโรปที่มีสมาชิกนานาชาติ',
-      'มีระบบจดทะเบียน pedigree ของตัวเอง',
-      'รองรับสายพันธุ์ตามมาตรฐาน FIFe',
-      'พ่อแมวและแม่แมวต้องมีใบ WCF ทั้งคู่',
-    ],
+    description: {
+      th: 'สหพันธ์แมวระดับโลกที่ตั้งอยู่ในยุโรป มีสมาชิกในกว่า 40 ประเทศทั่วโลก',
+      en: 'A global cat federation based in Europe, with members in over 40 countries worldwide.',
+    },
+    rules: {
+      th: [
+        'เป็นองค์กรระดับยุโรปที่มีสมาชิกนานาชาติ',
+        'มีระบบจดทะเบียน pedigree ของตัวเอง',
+        'รองรับสายพันธุ์ตามมาตรฐาน FIFe',
+        'พ่อแมวและแม่แมวต้องมีใบ WCF ทั้งคู่',
+      ],
+      en: [
+        'A European-based organization with international members',
+        'Has its own pedigree registration system',
+        'Recognizes breeds per FIFe standards',
+        'Both sire and dam must hold WCF papers',
+      ],
+    },
     website: 'https://wcf-online.de',
   },
 ]
 
 const MATRIX_KEYS = ['CFA', 'TICA', 'SCFC', 'WCF']
 
+const COPY = {
+  th: {
+    back: 'กลับ',
+    heroTitle: 'ศูนย์ข้อมูล Registry',
+    heroSubtitle: 'เรียนรู้เกี่ยวกับสมาคมจดทะเบียนแมวสายพันธุ์',
+    pedigreeNoteBefore: 'การออกใบ Pedigree ให้กับลูกแมว',
+    pedigreeNoteStrong: 'พ่อแมวและแม่แมวต้องอยู่ในชมรมเดียวกัน',
+    pedigreeNoteAfter: 'หากต่างชมรมกัน ลูกแมวอาจออกใบเพ็ดดีกรีไม่ได้',
+    onlyBadgeSuffix: 'Only',
+    keyRulesLabel: 'กฎสำคัญ',
+    learnMore: 'เรียนรู้เพิ่มเติม',
+    matrixTitle: 'ตารางความเข้ากันได้',
+    matrixLegend: '✅ = ออกใบ Pedigree ได้ · ❌ = ออกใบ Pedigree ไม่ได้',
+    matrixCornerHeader: 'พ่อ \\ แม่',
+    ctaTitle: 'พร้อมจับคู่แมวของคุณแล้ว?',
+    ctaSubtitle: 'ใส่ข้อมูล Registry ในโปรไฟล์แมวเพื่อการจับคู่ที่แม่นยำ',
+    ctaManageCats: 'จัดการแมวของฉัน',
+    ctaGetStarted: 'เริ่มต้นใช้งาน',
+  },
+  en: {
+    back: 'Back',
+    heroTitle: 'Registry Information Hub',
+    heroSubtitle: 'Learn about cat breed registry associations',
+    pedigreeNoteBefore: 'When issuing a pedigree for a kitten,',
+    pedigreeNoteStrong: 'the sire and dam must belong to the same club.',
+    pedigreeNoteAfter: 'If they belong to different clubs, the kitten may not be able to get a pedigree.',
+    onlyBadgeSuffix: 'Only',
+    keyRulesLabel: 'Key Rules',
+    learnMore: 'Learn More',
+    matrixTitle: 'Compatibility Matrix',
+    matrixLegend: '✅ = Pedigree can be issued · ❌ = Pedigree cannot be issued',
+    matrixCornerHeader: 'Sire \\ Dam',
+    ctaTitle: 'Ready to match your cat?',
+    ctaSubtitle: 'Add Registry info to your cat profile for more accurate matching',
+    ctaManageCats: 'Manage My Cats',
+    ctaGetStarted: 'Get Started',
+  },
+}
+
 export default function RegistriesPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const { lang } = useLanguage()
+  const c = COPY[lang]
 
   return (
     <div
@@ -123,7 +205,7 @@ export default function RegistriesPage() {
               fontFamily: 'Space Grotesk, sans-serif',
             }}
           >
-            <ArrowLeft size={14} /> กลับ
+            <ArrowLeft size={14} /> {c.back}
           </button>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
@@ -142,10 +224,10 @@ export default function RegistriesPage() {
             </div>
             <div>
               <h1 style={{ fontSize: 24, fontWeight: 900, color: '#000', margin: 0 }}>
-                ศูนย์ข้อมูล Registry
+                {c.heroTitle}
               </h1>
               <p style={{ fontSize: 13, color: '#888', fontWeight: 500, margin: '2px 0 0' }}>
-                เรียนรู้เกี่ยวกับสมาคมจดทะเบียนแมวสายพันธุ์
+                {c.heroSubtitle}
               </p>
             </div>
           </div>
@@ -164,9 +246,9 @@ export default function RegistriesPage() {
           >
             <PawPrint size={16} color="#F97316" style={{ flexShrink: 0, marginTop: 1 }} />
             <p style={{ fontSize: 13, color: '#444', fontWeight: 500, margin: 0, lineHeight: 1.6 }}>
-              การออกใบ Pedigree ให้กับลูกแมว{' '}
-              <strong>พ่อแมวและแม่แมวต้องอยู่ในชมรมเดียวกัน</strong>{' '}
-              หากต่างชมรมกัน ลูกแมวอาจออกใบเพ็ดดีกรีไม่ได้
+              {c.pedigreeNoteBefore}{' '}
+              <strong>{c.pedigreeNoteStrong}</strong>{' '}
+              {c.pedigreeNoteAfter}
             </p>
           </div>
         </div>
@@ -235,7 +317,7 @@ export default function RegistriesPage() {
                         marginTop: 3,
                       }}
                     >
-                      {reg.origin}
+                      {reg.origin[lang]}
                     </div>
                   </div>
 
@@ -253,7 +335,7 @@ export default function RegistriesPage() {
                       flexShrink: 0,
                     }}
                   >
-                    {reg.id} Only
+                    {reg.id} {c.onlyBadgeSuffix}
                   </div>
                 </div>
               </div>
@@ -269,7 +351,7 @@ export default function RegistriesPage() {
                     marginBottom: 14,
                   }}
                 >
-                  {reg.description}
+                  {reg.description[lang]}
                 </p>
 
                 <div style={{ marginBottom: 18 }}>
@@ -283,10 +365,10 @@ export default function RegistriesPage() {
                       marginBottom: 8,
                     }}
                   >
-                    กฎสำคัญ
+                    {c.keyRulesLabel}
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    {reg.rules.map((rule, j) => (
+                    {reg.rules[lang].map((rule, j) => (
                       <div
                         key={j}
                         style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}
@@ -327,7 +409,7 @@ export default function RegistriesPage() {
                   onMouseEnter={e => (e.currentTarget.style.opacity = '0.75')}
                   onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
                 >
-                  <ExternalLink size={13} /> เรียนรู้เพิ่มเติม
+                  <ExternalLink size={13} /> {c.learnMore}
                 </a>
               </div>
             </motion.div>
@@ -349,10 +431,10 @@ export default function RegistriesPage() {
         >
           <div style={{ padding: '18px 20px 14px', borderBottom: '1px solid #f5f5f5' }}>
             <h2 style={{ fontSize: 16, fontWeight: 900, color: '#000', margin: 0 }}>
-              ตารางความเข้ากันได้
+              {c.matrixTitle}
             </h2>
             <p style={{ fontSize: 12, color: '#aaa', fontWeight: 500, margin: '4px 0 0' }}>
-              ✅ = ออกใบ Pedigree ได้ · ❌ = ออกใบ Pedigree ไม่ได้
+              {c.matrixLegend}
             </p>
           </div>
 
@@ -378,7 +460,7 @@ export default function RegistriesPage() {
                       letterSpacing: '0.04em',
                     }}
                   >
-                    พ่อ \ แม่
+                    {c.matrixCornerHeader}
                   </th>
                   {MATRIX_KEYS.map(k => (
                     <th
@@ -464,10 +546,10 @@ export default function RegistriesPage() {
         >
           <div>
             <div style={{ fontSize: 15, fontWeight: 800, color: '#000', marginBottom: 4 }}>
-              พร้อมจับคู่แมวของคุณแล้ว?
+              {c.ctaTitle}
             </div>
             <div style={{ fontSize: 13, color: '#888', fontWeight: 500 }}>
-              ใส่ข้อมูล Registry ในโปรไฟล์แมวเพื่อการจับคู่ที่แม่นยำ
+              {c.ctaSubtitle}
             </div>
           </div>
           {user ? (
@@ -488,7 +570,7 @@ export default function RegistriesPage() {
                 boxShadow: '0 4px 14px rgba(249,115,22,0.3)',
               }}
             >
-              <PawPrint size={15} /> จัดการแมวของฉัน
+              <PawPrint size={15} /> {c.ctaManageCats}
             </Link>
           ) : (
             <Link
@@ -507,7 +589,7 @@ export default function RegistriesPage() {
                 flexShrink: 0,
               }}
             >
-              เริ่มต้นใช้งาน
+              {c.ctaGetStarted}
             </Link>
           )}
         </motion.div>

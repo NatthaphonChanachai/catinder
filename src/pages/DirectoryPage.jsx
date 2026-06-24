@@ -11,19 +11,83 @@ import {
 } from 'lucide-react'
 import { db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
+import { useLanguage } from '../contexts/LanguageContext'
 import { getCurrentPosition, haversineKm } from '../utils/geo'
 import { loadProvinces } from '../utils/thailandGeo'
 
 const CATEGORIES = [
-  { value: 'all', label: 'ทั้งหมด', icon: MapPin },
-  { value: 'farm', label: 'ฟาร์มแมว', icon: Home },
-  { value: 'cafe', label: 'คาเฟ่แมว', icon: Coffee },
-  { value: 'vet', label: 'โรงพยาบาลสัตว์', icon: HeartPulse },
-  { value: 'clinic', label: 'คลินิก', icon: Stethoscope },
-  { value: 'food', label: 'ร้านอาหารแมว', icon: Fish },
-  { value: 'place', label: 'ที่เที่ยว', icon: TreePine },
-  { value: 'hotel', label: 'โรงแรม (Cat Friendly)', icon: Hotel },
+  { value: 'all', label: { th: 'ทั้งหมด', en: 'All' }, icon: MapPin },
+  { value: 'farm', label: { th: 'ฟาร์มแมว', en: 'Cat Farms' }, icon: Home },
+  { value: 'cafe', label: { th: 'คาเฟ่แมว', en: 'Cat Cafes' }, icon: Coffee },
+  { value: 'vet', label: { th: 'โรงพยาบาลสัตว์', en: 'Animal Hospitals' }, icon: HeartPulse },
+  { value: 'clinic', label: { th: 'คลินิก', en: 'Clinics' }, icon: Stethoscope },
+  { value: 'food', label: { th: 'ร้านอาหารแมว', en: 'Cat Food Shops' }, icon: Fish },
+  { value: 'place', label: { th: 'ที่เที่ยว', en: 'Attractions' }, icon: TreePine },
+  { value: 'hotel', label: { th: 'โรงแรม (Cat Friendly)', en: 'Hotels (Cat Friendly)' }, icon: Hotel },
 ]
+
+const COPY = {
+  th: {
+    reviewTitle: 'รีวิว',
+    ratingLabel: 'คะแนน',
+    ratingWords: ['', 'แย่มาก', 'แย่', 'พอใช้', 'ดี', 'ดีมาก'],
+    commentLabel: 'ความคิดเห็น (ไม่บังคับ)',
+    commentPlaceholder: 'แชร์ประสบการณ์ของคุณ...',
+    sending: 'กำลังส่ง...',
+    sendReview: 'ส่งรีวิว',
+    freeStay: 'พักฟรี',
+    pricePerNight: (price) => `${price} บาท/คืน`,
+    km: 'กม.',
+    reviewsCount: (n) => `(${n} รีวิว)`,
+    website: 'เว็บไซต์',
+    review: 'รีวิว',
+    locationError: 'ไม่สามารถเข้าถึงตำแหน่งได้ กรุณาอนุญาตการเข้าถึงตำแหน่ง',
+    pageTitle: 'ไดเรกทอรี',
+    pageSubtitle: 'ค้นหาสถานที่เกี่ยวกับแมวทุกประเภท',
+    searchPlaceholder: 'ค้นหาชื่อ ที่อยู่ หรือคำอธิบาย...',
+    locating: 'กำลังหาตำแหน่ง...',
+    nearMeActive: 'ใกล้ฉัน ✓',
+    nearMe: 'ใกล้ฉัน',
+    allProvinces: 'ทุกจังหวัด',
+    allDistricts: 'ทุกอำเภอ/เขต',
+    loading: 'กำลังโหลด...',
+    noResults: 'ไม่พบผลลัพธ์',
+    noDataInCategory: 'ยังไม่มีข้อมูลในหมวดนี้',
+    tryOtherSearch: 'ลองใช้คำค้นหาอื่น',
+    addingData: 'ทีมงานกำลังเพิ่มข้อมูล',
+    foundCount: (n) => `พบ ${n} สถานที่`,
+  },
+  en: {
+    reviewTitle: 'Review',
+    ratingLabel: 'Rating',
+    ratingWords: ['', 'Terrible', 'Bad', 'Okay', 'Good', 'Great'],
+    commentLabel: 'Comment (optional)',
+    commentPlaceholder: 'Share your experience...',
+    sending: 'Sending...',
+    sendReview: 'Submit Review',
+    freeStay: 'Free stay',
+    pricePerNight: (price) => `${price} THB/night`,
+    km: 'km',
+    reviewsCount: (n) => `(${n} reviews)`,
+    website: 'Website',
+    review: 'Review',
+    locationError: 'Unable to access your location. Please allow location access.',
+    pageTitle: 'Directory',
+    pageSubtitle: 'Find all kinds of cat-related places',
+    searchPlaceholder: 'Search by name, address, or description...',
+    locating: 'Locating...',
+    nearMeActive: 'Near Me ✓',
+    nearMe: 'Near Me',
+    allProvinces: 'All Provinces',
+    allDistricts: 'All Districts',
+    loading: 'Loading...',
+    noResults: 'No results found',
+    noDataInCategory: 'No listings in this category yet',
+    tryOtherSearch: 'Try a different search term',
+    addingData: 'Our team is adding more listings',
+    foundCount: (n) => `Found ${n} places`,
+  },
+}
 
 const CAT_STYLES = {
   farm: { color: '#F97316', bg: '#FFF7ED' },
@@ -63,6 +127,8 @@ function StarRating({ value, onChange, readonly }) {
 }
 
 function ReviewModal({ listing, onClose, onSubmit }) {
+  const { lang } = useLanguage()
+  const c = COPY[lang]
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState('')
   const [saving, setSaving] = useState(false)
@@ -94,7 +160,7 @@ function ReviewModal({ listing, onClose, onSubmit }) {
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
           <div>
-            <h3 style={{ fontSize: 17, fontWeight: 900, color: '#000', marginBottom: 2 }}>รีวิว</h3>
+            <h3 style={{ fontSize: 17, fontWeight: 900, color: '#000', marginBottom: 2 }}>{c.reviewTitle}</h3>
             <p style={{ fontSize: 12, color: '#888', fontWeight: 500 }}>{listing.name}</p>
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
@@ -103,21 +169,21 @@ function ReviewModal({ listing, onClose, onSubmit }) {
         </div>
 
         <div style={{ marginBottom: 18 }}>
-          <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#888', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>คะแนน</label>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#888', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{c.ratingLabel}</label>
           <StarRating value={rating} onChange={setRating} />
           {rating > 0 && (
             <p style={{ fontSize: 12, color: '#F97316', fontWeight: 700, marginTop: 6 }}>
-              {['', 'แย่มาก', 'แย่', 'พอใช้', 'ดี', 'ดีมาก'][rating]}
+              {c.ratingWords[rating]}
             </p>
           )}
         </div>
 
         <div style={{ marginBottom: 22 }}>
-          <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#888', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>ความคิดเห็น (ไม่บังคับ)</label>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#888', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{c.commentLabel}</label>
           <textarea
             value={comment}
             onChange={e => setComment(e.target.value)}
-            placeholder="แชร์ประสบการณ์ของคุณ..."
+            placeholder={c.commentPlaceholder}
             rows={3}
             style={{
               width: '100%', padding: '11px 13px', borderRadius: 11,
@@ -140,7 +206,7 @@ function ReviewModal({ listing, onClose, onSubmit }) {
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
           }}
         >
-          <Send size={15} /> {saving ? 'กำลังส่ง...' : 'ส่งรีวิว'}
+          <Send size={15} /> {saving ? c.sending : c.sendReview}
         </button>
       </motion.div>
     </div>
@@ -149,9 +215,12 @@ function ReviewModal({ listing, onClose, onSubmit }) {
 
 function ListingCard({ listing, onReview, distanceKm }) {
   const { user } = useAuth()
-  const cat = CATEGORIES.find(c => c.value === listing.category)
+  const { lang } = useLanguage()
+  const c = COPY[lang]
+  const cat = CATEGORIES.find(cc => cc.value === listing.category)
   const styles = CAT_STYLES[listing.category] || CAT_STYLES.farm
   const Icon = cat?.icon || MapPin
+  const catLabel = cat?.label?.[lang]
 
   return (
     <motion.div
@@ -174,7 +243,7 @@ function ListingCard({ listing, onReview, distanceKm }) {
             color: styles.color, fontSize: 11, fontWeight: 800,
             padding: '4px 10px', borderRadius: 999,
           }}>
-            <Icon size={11} /> {cat?.label}
+            <Icon size={11} /> {catLabel}
           </div>
         </div>
       ) : (
@@ -210,11 +279,11 @@ function ListingCard({ listing, onReview, distanceKm }) {
               padding: '3px 9px', borderRadius: 999,
             }}>
               {listing.priceType === 'free' ? <Gift size={11} /> : <Banknote size={11} />}
-              {listing.priceType === 'free' ? 'พักฟรี' : `${listing.price?.toLocaleString() || 0} บาท/คืน`}
+              {listing.priceType === 'free' ? c.freeStay : c.pricePerNight(listing.price?.toLocaleString() || 0)}
             </span>
             {typeof distanceKm === 'number' && (
               <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 700, color: '#888' }}>
-                <Navigation size={10} /> {distanceKm.toFixed(1)} กม.
+                <Navigation size={10} /> {distanceKm.toFixed(1)} {c.km}
               </span>
             )}
           </div>
@@ -225,7 +294,7 @@ function ListingCard({ listing, onReview, distanceKm }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
             <StarRating value={Math.round(listing.avgRating)} readonly />
             <span style={{ fontSize: 12, fontWeight: 700, color: '#F97316' }}>{listing.avgRating.toFixed(1)}</span>
-            <span style={{ fontSize: 11, color: '#aaa', fontWeight: 500 }}>({listing.reviewCount || 0} รีวิว)</span>
+            <span style={{ fontSize: 11, color: '#aaa', fontWeight: 500 }}>{c.reviewsCount(listing.reviewCount || 0)}</span>
           </div>
         )}
 
@@ -283,7 +352,7 @@ function ListingCard({ listing, onReview, distanceKm }) {
               onMouseEnter={e => { e.currentTarget.style.borderColor = '#F97316'; e.currentTarget.style.color = '#F97316' }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.color = '#555' }}
             >
-              <Globe size={11} /> เว็บไซต์
+              <Globe size={11} /> {c.website}
             </a>
           )}
           {listing.facebook && (
@@ -310,7 +379,7 @@ function ListingCard({ listing, onReview, distanceKm }) {
             onMouseEnter={e => { e.currentTarget.style.borderColor = '#F97316'; e.currentTarget.style.color = '#F97316' }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.color = '#555' }}
             >
-              <Star size={11} /> รีวิว
+              <Star size={11} /> {c.review}
             </button>
           )}
         </div>
@@ -326,6 +395,8 @@ function MessageCircleIcon({ size = 11 }) {
 
 export default function DirectoryPage() {
   const { user, userProfile } = useAuth()
+  const { lang } = useLanguage()
+  const c = COPY[lang]
   const [listings, setListings] = useState([])
   const [filtered, setFiltered] = useState([])
   const [category, setCategory] = useState('all')
@@ -365,7 +436,7 @@ export default function DirectoryPage() {
     try {
       setMyLocation(await getCurrentPosition())
     } catch {
-      setLocationError('ไม่สามารถเข้าถึงตำแหน่งได้ กรุณาอนุญาตการเข้าถึงตำแหน่ง')
+      setLocationError(c.locationError)
     }
     setLocating(false)
   }
@@ -430,13 +501,13 @@ export default function DirectoryPage() {
       {/* Header */}
       <div style={{ backgroundColor: '#fff', borderBottom: '1px solid #f0f0f0', padding: '20px 16px' }}>
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
-          <h1 style={{ fontSize: 22, fontWeight: 900, color: '#000', marginBottom: 3 }}>ไดเรกทอรี</h1>
-          <p style={{ fontSize: 13, color: '#aaa', fontWeight: 500, marginBottom: 16 }}>ค้นหาสถานที่เกี่ยวกับแมวทุกประเภท</p>
+          <h1 style={{ fontSize: 22, fontWeight: 900, color: '#000', marginBottom: 3 }}>{c.pageTitle}</h1>
+          <p style={{ fontSize: 13, color: '#aaa', fontWeight: 500, marginBottom: 16 }}>{c.pageSubtitle}</p>
           <div style={{ position: 'relative', maxWidth: 480 }}>
             <Search size={15} color="#bbb" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
             <input
               type="text" value={search} onChange={e => setSearch(e.target.value)}
-              placeholder="ค้นหาชื่อ ที่อยู่ หรือคำอธิบาย..."
+              placeholder={c.searchPlaceholder}
               style={{
                 width: '100%', padding: '11px 12px 11px 36px',
                 borderRadius: 11, border: '1.5px solid #e5e7eb',
@@ -468,7 +539,7 @@ export default function DirectoryPage() {
                 fontFamily: 'Space Grotesk, sans-serif', transition: 'all 0.15s',
               }}
             >
-              <Icon size={13} /> {label}
+              <Icon size={13} /> {label[lang]}
             </button>
           ))}
         </div>
@@ -486,7 +557,7 @@ export default function DirectoryPage() {
                 fontFamily: 'Space Grotesk, sans-serif',
               }}
             >
-              <Navigation size={13} /> {locating ? 'กำลังหาตำแหน่ง...' : myLocation ? 'ใกล้ฉัน ✓' : 'ใกล้ฉัน'}
+              <Navigation size={13} /> {locating ? c.locating : myLocation ? c.nearMeActive : c.nearMe}
             </button>
 
             <select
@@ -498,7 +569,7 @@ export default function DirectoryPage() {
                 backgroundColor: '#fff', outline: 'none',
               }}
             >
-              <option value="">ทุกจังหวัด</option>
+              <option value="">{c.allProvinces}</option>
               {provinces?.map(p => <option key={p.code} value={p.name_th}>{p.name_th}</option>)}
             </select>
 
@@ -512,7 +583,7 @@ export default function DirectoryPage() {
                 backgroundColor: '#fff', outline: 'none',
               }}
             >
-              <option value="">ทุกอำเภอ/เขต</option>
+              <option value="">{c.allDistricts}</option>
               {selectedProvince?.districts.map(d => <option key={d.code} value={d.name_th}>{d.name_th}</option>)}
             </select>
 
@@ -521,22 +592,22 @@ export default function DirectoryPage() {
         )}
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '60px 0', color: '#aaa' }}>กำลังโหลด...</div>
+          <div style={{ textAlign: 'center', padding: '60px 0', color: '#aaa' }}>{c.loading}</div>
         ) : filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '50px 20px', backgroundColor: '#fff', borderRadius: 18, border: '2px dashed #e5e7eb', marginTop: 4 }}>
             <div style={{ width: 52, height: 52, borderRadius: 14, backgroundColor: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
               <Search size={24} color="#ccc" />
             </div>
             <h3 style={{ fontSize: 16, fontWeight: 800, color: '#000', marginBottom: 6 }}>
-              {search ? 'ไม่พบผลลัพธ์' : 'ยังไม่มีข้อมูลในหมวดนี้'}
+              {search ? c.noResults : c.noDataInCategory}
             </h3>
             <p style={{ fontSize: 13, color: '#888', fontWeight: 500 }}>
-              {search ? 'ลองใช้คำค้นหาอื่น' : 'ทีมงานกำลังเพิ่มข้อมูล'}
+              {search ? c.tryOtherSearch : c.addingData}
             </p>
           </div>
         ) : (
           <>
-            <p style={{ fontSize: 12, color: '#aaa', fontWeight: 600, marginBottom: 16 }}>พบ {filtered.length} สถานที่</p>
+            <p style={{ fontSize: 12, color: '#aaa', fontWeight: 600, marginBottom: 16 }}>{c.foundCount(filtered.length)}</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: 16, paddingBottom: 20 }}>
               {filtered.map(listing => (
                 <ListingCard

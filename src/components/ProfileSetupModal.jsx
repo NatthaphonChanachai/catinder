@@ -2,7 +2,41 @@ import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Camera, Upload, PawPrint, ChevronRight, AlertCircle } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { useLanguage } from '../contexts/LanguageContext'
 import { prepareImage, blobToBase64, ACCEPT_IMAGE_TYPES } from '../utils/imageUtils'
+
+const COPY = {
+  th: {
+    uploadError: 'ไม่สามารถโหลดรูปได้ กรุณาลองใหม่',
+    defaultUser: 'ผู้ใช้',
+    title: 'ตั้งค่าโปรไฟล์',
+    subtitle: 'ใส่ชื่อและรูปของคุณก่อนเริ่มใช้งาน',
+    uploading: 'กำลังโหลด...',
+    uploadFromDevice: 'อัพโหลดจากเครื่อง',
+    orChooseAvatar: 'หรือเลือกรูปแมวสำเร็จรูป',
+    displayName: 'ชื่อที่แสดง',
+    namePlaceholder: 'ชื่อของคุณ',
+    saving: 'กำลังบันทึก...',
+    saveAndStart: 'บันทึกและเริ่มใช้งาน',
+    setLater: 'ตั้งทีหลัง',
+    randomNote: 'ระบบจะสุ่มรูปแมวให้หากกด "ตั้งทีหลัง"',
+  },
+  en: {
+    uploadError: 'Could not load the image. Please try again.',
+    defaultUser: 'User',
+    title: 'Set Up Your Profile',
+    subtitle: 'Add your name and photo before you get started',
+    uploading: 'Uploading...',
+    uploadFromDevice: 'Upload from device',
+    orChooseAvatar: 'Or choose a ready-made cat avatar',
+    displayName: 'Display Name',
+    namePlaceholder: 'Your name',
+    saving: 'Saving...',
+    saveAndStart: 'Save & Get Started',
+    setLater: 'Set up later',
+    randomNote: 'We\'ll pick a random cat avatar for you if you tap "Set up later"',
+  },
+}
 
 // Generate colorful cat face SVG avatars
 function genCatAvatar(idx) {
@@ -43,6 +77,8 @@ const CAT_AVATARS = [0, 1, 2, 3, 4, 5].map(genCatAvatar)
 
 export default function ProfileSetupModal() {
   const { user, userProfile, needsProfileSetup, saveProfileSetup } = useAuth()
+  const { lang } = useLanguage()
+  const c = COPY[lang]
   const [name, setName] = useState(user?.displayName || userProfile?.displayName || '')
   const [selectedAvatarIdx, setSelectedAvatarIdx] = useState(null)
   const [uploadedPhoto, setUploadedPhoto] = useState(null) // { previewUrl, blob }
@@ -64,7 +100,7 @@ export default function ProfileSetupModal() {
       setUploadedPhoto({ previewUrl: base64, base64 })
       setSelectedAvatarIdx(null)
     } catch {
-      setUploadError('ไม่สามารถโหลดรูปได้ กรุณาลองใหม่')
+      setUploadError(c.uploadError)
     }
     setUploading(false)
     // Reset file input so same file can be re-selected
@@ -93,7 +129,7 @@ export default function ProfileSetupModal() {
   }
 
   const handleLater = async () => {
-    const displayName = name.trim() || userProfile?.displayName || 'ผู้ใช้'
+    const displayName = name.trim() || userProfile?.displayName || c.defaultUser
     const photoURL = user?.photoURL || userProfile?.photoURL || CAT_AVATARS[Math.floor(Math.random() * CAT_AVATARS.length)]
     await saveProfileSetup(displayName, photoURL)
   }
@@ -122,8 +158,8 @@ export default function ProfileSetupModal() {
           <div style={{ width: 48, height: 48, borderRadius: 14, backgroundColor: '#FFF7ED', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
             <PawPrint size={24} color="#F97316" />
           </div>
-          <h2 style={{ fontSize: 20, fontWeight: 900, color: '#000', marginBottom: 5 }}>ตั้งค่าโปรไฟล์</h2>
-          <p style={{ fontSize: 13, color: '#aaa', fontWeight: 500, lineHeight: 1.5 }}>ใส่ชื่อและรูปของคุณก่อนเริ่มใช้งาน</p>
+          <h2 style={{ fontSize: 20, fontWeight: 900, color: '#000', marginBottom: 5 }}>{c.title}</h2>
+          <p style={{ fontSize: 13, color: '#aaa', fontWeight: 500, lineHeight: 1.5 }}>{c.subtitle}</p>
         </div>
 
         {/* Avatar preview */}
@@ -167,7 +203,7 @@ export default function ProfileSetupModal() {
               fontFamily: 'Space Grotesk, sans-serif',
             }}
           >
-            <Upload size={12} /> {uploading ? 'กำลังโหลด...' : 'อัพโหลดจากเครื่อง'}
+            <Upload size={12} /> {uploading ? c.uploading : c.uploadFromDevice}
           </button>
 
           {uploadError && (
@@ -180,7 +216,7 @@ export default function ProfileSetupModal() {
         {/* Cat avatar selection */}
         <div style={{ marginBottom: 22 }}>
           <p style={{ fontSize: 12, fontWeight: 700, color: '#aaa', textAlign: 'center', marginBottom: 12 }}>
-            หรือเลือกรูปแมวสำเร็จรูป
+            {c.orChooseAvatar}
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
             {CAT_AVATARS.map((av, i) => (
@@ -204,11 +240,11 @@ export default function ProfileSetupModal() {
         {/* Name input */}
         <div style={{ marginBottom: 24 }}>
           <label style={{ fontSize: 13, fontWeight: 700, color: '#333', display: 'block', marginBottom: 7 }}>
-            ชื่อที่แสดง <span style={{ color: '#F97316' }}>*</span>
+            {c.displayName} <span style={{ color: '#F97316' }}>*</span>
           </label>
           <input
             type="text" value={name} onChange={e => setName(e.target.value)}
-            placeholder="ชื่อของคุณ" maxLength={30}
+            placeholder={c.namePlaceholder} maxLength={30}
             style={{
               width: '100%', padding: '13px 16px', borderRadius: 13,
               border: `1.5px solid ${name.trim() ? '#e5e7eb' : '#fca5a5'}`,
@@ -239,7 +275,7 @@ export default function ProfileSetupModal() {
           onMouseEnter={e => { if (name.trim() && !saving) e.currentTarget.style.backgroundColor = '#EA6A00' }}
           onMouseLeave={e => { if (name.trim()) e.currentTarget.style.backgroundColor = '#F97316' }}
         >
-          {saving ? 'กำลังบันทึก...' : 'บันทึกและเริ่มใช้งาน'}
+          {saving ? c.saving : c.saveAndStart}
         </button>
 
         {/* Later button */}
@@ -258,10 +294,10 @@ export default function ProfileSetupModal() {
           onMouseEnter={e => e.currentTarget.style.color = '#888'}
           onMouseLeave={e => e.currentTarget.style.color = '#aaa'}
         >
-          ตั้งทีหลัง <ChevronRight size={14} />
+          {c.setLater} <ChevronRight size={14} />
         </button>
         <p style={{ textAlign: 'center', fontSize: 11, color: '#ccc', fontWeight: 500, marginTop: 10 }}>
-          ระบบจะสุ่มรูปแมวให้หากกด "ตั้งทีหลัง"
+          {c.randomNote}
         </p>
       </motion.div>
     </div>

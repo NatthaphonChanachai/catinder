@@ -5,16 +5,57 @@ import { collection, query, where, getDocs, deleteDoc, doc } from 'firebase/fire
 import { Plus, Edit2, Trash2, Cat, Syringe, Scissors, ClipboardList, ArrowRight } from 'lucide-react'
 import { db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
+import { useLanguage } from '../contexts/LanguageContext'
 
-const LOOKING_FOR_LABELS = {
-  mate: 'หาคู่',
-  friend: 'หาเพื่อน',
-  adopt: 'หาบ้าน',
-  any: 'ทุกอย่าง',
+const COPY = {
+  th: {
+    lookingFor: { mate: 'หาคู่', friend: 'หาเพื่อน', adopt: 'หาบ้าน', any: 'ทุกอย่าง' },
+    title: 'น้องแมวของฉัน',
+    subtitle: 'จัดการโปรไฟล์แมวทุกตัว',
+    addCat: 'เพิ่มแมว',
+    loadFailed: (msg) => `โหลดไม่สำเร็จ: ${msg}`,
+    retry: 'ลองใหม่',
+    loading: 'กำลังโหลด...',
+    emptyTitle: 'ยังไม่มีโปรไฟล์แมว',
+    emptyDesc: 'สร้างโปรไฟล์น้องแมวเพื่อเริ่ม Discover',
+    createFirstCat: 'สร้างโปรไฟล์แมวแรก',
+    male: '(ตัวผู้)',
+    female: '(ตัวเมีย)',
+    years: 'ปี',
+    months: 'เดือน',
+    vaccinatedTitle: 'ฉีดวัคซีนแล้ว',
+    sterilizedTitle: 'ทำหมันแล้ว',
+    edit: 'แก้ไข',
+    deleteConfirm: (name) => `ลบโปรไฟล์ "${name}" ใช่ไหม?`,
+    loadErrorFallback: 'โหลดข้อมูลไม่ได้',
+  },
+  en: {
+    lookingFor: { mate: 'Looking for a mate', friend: 'Looking for a friend', adopt: 'Looking for a home', any: 'Anything' },
+    title: 'My Cats',
+    subtitle: 'Manage all your cats\' profiles',
+    addCat: 'Add Cat',
+    loadFailed: (msg) => `Failed to load: ${msg}`,
+    retry: 'Retry',
+    loading: 'Loading...',
+    emptyTitle: 'No cat profiles yet',
+    emptyDesc: 'Create a cat profile to start Discovering',
+    createFirstCat: 'Create your first cat profile',
+    male: '(Male)',
+    female: '(Female)',
+    years: 'yrs',
+    months: 'mo',
+    vaccinatedTitle: 'Vaccinated',
+    sterilizedTitle: 'Sterilized',
+    edit: 'Edit',
+    deleteConfirm: (name) => `Delete the profile "${name}"?`,
+    loadErrorFallback: 'Could not load data',
+  },
 }
 
 export default function MyCatsPage() {
   const { user } = useAuth()
+  const { lang } = useLanguage()
+  const c = COPY[lang]
   const [cats, setCats] = useState([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
@@ -32,7 +73,7 @@ export default function MyCatsPage() {
       setCats(sorted)
     } catch (e) {
       console.error('MyCatsPage load error:', e)
-      setLoadError(e.message || 'โหลดข้อมูลไม่ได้')
+      setLoadError(e.message || c.loadErrorFallback)
     }
     setLoading(false)
   }
@@ -40,9 +81,9 @@ export default function MyCatsPage() {
   useEffect(() => { load() }, [user])
 
   const handleDelete = async (catId, catName) => {
-    if (!confirm(`ลบโปรไฟล์ "${catName}" ใช่ไหม?`)) return
+    if (!confirm(c.deleteConfirm(catName))) return
     await deleteDoc(doc(db, 'cats', catId))
-    setCats(prev => prev.filter(c => c.id !== catId))
+    setCats(prev => prev.filter(ct => ct.id !== catId))
   }
 
   return (
@@ -50,8 +91,8 @@ export default function MyCatsPage() {
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '24px 16px 60px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
           <div>
-            <h1 style={{ fontSize: 22, fontWeight: 900, color: '#000', marginBottom: 2 }}>น้องแมวของฉัน</h1>
-            <p style={{ fontSize: 13, color: '#aaa', fontWeight: 500 }}>จัดการโปรไฟล์แมวทุกตัว</p>
+            <h1 style={{ fontSize: 22, fontWeight: 900, color: '#000', marginBottom: 2 }}>{c.title}</h1>
+            <p style={{ fontSize: 13, color: '#aaa', fontWeight: 500 }}>{c.subtitle}</p>
           </div>
           <Link
             to="/my-cats/new"
@@ -64,19 +105,19 @@ export default function MyCatsPage() {
               whiteSpace: 'nowrap',
             }}
           >
-            <Plus size={14} /> เพิ่มแมว
+            <Plus size={14} /> {c.addCat}
           </Link>
         </div>
 
         {loadError && (
           <div style={{ backgroundColor: '#fee2e2', color: '#dc2626', padding: '12px 16px', borderRadius: 12, fontSize: 13, fontWeight: 600, marginBottom: 16 }}>
-            โหลดไม่สำเร็จ: {loadError}
-            <button onClick={load} style={{ marginLeft: 10, fontSize: 12, fontWeight: 700, color: '#dc2626', background: 'none', border: '1px solid #dc2626', borderRadius: 7, padding: '2px 10px', cursor: 'pointer' }}>ลองใหม่</button>
+            {c.loadFailed(loadError)}
+            <button onClick={load} style={{ marginLeft: 10, fontSize: 12, fontWeight: 700, color: '#dc2626', background: 'none', border: '1px solid #dc2626', borderRadius: 7, padding: '2px 10px', cursor: 'pointer' }}>{c.retry}</button>
           </div>
         )}
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '60px 0', color: '#aaa' }}>กำลังโหลด...</div>
+          <div style={{ textAlign: 'center', padding: '60px 0', color: '#aaa' }}>{c.loading}</div>
         ) : cats.length === 0 && !loadError ? (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
             style={{ textAlign: 'center', padding: '50px 20px', backgroundColor: '#fff', borderRadius: 18, border: '2px dashed #e5e7eb' }}
@@ -84,15 +125,15 @@ export default function MyCatsPage() {
             <div style={{ width: 64, height: 64, borderRadius: 18, backgroundColor: '#FFF7ED', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
               <Cat size={32} color="#F97316" />
             </div>
-            <h3 style={{ fontSize: 18, fontWeight: 800, color: '#000', marginBottom: 8 }}>ยังไม่มีโปรไฟล์แมว</h3>
-            <p style={{ fontSize: 13, color: '#888', fontWeight: 500, marginBottom: 20 }}>สร้างโปรไฟล์น้องแมวเพื่อเริ่ม Discover</p>
+            <h3 style={{ fontSize: 18, fontWeight: 800, color: '#000', marginBottom: 8 }}>{c.emptyTitle}</h3>
+            <p style={{ fontSize: 13, color: '#888', fontWeight: 500, marginBottom: 20 }}>{c.emptyDesc}</p>
             <Link to="/my-cats/new" style={{
               display: 'inline-flex', alignItems: 'center', gap: 7,
               backgroundColor: '#F97316', color: '#fff',
               padding: '11px 24px', borderRadius: 11,
               textDecoration: 'none', fontSize: 14, fontWeight: 800,
             }}>
-              <Plus size={14} /> สร้างโปรไฟล์แมวแรก
+              <Plus size={14} /> {c.createFirstCat}
             </Link>
           </motion.div>
         ) : cats.length > 0 ? (
@@ -120,7 +161,7 @@ export default function MyCatsPage() {
                       color: '#fff', fontSize: 11, fontWeight: 700,
                       padding: '3px 10px', borderRadius: 999,
                     }}>
-                      {LOOKING_FOR_LABELS[cat.lookingFor] || cat.lookingFor}
+                      {c.lookingFor[cat.lookingFor] || cat.lookingFor}
                     </div>
                   )}
                 </div>
@@ -128,15 +169,15 @@ export default function MyCatsPage() {
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 6 }}>
                     <div>
                       <h3 style={{ fontSize: 16, fontWeight: 800, color: '#000', marginBottom: 1 }}>
-                        {cat.name} <span style={{ fontWeight: 500, fontSize: 14 }}>{cat.gender === 'male' ? '(ตัวผู้)' : '(ตัวเมีย)'}</span>
+                        {cat.name} <span style={{ fontWeight: 500, fontSize: 14 }}>{cat.gender === 'male' ? c.male : c.female}</span>
                       </h3>
                       <p style={{ fontSize: 12, color: '#888', fontWeight: 500 }}>
-                        {cat.breed}{cat.ageYears > 0 ? ` · ${cat.ageYears} ปี` : ''}{cat.ageMonths > 0 ? ` ${cat.ageMonths} เดือน` : ''}
+                        {cat.breed}{cat.ageYears > 0 ? ` · ${cat.ageYears} ${c.years}` : ''}{cat.ageMonths > 0 ? ` ${cat.ageMonths} ${c.months}` : ''}
                       </p>
                     </div>
                     <div style={{ display: 'flex', gap: 5, flexShrink: 0 }}>
-                      {cat.vaccinated && <div title="ฉีดวัคซีนแล้ว" style={{ width: 24, height: 24, borderRadius: 7, backgroundColor: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Syringe size={12} color="#10b981" /></div>}
-                      {cat.sterilized && <div title="ทำหมันแล้ว" style={{ width: 24, height: 24, borderRadius: 7, backgroundColor: '#f5f3ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Scissors size={12} color="#8b5cf6" /></div>}
+                      {cat.vaccinated && <div title={c.vaccinatedTitle} style={{ width: 24, height: 24, borderRadius: 7, backgroundColor: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Syringe size={12} color="#10b981" /></div>}
+                      {cat.sterilized && <div title={c.sterilizedTitle} style={{ width: 24, height: 24, borderRadius: 7, backgroundColor: '#f5f3ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Scissors size={12} color="#8b5cf6" /></div>}
                     </div>
                   </div>
 
@@ -168,7 +209,7 @@ export default function MyCatsPage() {
                     onMouseEnter={e => { e.currentTarget.style.borderColor = '#F97316'; e.currentTarget.style.color = '#F97316' }}
                     onMouseLeave={e => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.color = '#333' }}
                     >
-                      <Edit2 size={13} /> แก้ไข
+                      <Edit2 size={13} /> {c.edit}
                     </button>
                     <button onClick={() => handleDelete(cat.id, cat.name)} style={{
                       width: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',

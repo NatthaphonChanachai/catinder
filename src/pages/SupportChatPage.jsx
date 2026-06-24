@@ -8,6 +8,32 @@ import { Send, Headphones, ArrowLeft } from 'lucide-react'
 import { db } from '../firebase'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { useLanguage } from '../contexts/LanguageContext'
+
+const COPY = {
+  th: {
+    unspecified: 'ไม่ระบุ',
+    teamName: 'ทีมงาน Catinder',
+    onlineStatus: 'ออนไลน์ · ตอบภายใน 24 ชม.',
+    welcomeLine1: 'สวัสดี! ทีมงาน Catinder พร้อมช่วยเหลือคุณ',
+    welcomeLine2: 'ถามได้เลยเรื่อง การยืนยันเอกสาร, การจับคู่, หรืออื่นๆ',
+    suggestion1: 'สอบถามการยืนยันเอกสาร Pedigree',
+    suggestion2: 'มีปัญหาการ Match กับแมวตัวอื่น',
+    suggestion3: 'อยากสมัคร Premium',
+    placeholder: 'พิมพ์ข้อความ...',
+  },
+  en: {
+    unspecified: 'Unspecified',
+    teamName: 'Catinder Team',
+    onlineStatus: 'Online · Replies within 24h',
+    welcomeLine1: 'Hi! The Catinder team is here to help.',
+    welcomeLine2: 'Ask about document verification, matching, or anything else.',
+    suggestion1: 'Question about Pedigree verification',
+    suggestion2: 'Having trouble matching with another cat',
+    suggestion3: 'I want to sign up for Premium',
+    placeholder: 'Type a message...',
+  },
+}
 
 function formatTime(ts) {
   if (!ts) return ''
@@ -18,6 +44,8 @@ function formatTime(ts) {
 export default function SupportChatPage() {
   const { user, userProfile } = useAuth()
   const navigate = useNavigate()
+  const { lang } = useLanguage()
+  const c = COPY[lang]
   const [messages, setMessages] = useState([])
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
@@ -34,7 +62,7 @@ export default function SupportChatPage() {
         if (!snap.exists()) {
           await setDoc(ref, {
             userId: user.uid,
-            userName: userProfile?.displayName || user.email?.split('@')[0] || 'ไม่ระบุ',
+            userName: userProfile?.displayName || user.email?.split('@')[0] || c.unspecified,
             userPhoto: userProfile?.photoURL || '',
             userEmail: user.email || '',
             lastMessage: '',
@@ -90,7 +118,7 @@ export default function SupportChatPage() {
       // Upsert chat doc in case init failed silently
       await setDoc(chatRef, {
         userId: user.uid,
-        userName: userProfile?.displayName || user.email?.split('@')[0] || 'ไม่ระบุ',
+        userName: userProfile?.displayName || user.email?.split('@')[0] || c.unspecified,
         userPhoto: userProfile?.photoURL || '',
         userEmail: user.email || '',
         lastMessage: msg,
@@ -130,8 +158,8 @@ export default function SupportChatPage() {
           <Headphones size={18} color="#fff" />
         </div>
         <div>
-          <div style={{ fontSize: 14, fontWeight: 800, color: '#000' }}>ทีมงาน Catinder</div>
-          <div style={{ fontSize: 11, color: '#10b981', fontWeight: 600 }}>ออนไลน์ · ตอบภายใน 24 ชม.</div>
+          <div style={{ fontSize: 14, fontWeight: 800, color: '#000' }}>{c.teamName}</div>
+          <div style={{ fontSize: 11, color: '#10b981', fontWeight: 600 }}>{c.onlineStatus}</div>
         </div>
       </div>
 
@@ -147,8 +175,8 @@ export default function SupportChatPage() {
             <Headphones size={24} color="#fff" />
           </div>
           <p style={{ fontSize: 13, color: '#888', fontWeight: 600, lineHeight: 1.7 }}>
-            สวัสดี! ทีมงาน Catinder พร้อมช่วยเหลือคุณ<br />
-            ถามได้เลยเรื่อง การยืนยันเอกสาร, การจับคู่, หรืออื่นๆ
+            {c.welcomeLine1}<br />
+            {c.welcomeLine2}
           </p>
         </div>
 
@@ -191,7 +219,7 @@ export default function SupportChatPage() {
 
         {messages.length === 0 && initialized && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
-            {['สอบถามการยืนยันเอกสาร Pedigree', 'มีปัญหาการ Match กับแมวตัวอื่น', 'อยากสมัคร Premium'].map((q, i) => (
+            {[c.suggestion1, c.suggestion2, c.suggestion3].map((q, i) => (
               <button
                 key={i}
                 onClick={() => setText(q)}
@@ -223,7 +251,7 @@ export default function SupportChatPage() {
         <input
           value={text}
           onChange={e => setText(e.target.value)}
-          placeholder="พิมพ์ข้อความ..."
+          placeholder={c.placeholder}
           style={{
             flex: 1, padding: '11px 16px', borderRadius: 999,
             border: '1.5px solid #e5e7eb', fontSize: 14,

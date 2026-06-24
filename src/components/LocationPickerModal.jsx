@@ -8,6 +8,24 @@ import markerShadow from 'leaflet/dist/images/marker-shadow.png'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, X, MapPin, Loader2, Check } from 'lucide-react'
 import { getCurrentPosition, searchAddress, reverseGeocode } from '../utils/geo'
+import { useLanguage } from '../contexts/LanguageContext'
+
+const COPY = {
+  th: {
+    title: 'เลือกตำแหน่งบนแผนที่',
+    searchPlaceholder: 'ค้นหาที่อยู่ เช่น สยามพารากอน, เชียงใหม่...',
+    useMyLocation: 'ใช้ตำแหน่งปัจจุบัน',
+    resolvingAddress: 'กำลังค้นหาที่อยู่...',
+    useThisLocation: 'ใช้ตำแหน่งนี้',
+  },
+  en: {
+    title: 'Pick a location on the map',
+    searchPlaceholder: 'Search for an address, e.g. Siam Paragon, Chiang Mai...',
+    useMyLocation: 'Use my current location',
+    resolvingAddress: 'Looking up address...',
+    useThisLocation: 'Use this location',
+  },
+}
 
 delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({ iconRetinaUrl: markerIcon2x, iconUrl: markerIcon, shadowUrl: markerShadow })
@@ -20,6 +38,8 @@ function ClickHandler({ onPick }) {
 }
 
 export default function LocationPickerModal({ open, initialLat, initialLng, onConfirm, onClose }) {
+  const { lang } = useLanguage()
+  const c = COPY[lang]
   const [position, setPosition] = useState(
     initialLat != null && initialLng != null ? { lat: initialLat, lng: initialLng } : DEFAULT_CENTER
   )
@@ -92,7 +112,7 @@ export default function LocationPickerModal({ open, initialLat, initialLng, onCo
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px 12px' }}>
-            <h2 style={{ fontSize: 16, fontWeight: 900, color: '#1C1917', margin: 0 }}>เลือกตำแหน่งบนแผนที่</h2>
+            <h2 style={{ fontSize: 16, fontWeight: 900, color: '#1C1917', margin: 0 }}>{c.title}</h2>
             <button onClick={onClose} style={{
               width: 30, height: 30, borderRadius: '50%', border: 'none', backgroundColor: '#f5f5f4',
               display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
@@ -103,7 +123,7 @@ export default function LocationPickerModal({ open, initialLat, initialLng, onCo
             <form onSubmit={handleSearch} style={{ flex: 1, display: 'flex', gap: 8 }}>
               <input
                 type="text" value={query} onChange={e => setQuery(e.target.value)}
-                placeholder="ค้นหาที่อยู่ เช่น สยามพารากอน, เชียงใหม่..."
+                placeholder={c.searchPlaceholder}
                 style={{
                   flex: 1, padding: '10px 14px', borderRadius: 11,
                   border: '1.5px solid #E7E5E4', fontSize: 13.5,
@@ -118,7 +138,7 @@ export default function LocationPickerModal({ open, initialLat, initialLng, onCo
                 {searching ? <Loader2 size={15} className="spin" style={{ animation: 'spin 0.8s linear infinite' }} /> : <Search size={15} />}
               </button>
             </form>
-            <button type="button" onClick={handleUseMyLocation} title="ใช้ตำแหน่งปัจจุบัน" style={{
+            <button type="button" onClick={handleUseMyLocation} title={c.useMyLocation} style={{
               width: 40, borderRadius: 11, border: '1.5px solid rgba(249,115,22,0.30)',
               backgroundColor: '#FFF7ED', color: '#F97316', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
@@ -159,7 +179,7 @@ export default function LocationPickerModal({ open, initialLat, initialLng, onCo
 
           <div style={{ padding: '12px 18px 18px' }}>
             <p style={{ fontSize: 11.5, color: '#A8A29E', fontWeight: 500, marginBottom: 10, lineHeight: 1.5 }}>
-              📍 {resolvingAddress ? 'กำลังค้นหาที่อยู่...' : (address || `${position.lat.toFixed(5)}, ${position.lng.toFixed(5)}`)}
+              📍 {resolvingAddress ? c.resolvingAddress : (address || `${position.lat.toFixed(5)}, ${position.lng.toFixed(5)}`)}
             </p>
             <button
               type="button"
@@ -170,7 +190,7 @@ export default function LocationPickerModal({ open, initialLat, initialLng, onCo
                 fontSize: 13.5, fontWeight: 800, cursor: 'pointer', fontFamily: 'Space Grotesk, sans-serif',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
               }}
-            ><Check size={14} /> ใช้ตำแหน่งนี้</button>
+            ><Check size={14} /> {c.useThisLocation}</button>
           </div>
         </motion.div>
       </motion.div>

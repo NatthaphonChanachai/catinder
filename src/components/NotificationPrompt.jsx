@@ -2,9 +2,27 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Bell, X } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { useLanguage } from '../contexts/LanguageContext'
+
+const COPY = {
+  th: {
+    notifBody: 'เปิดแจ้งเตือนสำเร็จ เราจะแจ้งทุก Match ใหม่',
+    title: 'เปิดการแจ้งเตือน',
+    subtitle: 'รับแจ้งทันทีเมื่อมี Match ใหม่',
+    allow: 'เปิด',
+  },
+  en: {
+    notifBody: 'Notifications enabled. We\'ll alert you on every new Match.',
+    title: 'Turn on notifications',
+    subtitle: 'Get notified instantly when there\'s a new Match',
+    allow: 'Allow',
+  },
+}
 
 export default function NotificationPrompt() {
   const { user } = useAuth()
+  const { lang } = useLanguage()
+  const c = COPY[lang]
   const [show, setShow] = useState(false)
 
   useEffect(() => {
@@ -20,7 +38,7 @@ export default function NotificationPrompt() {
   const handleAllow = () => {
     Notification.requestPermission().then(perm => {
       if (perm === 'granted' && user) {
-        new Notification('Catinder', { body: 'เปิดแจ้งเตือนสำเร็จ เราจะแจ้งทุก Match ใหม่', icon: '/favicon.svg' })
+        new Notification('Catinder', { body: c.notifBody, icon: '/favicon.svg' })
       }
     })
     localStorage.setItem(`notif_prompt_${user.uid}`, '1')
@@ -54,15 +72,15 @@ export default function NotificationPrompt() {
             <Bell size={20} color="#F97316" />
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 13, fontWeight: 800, color: '#fff', marginBottom: 2 }}>เปิดการแจ้งเตือน</div>
-            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', fontWeight: 500 }}>รับแจ้งทันทีเมื่อมี Match ใหม่</div>
+            <div style={{ fontSize: 13, fontWeight: 800, color: '#fff', marginBottom: 2 }}>{c.title}</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', fontWeight: 500 }}>{c.subtitle}</div>
           </div>
           <div style={{ display: 'flex', gap: 7, flexShrink: 0 }}>
             <button onClick={handleAllow} style={{
               padding: '7px 14px', borderRadius: 9, border: 'none',
               backgroundColor: '#F97316', color: '#fff', fontSize: 12, fontWeight: 800,
               cursor: 'pointer', fontFamily: 'Space Grotesk, sans-serif',
-            }}>เปิด</button>
+            }}>{c.allow}</button>
             <button onClick={handleDismiss} style={{
               background: 'none', border: 'none', cursor: 'pointer', padding: 4,
             }}>

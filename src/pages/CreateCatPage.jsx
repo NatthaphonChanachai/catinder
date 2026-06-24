@@ -9,30 +9,166 @@ import { prepareImage, blobToBase64, ACCEPT_IMAGE_TYPES } from '../utils/imageUt
 import { getCurrentPosition } from '../utils/geo'
 import { REGISTRY_OPTIONS, BREEDS } from '../constants/catOptions'
 import LocationPickerModal from '../components/LocationPickerModal'
+import { useLanguage } from '../contexts/LanguageContext'
 
 const LOOKING_FOR = [
-  { value: 'mate',     label: 'หาคู่ผสมพันธุ์',           icon: Heart },
-  { value: 'friend',   label: 'หาเพื่อนเล่น',              icon: Users },
-  { value: 'adopt',    label: 'หาบ้าน (ยกให้)',            icon: Home },
-  { value: 'foster',   label: 'รับเลี้ยงชั่วคราว (Foster)', icon: HeartHandshake },
-  { value: 'sell',     label: 'ขาย',                       icon: Tag },
-  { value: 'exchange', label: 'แลกเปลี่ยน',               icon: ArrowLeftRight },
-  { value: 'any',      label: 'ทุกอย่าง',                  icon: Sparkles },
-  { value: 'other',    label: 'อื่นๆ',                     icon: HelpCircle },
+  { value: 'mate',     label: { th: 'หาคู่ผสมพันธุ์',           en: 'Looking for a mate' },           icon: Heart },
+  { value: 'friend',   label: { th: 'หาเพื่อนเล่น',              en: 'Looking for a playmate' },        icon: Users },
+  { value: 'adopt',    label: { th: 'หาบ้าน (ยกให้)',            en: 'Looking for a home (giving away)' }, icon: Home },
+  { value: 'foster',   label: { th: 'รับเลี้ยงชั่วคราว (Foster)', en: 'Foster care' },                  icon: HeartHandshake },
+  { value: 'sell',     label: { th: 'ขาย',                       en: 'For sale' },                      icon: Tag },
+  { value: 'exchange', label: { th: 'แลกเปลี่ยน',               en: 'Exchange' },                       icon: ArrowLeftRight },
+  { value: 'any',      label: { th: 'ทุกอย่าง',                  en: 'Anything' },                       icon: Sparkles },
+  { value: 'other',    label: { th: 'อื่นๆ',                     en: 'Other' },                          icon: HelpCircle },
 ]
 
 const HEALTH_ITEMS = [
-  { field: 'vaccinated',       label: 'ฉีดวัคซีนครบแล้ว',            desc: 'วัคซีนป้องกันโรคแมวครบตามอายุ',              icon: Syringe,     color: '#10b981' },
-  { field: 'sterilized',       label: 'ทำหมันแล้ว',                   desc: 'ผ่าตัดทำหมันเรียบร้อยแล้ว',                  icon: Scissors,    color: '#8b5cf6' },
-  { field: 'annualCheckup',    label: 'ตรวจสุขภาพประจำปีแล้ว',        desc: 'พบสัตวแพทย์ครบตามกำหนด',                    icon: Stethoscope, color: '#3b82f6' },
-  { field: 'bloodTest',        label: 'ตรวจเลือดแล้ว (Blood test)',    desc: 'ผ่านการตรวจค่าเลือดล่าสุดแล้ว',             icon: Droplets,    color: '#ef4444' },
-  { field: 'noGeneticDisease', label: 'ไม่มีโรคทางพันธุกรรม',         desc: 'ไม่พบโรคที่ถ่ายทอดทางพันธุกรรม',           icon: ShieldCheck,  color: '#06b6d4' },
-  { field: 'fivFelvTested',    label: 'ผ่านการตรวจ FIV/FeLV แล้ว',   desc: 'ตรวจโรคภูมิคุ้มกันและมะเร็งเม็ดเลือดขาว',  icon: Microscope,  color: '#f59e0b' },
-  { field: 'microchipped',     label: 'มีไมโครชิป',                   desc: 'ฝังชิประบุตัวตน (ISO 11784)',                icon: Cpu,         color: '#6366f1' },
-  { field: 'hasVaccinationBook', label: 'มีสมุดวัคซีน / เอกสารสุขภาพ', desc: 'มีเอกสารรับรองสุขภาพอย่างเป็นทางการ',    icon: FileText,    color: '#84cc16' },
-  { field: 'underTreatment',   label: 'กำลังรักษาอยู่',               desc: 'อยู่ในระหว่างการรักษา (โปรดระบุ)',          icon: Pill,        color: '#f97316', noteField: 'treatmentNote' },
-  { field: 'healthOther',      label: 'อื่นๆ',                        desc: 'ข้อมูลสุขภาพเพิ่มเติม',                      icon: HelpCircle,  color: '#6b7280', noteField: 'healthOtherNote' },
+  { field: 'vaccinated',       label: { th: 'ฉีดวัคซีนครบแล้ว', en: 'Fully vaccinated' },                       desc: { th: 'วัคซีนป้องกันโรคแมวครบตามอายุ', en: 'All age-appropriate vaccinations completed' },              icon: Syringe,     color: '#10b981' },
+  { field: 'sterilized',       label: { th: 'ทำหมันแล้ว', en: 'Sterilized' },                                    desc: { th: 'ผ่าตัดทำหมันเรียบร้อยแล้ว', en: 'Spay/neuter surgery completed' },                              icon: Scissors,    color: '#8b5cf6' },
+  { field: 'annualCheckup',    label: { th: 'ตรวจสุขภาพประจำปีแล้ว', en: 'Annual checkup done' },                desc: { th: 'พบสัตวแพทย์ครบตามกำหนด', en: 'Seen a vet on the regular schedule' },                          icon: Stethoscope, color: '#3b82f6' },
+  { field: 'bloodTest',        label: { th: 'ตรวจเลือดแล้ว (Blood test)', en: 'Blood test done' },                desc: { th: 'ผ่านการตรวจค่าเลือดล่าสุดแล้ว', en: 'Passed the latest blood panel' },                       icon: Droplets,    color: '#ef4444' },
+  { field: 'noGeneticDisease', label: { th: 'ไม่มีโรคทางพันธุกรรม', en: 'No genetic disease' },                  desc: { th: 'ไม่พบโรคที่ถ่ายทอดทางพันธุกรรม', en: 'No hereditary conditions found' },                      icon: ShieldCheck,  color: '#06b6d4' },
+  { field: 'fivFelvTested',    label: { th: 'ผ่านการตรวจ FIV/FeLV แล้ว', en: 'FIV/FeLV tested' },                 desc: { th: 'ตรวจโรคภูมิคุ้มกันและมะเร็งเม็ดเลือดขาว', en: 'Tested for feline immunodeficiency and leukemia virus' }, icon: Microscope,  color: '#f59e0b' },
+  { field: 'microchipped',     label: { th: 'มีไมโครชิป', en: 'Microchipped' },                                  desc: { th: 'ฝังชิประบุตัวตน (ISO 11784)', en: 'ID microchip implanted (ISO 11784)' },                       icon: Cpu,         color: '#6366f1' },
+  { field: 'hasVaccinationBook', label: { th: 'มีสมุดวัคซีน / เอกสารสุขภาพ', en: 'Has vaccination book / health records' }, desc: { th: 'มีเอกสารรับรองสุขภาพอย่างเป็นทางการ', en: 'Has official health certification documents' }, icon: FileText,    color: '#84cc16' },
+  { field: 'underTreatment',   label: { th: 'กำลังรักษาอยู่', en: 'Currently under treatment' },                  desc: { th: 'อยู่ในระหว่างการรักษา (โปรดระบุ)', en: 'Currently undergoing treatment (please specify)' },     icon: Pill,        color: '#f97316', noteField: 'treatmentNote' },
+  { field: 'healthOther',      label: { th: 'อื่นๆ', en: 'Other' },                                               desc: { th: 'ข้อมูลสุขภาพเพิ่มเติม', en: 'Additional health information' },                              icon: HelpCircle,  color: '#6b7280', noteField: 'healthOtherNote' },
 ]
+
+const COPY = {
+  th: {
+    locateError: 'ไม่สามารถระบุตำแหน่งได้ กรุณาอนุญาตการเข้าถึงตำแหน่ง',
+    fileTooBig: 'ไฟล์ใหญ่เกินไป (สูงสุด 50 MB)',
+    imageLoadError: 'ไม่สามารถโหลดรูปได้ กรุณาลองไฟล์อื่น',
+    saveError: 'เกิดข้อผิดพลาด กรุณาลองใหม่',
+    back: 'กลับ',
+    editTitle: 'แก้ไขโปรไฟล์แมว',
+    createTitle: 'เพิ่มโปรไฟล์แมว',
+    subtitle: 'กรอกข้อมูลน้องแมวเพื่อให้ผู้อื่นค้นพบ',
+    photoSection: 'รูปโปรไฟล์',
+    resizing: 'ปรับขนาด...',
+    loading: 'กำลังโหลด...',
+    noPhoto: 'ยังไม่มีรูป',
+    chooseFromGallery: 'เลือกจากแกลลอรี่',
+    takePhoto: 'ถ่ายรูป',
+    photoFormats: 'รองรับ JPG, PNG, HEIC · ปรับขนาดอัตโนมัติ',
+    basicInfoSection: 'ข้อมูลพื้นฐาน',
+    nameLabel: 'ชื่อแมว',
+    namePlaceholder: 'เช่น มูจิ, ลูน่า, เลโอ',
+    breedLabel: 'สายพันธุ์',
+    breedPlaceholder: '-- เลือกสายพันธุ์ --',
+    breedCustomLabel: 'ระบุสายพันธุ์',
+    breedCustomPlaceholder: 'เช่น Siamese x Persian',
+    genderLabel: 'เพศ',
+    male: '♂ ตัวผู้',
+    female: '♀ ตัวเมีย',
+    ageWeightLabel: 'อายุ / น้ำหนัก',
+    years: 'ปี',
+    months: 'เดือน',
+    kg: 'กก.',
+    colorLabel: 'สีขน',
+    colorPlaceholder: 'เช่น ขาว, ส้ม, สีสาม',
+    detailsSection: 'รายละเอียด',
+    descriptionLabel: 'คำอธิบาย',
+    descriptionPlaceholder: 'เล่าเรื่องน้องแมว บุคลิก นิสัย สิ่งที่ชอบ...',
+    locationLabel: 'ที่อยู่ / ย่าน',
+    locationHint: 'เลือกตำแหน่งบนแผนที่เพื่อความแม่นยำ ใช้คำนวณระยะทางตอน Discover',
+    locationPlaceholder: 'เช่น กรุงเทพฯ, เชียงใหม่, บางกอกน้อย',
+    pickOnMapSaved: '✓ บันทึกพิกัดแล้ว · กดเพื่อแก้ไข',
+    pickOnMap: 'เลือกบนแผนที่',
+    locating: 'กำลังค้นหา...',
+    useCurrentLocation: 'ใช้ตำแหน่งปัจจุบัน',
+    lookingForLabel: 'กำลังมองหา',
+    lookingForOtherPlaceholder: 'ระบุสิ่งที่กำลังมองหา...',
+    healthSection: 'สุขภาพ',
+    treatmentNotePlaceholder: 'ระบุโรคหรืออาการที่กำลังรักษา...',
+    healthOtherNotePlaceholder: 'ระบุข้อมูลสุขภาพเพิ่มเติม...',
+    pedigreeSection: 'ข้อมูล Pedigree (ถ้ามี)',
+    pedigreeBlurb: 'ใส่ข้อมูลนี้เพื่อช่วยในการจับคู่สายเลือดและออกใบ Pedigree',
+    learnMore: 'เรียนรู้',
+    registryLabel: 'ชมรม/สมาคม Registry',
+    registryNumberLabel: 'หมายเลขทะเบียน',
+    registryNumberHint: 'ระบุตามที่ปรากฏในใบทะเบียน',
+    registryNumberPlaceholder: 'เช่น TH-2024-00123',
+    catteryNameLabel: 'ชื่อฟาร์ม / Cattery',
+    catteryNamePlaceholder: 'ชื่อ cattery หรือชื่อฟาร์มแมว',
+    certPhotoLabel: 'ใบทะเบียน (รูปถ่าย)',
+    certPhotoHint: 'ถ่ายรูปหรืออัปโหลดใบทะเบียนแมว',
+    certPhotoAlt: 'ใบทะเบียน',
+    uploadingCert: 'กำลังโหลด...',
+    uploadCert: 'อัปโหลดใบทะเบียน',
+    saving: 'กำลังบันทึก...',
+    waitingForPhoto: 'รอให้รูปโหลดเสร็จก่อน...',
+    saveEdit: 'บันทึกการแก้ไข',
+    createProfile: 'สร้างโปรไฟล์แมว',
+  },
+  en: {
+    locateError: 'Could not determine your location. Please allow location access.',
+    fileTooBig: 'File is too large (max 50 MB)',
+    imageLoadError: 'Could not load the image. Please try another file.',
+    saveError: 'Something went wrong. Please try again.',
+    back: 'Back',
+    editTitle: 'Edit Cat Profile',
+    createTitle: 'Add Cat Profile',
+    subtitle: "Fill in your cat's details so others can discover them",
+    photoSection: 'Profile Photo',
+    resizing: 'Resizing...',
+    loading: 'Loading...',
+    noPhoto: 'No photo yet',
+    chooseFromGallery: 'Choose from Gallery',
+    takePhoto: 'Take Photo',
+    photoFormats: 'Supports JPG, PNG, HEIC · auto-resized',
+    basicInfoSection: 'Basic Info',
+    nameLabel: 'Cat Name',
+    namePlaceholder: 'e.g. Mochi, Luna, Leo',
+    breedLabel: 'Breed',
+    breedPlaceholder: '-- Select breed --',
+    breedCustomLabel: 'Specify breed',
+    breedCustomPlaceholder: 'e.g. Siamese x Persian',
+    genderLabel: 'Sex',
+    male: '♂ Male',
+    female: '♀ Female',
+    ageWeightLabel: 'Age / Weight',
+    years: 'Years',
+    months: 'Months',
+    kg: 'kg',
+    colorLabel: 'Coat Color',
+    colorPlaceholder: 'e.g. White, Orange, Tricolor',
+    detailsSection: 'Details',
+    descriptionLabel: 'Description',
+    descriptionPlaceholder: "Tell us about your cat's personality, habits, likes...",
+    locationLabel: 'Address / Neighborhood',
+    locationHint: 'Pick a location on the map for accuracy — used to calculate distance in Discover',
+    locationPlaceholder: 'e.g. Bangkok, Chiang Mai, Bangkok Noi',
+    pickOnMapSaved: '✓ Location saved · tap to edit',
+    pickOnMap: 'Pick on Map',
+    locating: 'Locating...',
+    useCurrentLocation: 'Use Current Location',
+    lookingForLabel: 'Looking For',
+    lookingForOtherPlaceholder: 'Specify what you are looking for...',
+    healthSection: 'Health',
+    treatmentNotePlaceholder: 'Specify the condition or symptoms being treated...',
+    healthOtherNotePlaceholder: 'Specify additional health information...',
+    pedigreeSection: 'Pedigree Info (optional)',
+    pedigreeBlurb: 'Add this info to help with pedigree matching and certificate issuance',
+    learnMore: 'Learn more',
+    registryLabel: 'Registry Organization',
+    registryNumberLabel: 'Registration Number',
+    registryNumberHint: 'Enter exactly as shown on the registration certificate',
+    registryNumberPlaceholder: 'e.g. TH-2024-00123',
+    catteryNameLabel: 'Cattery Name',
+    catteryNamePlaceholder: 'Your cattery or cat farm name',
+    certPhotoLabel: 'Registration Certificate (photo)',
+    certPhotoHint: "Take a photo or upload your cat's registration certificate",
+    certPhotoAlt: 'Registration certificate',
+    uploadingCert: 'Loading...',
+    uploadCert: 'Upload Certificate',
+    saving: 'Saving...',
+    waitingForPhoto: 'Waiting for photo to finish uploading...',
+    saveEdit: 'Save Changes',
+    createProfile: 'Create Cat Profile',
+  },
+}
 
 /* ── shared input style ── */
 const inp = {
@@ -100,6 +236,8 @@ const Field = ({ label, required, hint, children }) => (
 
 export default function CreateCatPage() {
   const { user, userProfile } = useAuth()
+  const { lang } = useLanguage()
+  const c = COPY[lang]
   const navigate = useNavigate()
   const { catId } = useParams()
   const isEdit = Boolean(catId)
@@ -132,7 +270,7 @@ export default function CreateCatPage() {
       const { lat, lng } = await getCurrentPosition()
       set('lat', lat); set('lng', lng)
     } catch {
-      setLocateError('ไม่สามารถระบุตำแหน่งได้ กรุณาอนุญาตการเข้าถึงตำแหน่ง')
+      setLocateError(c.locateError)
     }
     setLocating(false)
   }
@@ -161,13 +299,13 @@ export default function CreateCatPage() {
     const file = e.target.files?.[0]
     if (!file) return
     e.target.value = ''
-    if (file.size > 50 * 1024 * 1024) { alert('ไฟล์ใหญ่เกินไป (สูงสุด 50 MB)'); return }
+    if (file.size > 50 * 1024 * 1024) { alert(c.fileTooBig); return }
     setUploading(true); setUploadProgress('compressing')
     try {
       const blob = await prepareImage(file, 700)
       setUploadProgress('encoding')
       set('photoURL', await blobToBase64(blob))
-    } catch { alert('ไม่สามารถโหลดรูปได้ กรุณาลองไฟล์อื่น') }
+    } catch { alert(c.imageLoadError) }
     setUploading(false); setUploadProgress(null)
   }
 
@@ -175,12 +313,12 @@ export default function CreateCatPage() {
     const file = e.target.files?.[0]
     if (!file) return
     e.target.value = ''
-    if (file.size > 50 * 1024 * 1024) { alert('ไฟล์ใหญ่เกินไป (สูงสุด 50 MB)'); return }
+    if (file.size > 50 * 1024 * 1024) { alert(c.fileTooBig); return }
     setCertUploading(true)
     try {
       const blob = await prepareImage(file, 900)
       set('certPhotoURL', await blobToBase64(blob))
-    } catch { alert('ไม่สามารถโหลดรูปได้ กรุณาลองไฟล์อื่น') }
+    } catch { alert(c.imageLoadError) }
     setCertUploading(false)
   }
 
@@ -207,7 +345,7 @@ export default function CreateCatPage() {
       }
       navigate('/my-cats')
     } catch (err) {
-      alert('เกิดข้อผิดพลาด กรุณาลองใหม่')
+      alert(c.saveError)
       console.error(err)
     }
     setSaving(false)
@@ -234,7 +372,7 @@ export default function CreateCatPage() {
           fontSize: 13, fontWeight: 700, color: '#F97316',
           fontFamily: 'Space Grotesk, sans-serif', marginBottom: 18,
         }}>
-          <ArrowLeft size={14} /> กลับ
+          <ArrowLeft size={14} /> {c.back}
         </button>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 22 }}>
@@ -248,17 +386,17 @@ export default function CreateCatPage() {
           </div>
           <div>
             <h1 style={{ fontSize: 21, fontWeight: 900, color: '#1C1917', margin: 0, lineHeight: 1.2 }}>
-              {isEdit ? 'แก้ไขโปรไฟล์แมว' : 'เพิ่มโปรไฟล์แมว'}
+              {isEdit ? c.editTitle : c.createTitle}
             </h1>
             <p style={{ fontSize: 12.5, color: '#A8A29E', fontWeight: 500, margin: '3px 0 0' }}>
-              กรอกข้อมูลน้องแมวเพื่อให้ผู้อื่นค้นพบ
+              {c.subtitle}
             </p>
           </div>
         </div>
         <form onSubmit={handleSave}>
 
           {/* ── Photo ── */}
-          <Section title="รูปโปรไฟล์" icon={Camera}>
+          <Section title={c.photoSection} icon={Camera}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
               {/* circle preview */}
               <div style={{ position: 'relative' }}>
@@ -278,13 +416,13 @@ export default function CreateCatPage() {
                         style={{ width: 32, height: 32, border: '3px solid #F97316', borderTopColor: 'transparent', borderRadius: '50%', margin: '0 auto 8px' }}
                       />
                       <p style={{ fontSize: 11, color: '#F97316', fontWeight: 700 }}>
-                        {uploadProgress === 'compressing' ? 'ปรับขนาด...' : 'กำลังโหลด...'}
+                        {uploadProgress === 'compressing' ? c.resizing : c.loading}
                       </p>
                     </div>
                   ) : !form.photoURL ? (
                     <div style={{ textAlign: 'center' }}>
                       <PawPrint size={36} color="#F97316" style={{ opacity: 0.35 }} />
-                      <p style={{ fontSize: 11, color: '#F97316', fontWeight: 700, marginTop: 6, opacity: 0.5 }}>ยังไม่มีรูป</p>
+                      <p style={{ fontSize: 11, color: '#F97316', fontWeight: 700, marginTop: 6, opacity: 0.5 }}>{c.noPhoto}</p>
                     </div>
                   ) : null}
                 </div>
@@ -312,7 +450,7 @@ export default function CreateCatPage() {
                   opacity: uploading ? 0.6 : 1,
                   boxShadow: '0 4px 12px rgba(249,115,22,0.30)',
                 }}>
-                  <Upload size={14} /> เลือกจากแกลลอรี่
+                  <Upload size={14} /> {c.chooseFromGallery}
                 </button>
                 <button type="button" disabled={uploading} onClick={() => { fileInputRef.current.setAttribute('capture', 'environment'); fileInputRef.current.click() }} style={{
                   display: 'flex', alignItems: 'center', gap: 7,
@@ -323,37 +461,37 @@ export default function CreateCatPage() {
                   fontFamily: 'Space Grotesk, sans-serif',
                   opacity: uploading ? 0.6 : 1,
                 }}>
-                  <Camera size={14} /> ถ่ายรูป
+                  <Camera size={14} /> {c.takePhoto}
                 </button>
               </div>
-              <p style={{ fontSize: 11, color: '#A8A29E', fontWeight: 500 }}>รองรับ JPG, PNG, HEIC · ปรับขนาดอัตโนมัติ</p>
+              <p style={{ fontSize: 11, color: '#A8A29E', fontWeight: 500 }}>{c.photoFormats}</p>
               <input ref={fileInputRef} type="file" accept={ACCEPT_IMAGE_TYPES} onChange={handleFileSelect} style={{ display: 'none' }} />
             </div>
           </Section>
 
           {/* ── Basic info ── */}
-          <Section title="ข้อมูลพื้นฐาน" icon={PawPrint}>
-            <Field label="ชื่อแมว" required>
+          <Section title={c.basicInfoSection} icon={PawPrint}>
+            <Field label={c.nameLabel} required>
               <input type="text" value={form.name} onChange={e => set('name', e.target.value)}
-                placeholder="เช่น มูจิ, ลูน่า, เลโอ" required style={inp}
+                placeholder={c.namePlaceholder} required style={inp}
                 onFocus={focusOrange} onBlur={blurOrange}
               />
             </Field>
 
-            <Field label="สายพันธุ์" required>
+            <Field label={c.breedLabel} required>
               <select value={form.breed} onChange={e => set('breed', e.target.value)} required
                 style={{ ...inp, cursor: 'pointer' }}
                 onFocus={focusOrange} onBlur={blurOrange}
               >
-                <option value="">-- เลือกสายพันธุ์ --</option>
+                <option value="">{c.breedPlaceholder}</option>
                 {BREEDS.map(b => <option key={b} value={b}>{b}</option>)}
               </select>
             </Field>
 
             {form.breed === 'อื่นๆ (Mixed)' && (
-              <Field label="ระบุสายพันธุ์">
+              <Field label={c.breedCustomLabel}>
                 <input type="text" value={form.breedCustom} onChange={e => set('breedCustom', e.target.value)}
-                  placeholder="เช่น Siamese x Persian" style={inp}
+                  placeholder={c.breedCustomPlaceholder} style={inp}
                   onFocus={focusOrange} onBlur={blurOrange}
                 />
               </Field>
@@ -362,10 +500,10 @@ export default function CreateCatPage() {
             {/* Gender */}
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#44403C', marginBottom: 7 }}>
-                เพศ <span style={{ color: '#F97316' }}>*</span>
+                {c.genderLabel} <span style={{ color: '#F97316' }}>*</span>
               </label>
               <div style={{ display: 'flex', gap: 10 }}>
-                {[{ v: 'male', l: '♂ ตัวผู้', g: 'linear-gradient(135deg,#60a5fa,#3b82f6)' }, { v: 'female', l: '♀ ตัวเมีย', g: 'linear-gradient(135deg,#f472b6,#ec4899)' }].map(({ v, l, g }) => (
+                {[{ v: 'male', l: c.male, g: 'linear-gradient(135deg,#60a5fa,#3b82f6)' }, { v: 'female', l: c.female, g: 'linear-gradient(135deg,#f472b6,#ec4899)' }].map(({ v, l, g }) => (
                   <button key={v} type="button" onClick={() => set('gender', v)} style={{
                     flex: 1, padding: '11px 8px', borderRadius: 12,
                     border: form.gender === v ? 'none' : '1.5px solid #E7E5E4',
@@ -382,12 +520,12 @@ export default function CreateCatPage() {
 
             {/* Age + Weight */}
             <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#44403C', marginBottom: 7 }}>อายุ / น้ำหนัก</label>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#44403C', marginBottom: 7 }}>{c.ageWeightLabel}</label>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
                 {[
-                  { key: 'ageYears', label: 'ปี', max: 30 },
-                  { key: 'ageMonths', label: 'เดือน', max: 11 },
-                  { key: 'weight', label: 'กก.', max: 20, step: 0.1 },
+                  { key: 'ageYears', label: c.years, max: 30 },
+                  { key: 'ageMonths', label: c.months, max: 11 },
+                  { key: 'weight', label: c.kg, max: 20, step: 0.1 },
                 ].map(({ key, label, max, step }) => (
                   <div key={key}>
                     <input type="number" min="0" max={max} step={step || 1}
@@ -401,27 +539,27 @@ export default function CreateCatPage() {
               </div>
             </div>
 
-            <Field label="สีขน">
+            <Field label={c.colorLabel}>
               <input type="text" value={form.color} onChange={e => set('color', e.target.value)}
-                placeholder="เช่น ขาว, ส้ม, สีสาม" style={inp}
+                placeholder={c.colorPlaceholder} style={inp}
                 onFocus={focusOrange} onBlur={blurOrange}
               />
             </Field>
           </Section>
 
           {/* ── Details ── */}
-          <Section title="รายละเอียด" icon={Sparkles}>
-            <Field label="คำอธิบาย">
+          <Section title={c.detailsSection} icon={Sparkles}>
+            <Field label={c.descriptionLabel}>
               <textarea value={form.description} onChange={e => set('description', e.target.value)}
-                placeholder="เล่าเรื่องน้องแมว บุคลิก นิสัย สิ่งที่ชอบ..." rows={3}
+                placeholder={c.descriptionPlaceholder} rows={3}
                 style={{ ...inp, resize: 'vertical', lineHeight: 1.6 }}
                 onFocus={focusOrange} onBlur={blurOrange}
               />
             </Field>
 
-            <Field label="ที่อยู่ / ย่าน" hint="เลือกตำแหน่งบนแผนที่เพื่อความแม่นยำ ใช้คำนวณระยะทางตอน Discover">
+            <Field label={c.locationLabel} hint={c.locationHint}>
               <input type="text" value={form.location} onChange={e => set('location', e.target.value)}
-                placeholder="เช่น กรุงเทพฯ, เชียงใหม่, บางกอกน้อย" style={{ ...inp, marginBottom: 8 }}
+                placeholder={c.locationPlaceholder} style={{ ...inp, marginBottom: 8 }}
                 onFocus={focusOrange} onBlur={blurOrange}
               />
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -435,7 +573,7 @@ export default function CreateCatPage() {
                   fontFamily: 'Space Grotesk, sans-serif',
                 }}>
                   <Map size={13} />
-                  {form.lat != null ? '✓ บันทึกพิกัดแล้ว · กดเพื่อแก้ไข' : 'เลือกบนแผนที่'}
+                  {form.lat != null ? c.pickOnMapSaved : c.pickOnMap}
                 </button>
                 <button type="button" disabled={locating} onClick={handleUseCurrentLocation} style={{
                   display: 'flex', alignItems: 'center', gap: 7,
@@ -445,7 +583,7 @@ export default function CreateCatPage() {
                   fontFamily: 'Space Grotesk, sans-serif',
                 }}>
                   <LocateFixed size={13} />
-                  {locating ? 'กำลังค้นหา...' : 'ใช้ตำแหน่งปัจจุบัน'}
+                  {locating ? c.locating : c.useCurrentLocation}
                 </button>
               </div>
               {locateError && (
@@ -455,7 +593,7 @@ export default function CreateCatPage() {
 
             {/* Looking for — multi-select */}
             <div style={{ marginBottom: 0 }}>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#44403C', marginBottom: 10 }}>กำลังมองหา</label>
+              <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#44403C', marginBottom: 10 }}>{c.lookingForLabel}</label>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 {LOOKING_FOR.map(({ value, label, icon: Icon }) => {
                   const active = Array.isArray(form.lookingFor) && form.lookingFor.includes(value)
@@ -480,7 +618,7 @@ export default function CreateCatPage() {
                       }}>
                         <Icon size={13} color={active ? '#fff' : '#F97316'} />
                       </div>
-                      <span style={{ lineHeight: 1.3 }}>{label}</span>
+                      <span style={{ lineHeight: 1.3 }}>{label[lang]}</span>
                     </button>
                   )
                 })}
@@ -497,7 +635,7 @@ export default function CreateCatPage() {
                       type="text"
                       value={form.lookingForOther}
                       onChange={e => set('lookingForOther', e.target.value)}
-                      placeholder="ระบุสิ่งที่กำลังมองหา..."
+                      placeholder={c.lookingForOtherPlaceholder}
                       style={inp}
                       onFocus={focusOrange} onBlur={blurOrange}
                     />
@@ -508,7 +646,7 @@ export default function CreateCatPage() {
           </Section>
 
           {/* ── Health ── */}
-          <Section title="สุขภาพ" icon={Syringe}>
+          <Section title={c.healthSection} icon={Syringe}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: 9 }}>
               {HEALTH_ITEMS.map(({ field, label, desc, icon: Icon, color }) => (
                 <label key={field} onClick={() => set(field, !form[field])} style={{
@@ -539,8 +677,8 @@ export default function CreateCatPage() {
                     <Icon size={14} color={form[field] ? color : '#A8A29E'} />
                   </div>
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: 12.5, fontWeight: 800, color: form[field] ? '#1C1917' : '#57534E', lineHeight: 1.3 }}>{label}</div>
-                    <div style={{ fontSize: 11, color: '#A8A29E', fontWeight: 500, marginTop: 2, lineHeight: 1.4 }}>{desc}</div>
+                    <div style={{ fontSize: 12.5, fontWeight: 800, color: form[field] ? '#1C1917' : '#57534E', lineHeight: 1.3 }}>{label[lang]}</div>
+                    <div style={{ fontSize: 11, color: '#A8A29E', fontWeight: 500, marginTop: 2, lineHeight: 1.4 }}>{desc[lang]}</div>
                   </div>
                 </label>
               ))}
@@ -559,7 +697,7 @@ export default function CreateCatPage() {
                     type="text"
                     value={form[noteField]}
                     onChange={e => set(noteField, e.target.value)}
-                    placeholder={field === 'underTreatment' ? 'ระบุโรคหรืออาการที่กำลังรักษา...' : 'ระบุข้อมูลสุขภาพเพิ่มเติม...'}
+                    placeholder={field === 'underTreatment' ? c.treatmentNotePlaceholder : c.healthOtherNotePlaceholder}
                     style={{ ...inp, borderColor: `${color}60`, backgroundColor: `${color}08` }}
                     onFocus={e => { e.target.style.borderColor = color; e.target.style.boxShadow = `0 0 0 3px ${color}20` }}
                     onBlur={e => { e.target.style.borderColor = `${color}60`; e.target.style.boxShadow = 'none' }}
@@ -570,7 +708,7 @@ export default function CreateCatPage() {
           </Section>
 
           {/* ── Pedigree ── */}
-          <Section title="ข้อมูล Pedigree (ถ้ามี)" icon={Award}>
+          <Section title={c.pedigreeSection} icon={Award}>
             <div style={{
               display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16,
               padding: '10px 14px', borderRadius: 12,
@@ -578,7 +716,7 @@ export default function CreateCatPage() {
               border: '1px solid rgba(249,115,22,0.15)',
             }}>
               <div style={{ flex: 1, fontSize: 12.5, color: '#78716C', fontWeight: 500, lineHeight: 1.5 }}>
-                ใส่ข้อมูลนี้เพื่อช่วยในการจับคู่สายเลือดและออกใบ Pedigree
+                {c.pedigreeBlurb}
               </div>
               <Link to="/registries" style={{
                 display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0,
@@ -587,11 +725,11 @@ export default function CreateCatPage() {
                 border: '1.5px solid rgba(249,115,22,0.30)',
                 backgroundColor: '#fff',
               }}>
-                <BookOpen size={12} /> เรียนรู้ <ChevronRight size={11} />
+                <BookOpen size={12} /> {c.learnMore} <ChevronRight size={11} />
               </Link>
             </div>
 
-            <Field label="ชมรม/สมาคม Registry">
+            <Field label={c.registryLabel}>
               <select value={form.registry} onChange={e => set('registry', e.target.value)}
                 style={{ ...inp, cursor: 'pointer' }}
                 onFocus={focusOrange} onBlur={blurOrange}
@@ -608,26 +746,26 @@ export default function CreateCatPage() {
                   exit={{ opacity: 0, height: 0 }}
                   style={{ overflow: 'hidden' }}
                 >
-                  <Field label="หมายเลขทะเบียน" hint="ระบุตามที่ปรากฏในใบทะเบียน">
+                  <Field label={c.registryNumberLabel} hint={c.registryNumberHint}>
                     <input type="text" value={form.registryNumber} onChange={e => set('registryNumber', e.target.value)}
-                      placeholder="เช่น TH-2024-00123" style={inp}
+                      placeholder={c.registryNumberPlaceholder} style={inp}
                       onFocus={focusOrange} onBlur={blurOrange}
                     />
                   </Field>
 
-                  <Field label="ชื่อฟาร์ม / Cattery">
+                  <Field label={c.catteryNameLabel}>
                     <input type="text" value={form.catteryName} onChange={e => set('catteryName', e.target.value)}
-                      placeholder="ชื่อ cattery หรือชื่อฟาร์มแมว" style={inp}
+                      placeholder={c.catteryNamePlaceholder} style={inp}
                       onFocus={focusOrange} onBlur={blurOrange}
                     />
                   </Field>
 
-                  <Field label="ใบทะเบียน (รูปถ่าย)" hint="ถ่ายรูปหรืออัปโหลดใบทะเบียนแมว">
+                  <Field label={c.certPhotoLabel} hint={c.certPhotoHint}>
                     <input ref={certInputRef} type="file" accept={ACCEPT_IMAGE_TYPES}
                       onChange={handleCertFileSelect} style={{ display: 'none' }} />
                     {form.certPhotoURL ? (
                       <div style={{ position: 'relative', display: 'inline-block' }}>
-                        <img src={form.certPhotoURL} alt="ใบทะเบียน"
+                        <img src={form.certPhotoURL} alt={c.certPhotoAlt}
                           style={{ height: 110, borderRadius: 12, objectFit: 'cover', border: '2px solid rgba(249,115,22,0.20)' }} />
                         <button type="button" onClick={() => set('certPhotoURL', '')}
                           style={{ position: 'absolute', top: -8, right: -8, width: 24, height: 24, borderRadius: '50%', backgroundColor: '#ef4444', border: '2.5px solid #fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
@@ -642,7 +780,7 @@ export default function CreateCatPage() {
                           fontSize: 13, fontWeight: 700, cursor: certUploading ? 'not-allowed' : 'pointer',
                           fontFamily: 'Space Grotesk, sans-serif',
                         }}>
-                        <Upload size={14} /> {certUploading ? 'กำลังโหลด...' : 'อัปโหลดใบทะเบียน'}
+                        <Upload size={14} /> {certUploading ? c.uploadingCert : c.uploadCert}
                       </button>
                     )}
                   </Field>
@@ -671,7 +809,7 @@ export default function CreateCatPage() {
             }}
           >
             <Save size={16} />
-            {saving ? 'กำลังบันทึก...' : uploading ? 'รอให้รูปโหลดเสร็จก่อน...' : isEdit ? 'บันทึกการแก้ไข' : 'สร้างโปรไฟล์แมว'}
+            {saving ? c.saving : uploading ? c.waitingForPhoto : isEdit ? c.saveEdit : c.createProfile}
           </motion.button>
 
         </form>
