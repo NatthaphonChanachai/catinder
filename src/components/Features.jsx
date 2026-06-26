@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Shield, FlaskConical, ClipboardList, Users } from 'lucide-react'
+import { Shield, FlaskConical, ClipboardList, Users, MapPin } from 'lucide-react'
 import { useLanguage } from '../contexts/LanguageContext'
 
 const icons = [
@@ -7,6 +7,7 @@ const icons = [
   <FlaskConical size={28} color="#F97316" strokeWidth={2} />,
   <ClipboardList size={28} color="#F97316" strokeWidth={2} />,
   <Users size={28} color="#F97316" strokeWidth={2} />,
+  <MapPin size={28} color="#F97316" strokeWidth={2} />,
 ]
 
 export default function Features() {

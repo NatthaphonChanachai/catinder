@@ -2,7 +2,7 @@ const en = {
   nav: {
     browseCats: 'Browse Cats',
     howItWorks: 'How It Works',
-    forBreeders: 'For Breeders',
+    forBreeders: 'All Features',
     joinWaitlist: 'Get Started',
     signIn: 'Log In',
     signOut: 'Log Out',
@@ -74,6 +74,10 @@ const en = {
       {
         title: 'Venue Booking',
         desc: 'Find and book cat-friendly venues, cat farms, and cat cafés through the built-in Venue Booking system — directly from the app.',
+      },
+      {
+        title: 'Cat Places Directory',
+        desc: 'Look up animal hospitals, clinics, cat-friendly attractions, and hotels that allow cats — filterable by area and distance.',
       },
     ],
   },
