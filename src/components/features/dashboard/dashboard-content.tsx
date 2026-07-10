@@ -663,8 +663,7 @@ export function DashboardContent() {
                     <div key={m.name} className="group relative rounded-2xl p-4 transition-all hover:-translate-y-0.5 hover:shadow-lg"
                       style={{ background: "#FFFAFC", border: "1px solid rgba(212,160,175,0.20)", boxShadow: "0 2px 12px rgba(160,60,90,0.06)" }}>
                       <div className="relative mx-auto mb-3 size-20">
-                        <div className="size-20 overflow-hidden rounded-full ring-2 ring-offset-1"
-                          style={{ ringColor: "rgba(212,175,55,0.40)" }}>
+                        <div className="size-20 overflow-hidden rounded-full ring-2 ring-[rgba(212,175,55,0.40)] ring-offset-1">
                           <Image src={m.img} alt={m.name} fill className="object-cover" />
                         </div>
                         <div className="absolute -right-1 -top-1 flex h-7 min-w-[28px] items-center justify-center rounded-full px-1 text-[10px] font-extrabold"
