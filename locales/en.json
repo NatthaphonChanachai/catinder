@@ -1,0 +1,568 @@
+{
+  "common": {
+    "toggleMenu": "Toggle menu",
+    "bookmark": "Bookmark",
+    "previousStory": "Previous story",
+    "nextStory": "Next story"
+  },
+  "meta": {
+    "title": "Catinder — Where Happy Cats Begin Their Forever Story",
+    "description": "Helping every cat parent build healthier generations through trusted matching, AI technology, expert knowledge and community."
+  },
+  "nav": {
+    "about": "About",
+    "knowledge": "Knowledge",
+    "articles": "Articles",
+    "events": "Events",
+    "community": "Community",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "login": "Log in",
+    "register": "Register",
+    "join": "Join"
+  },
+  "hero": {
+    "badge": "The AI-Powered Cat Ecosystem",
+    "headline1": "Where Happy Cats Begin Their",
+    "headline2": "Forever Story.",
+    "subheadline": "Helping every cat parent build healthier generations through trusted matching, AI technology, expert knowledge and community.",
+    "ctaJoin": "Join Community",
+    "ctaLearn": "Learn About Cats",
+    "freeOnWeb": "Free on Web",
+    "marketStat": "THB 40B+ Thai Pet Market",
+    "swipeChatBook": "Swipe · Chat · Book Venues"
+  },
+  "mission": {
+    "title": "Our Mission",
+    "body": "Helping every cat parent create healthier, happier generations of cats through trusted matching, AI technology, education, and community."
+  },
+  "benefits": {
+    "title": "Why Cat Parents Stay",
+    "subtitle": "A gentle, daily reason to visit — even when you're not looking for a match.",
+    "items": [
+      { "title": "Built on Trust", "desc": "Every interaction is designed to feel safe, transparent, and free of pressure." },
+      { "title": "Expert Knowledge", "desc": "Daily tips and articles from cat health, nutrition, and breeding experts." },
+      { "title": "A Real Community", "desc": "Connect with fellow cat parents who care as much as you do." },
+      { "title": "Ready for the Future", "desc": "Laying the groundwork for AI matching, health insights, and more." }
+    ]
+  },
+  "quote": {
+    "label": "Quote of the Day",
+    "like": "Like",
+    "share": "Share",
+    "next": "Next Quote",
+    "shared": "Copied to clipboard!",
+    "items": [
+      "When our cats are happy, our hearts become happier.",
+      "Every happy kitten begins with responsible love.",
+      "Trust builds beautiful families.",
+      "Love creates healthy generations.",
+      "Small paws, big happiness.",
+      "A gentle start grows into a lifetime of trust."
+    ]
+  },
+  "fact": {
+    "label": "Today's Cat Fact",
+    "another": "Another Fact",
+    "save": "Save",
+    "share": "Share",
+    "saved": "Saved to your collection!",
+    "copied": "Copied to clipboard!",
+    "items": [
+      "Cats sleep between 13 and 16 hours every day.",
+      "A group of cats is called a clowder.",
+      "Cats have a third eyelid called a haw.",
+      "A cat's purr can help heal bones and reduce pain.",
+      "Cats can rotate their ears 180 degrees.",
+      "Kittens have 26 baby teeth; adult cats have 30."
+    ]
+  },
+  "mood": {
+    "question": "How is your cat today?",
+    "happy": "Happy",
+    "sleepy": "Sleepy",
+    "loving": "Loving",
+    "angry": "Angry",
+    "sick": "Sick",
+    "responseHappy": "Wonderful! A happy cat makes a happy home. 💛",
+    "responseSleepy": "Let them rest — sweet dreams are part of a healthy routine. 💤",
+    "responseLoving": "What a lucky cat parent you are! 🥰",
+    "responseAngry": "Give them some quiet space and gentle patience. 🌿",
+    "responseSick": "Consider a vet check-in soon — we're here if you need guidance. 🩺",
+    "aiPlaceholder": "AI-powered care suggestions are coming soon."
+  },
+  "dailyMission": {
+    "title": "Today's Daily Mission",
+    "progress": "{done} of {total} complete",
+    "items": [
+      "Brush your cat",
+      "Play 15 minutes",
+      "Clean water bowl",
+      "Check litter box"
+    ],
+    "rewardTitle": "All done for today!",
+    "rewardBody": "You've earned today's Happy Paw badge."
+  },
+  "knowledge": {
+    "title": "Knowledge Worth Returning For",
+    "subtitle": "Gentle, expert-backed guidance for every stage.",
+    "viewAll": "View all articles",
+    "minRead": "{n} min read",
+    "categories": {
+      "health": "Health",
+      "nutrition": "Nutrition",
+      "heat-cycle": "Heat Cycle",
+      "breeding": "Breeding",
+      "vaccination": "Vaccination",
+      "behavior": "Behavior"
+    }
+  },
+  "breed": {
+    "title": "Breed Explorer",
+    "subtitle": "Discover the world's most beloved cat breeds.",
+    "discoverAnother": "Discover Another Breed",
+    "origin": "Origin",
+    "temperament": "Temperament",
+    "breeds": {
+      "scottish-fold": { "name": "Scottish Fold", "origin": "Scotland", "temperament": "Sweet, calm, and adaptable" },
+      "british-shorthair": { "name": "British Shorthair", "origin": "United Kingdom", "temperament": "Easygoing and affectionate" },
+      "persian": { "name": "Persian", "origin": "Iran", "temperament": "Gentle and quiet companion" },
+      "maine-coon": { "name": "Maine Coon", "origin": "United States", "temperament": "Friendly, social, and playful" },
+      "siamese": { "name": "Siamese", "origin": "Thailand", "temperament": "Vocal, curious, and loving" }
+    }
+  },
+  "events": {
+    "title": "Upcoming Events",
+    "seeAll": "See all",
+    "join": "Join",
+    "daysLeft": "{n} days left",
+    "today": "Today"
+  },
+  "challenge": {
+    "title": "Photo Challenge",
+    "subtitle": "This week's theme",
+    "theme": "Sleeping Cat 😴",
+    "upload": "Upload Photo",
+    "leaderboardSoon": "Leaderboard coming soon"
+  },
+  "poll": {
+    "title": "Community Poll",
+    "subtitle": "Today's question",
+    "question": "How many meals does your cat eat each day?",
+    "voted": "Thanks for voting!",
+    "options": ["1 meal", "2 meals", "3 meals", "Free-feeding"]
+  },
+  "lucky": {
+    "title": "Lucky Cat Card",
+    "subtitle": "Draw today's blessing",
+    "draw": "Draw Today's Card",
+    "collected": "{n} cards collected",
+    "items": [
+      "Today brings gentle surprises.",
+      "A purr is on its way to you.",
+      "Good fortune follows a kind heart.",
+      "Cuddles ahead — get ready!",
+      "Your patience will be rewarded today.",
+      "A new friendship is near."
+    ]
+  },
+  "stories": {
+    "title": "Success Stories",
+    "subtitle": "Real happy cat stories from our community.",
+    "items": [
+      {
+        "title": "How Mochi Found Her Forever Family",
+        "quote": "We followed the community's health guides for months before we felt ready. When the day came, everything felt calm, safe, and full of joy.",
+        "author": "— Nattaya, Cat Parent in Bangkok",
+        "image": "https://cataas.com/cat?width=700&height=700&t=story-mochi"
+      },
+      {
+        "title": "Leo's Journey to a Healthier Coat",
+        "quote": "The daily nutrition tips changed everything. Leo is more energetic and his coat has never looked better.",
+        "author": "— Wit, Cat Parent in Chiang Mai",
+        "image": "https://cataas.com/cat?width=700&height=700&t=story-leo"
+      },
+      {
+        "title": "A Gentle Match for Luna",
+        "quote": "Catinder's community gave us the confidence and the right knowledge to make a safe, loving decision for Luna.",
+        "author": "— Pim, Cat Parent in Phuket",
+        "image": "https://cataas.com/cat?width=700&height=700&t=story-luna"
+      }
+    ]
+  },
+  "faqSection": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Everything you need to feel at home here.",
+    "items": [
+      { "question": "Is Catinder free to join?", "answer": "Yes — joining the community and reading all educational content is completely free." },
+      { "question": "Do I need a purebred cat to join?", "answer": "Not at all. Catinder welcomes every cat parent, whether your cat is a pedigree or a beloved rescue." },
+      { "question": "When will AI matching be available?", "answer": "Matching is a future phase. Right now we're focused on building trust, knowledge, and community first." },
+      { "question": "How is my data kept safe?", "answer": "We never share your information without consent, and every form is validated and protected." }
+    ]
+  },
+  "newsletter": {
+    "title": "Stay Connected With Catinder",
+    "subtitle": "Daily tips, happy stories, and gentle reminders — straight to your inbox.",
+    "placeholder": "you@example.com",
+    "subscribe": "Subscribe",
+    "thanks": "Thank you for joining us!"
+  },
+  "footer": {
+    "tagline": "Connecting cats safely. Building happiness forever.",
+    "explore": "Explore",
+    "community": "Community",
+    "account": "Account",
+    "copyright": "© {year} Catinder. Made with love for every cat parent."
+  },
+  "about": {
+    "badge": "Our Story",
+    "headline": "Building Trust, One Cat at a Time.",
+    "subheadline": "We started Catinder because we believed every cat parent deserves a platform as thoughtful, safe, and caring as they are.",
+    "stats": {
+      "catParentsLabel": "Cat Parents",
+      "catParentsValue": "1,000+",
+      "articlesLabel": "Expert Articles",
+      "articlesValue": "50+",
+      "breedsLabel": "Breed Profiles",
+      "breedsValue": "20+",
+      "citiesLabel": "Cities Growing",
+      "citiesValue": "3+"
+    },
+    "missionLabel": "Our Mission",
+    "missionBody": "To help every cat parent build healthier, happier generations of cats through trusted matching, AI technology, expert knowledge, and community.",
+    "visionLabel": "Our Vision",
+    "visionBody": "To become the trusted operating system for every cat parent in Southeast Asia — where health, happiness, and heritage meet.",
+    "promiseTitle": "Our Community Promise",
+    "promiseItems": [
+      { "title": "Always Safe", "desc": "Every feature is built with safety and transparency as the foundation." },
+      { "title": "Always Kind", "desc": "We hold our community to the highest standard of respect and care." },
+      { "title": "Always Honest", "desc": "No hidden fees, no surprises. We are transparent about what is free and what is premium." },
+      { "title": "Always Growing", "desc": "We listen, we improve, and we grow alongside you and your cats." }
+    ],
+    "timelineTitle": "Our Journey",
+    "timelineItems": [
+      { "year": "2024", "title": "The Idea", "desc": "A group of cat parents asked: why isn't there a trusted place for cat matching and health guidance?" },
+      { "year": "2025", "title": "Beta Launch", "desc": "We launched with 100 founding members who helped shape Catinder into what it is today." },
+      { "year": "2026", "title": "Ecosystem Begins", "desc": "Knowledge center, events, community, and AI tools — the full cat ecosystem takes shape." },
+      { "year": "Soon", "title": "AI & More", "desc": "Health predictions, AI matching, marketplace, and pet passport — building the future together." }
+    ],
+    "ctaTitle": "Ready to be part of something good?",
+    "ctaSubtitle": "Join thousands of cat parents building healthier, happier lives for their cats.",
+    "ctaJoin": "Join the Community",
+    "ctaLearn": "Explore Knowledge"
+  },
+  "faqPage": {
+    "badge": "Support",
+    "title": "Frequently Asked Questions",
+    "subtitle": "Find answers to the most common questions about Catinder.",
+    "searchPlaceholder": "Search questions...",
+    "catAll": "All Topics",
+    "catGeneral": "General",
+    "catAccount": "Account & Privacy",
+    "catFeatures": "Features",
+    "catPremium": "Premium",
+    "items": [
+      { "cat": "general", "question": "Is Catinder free to join?", "answer": "Yes — joining the community, reading all educational content, and using daily interactive features is completely free. We are building premium features for the future, but free access will always exist." },
+      { "cat": "general", "question": "Do I need a purebred cat to join?", "answer": "Not at all. Catinder welcomes every cat parent, whether your cat is a pedigree, a rescued street cat, or anything in between. Every cat is loved here." },
+      { "cat": "features", "question": "When will AI matching be available?", "answer": "AI matching is our next major phase. Right now we are focused on building trust, knowledge, and community first — the foundation that makes matching meaningful and safe." },
+      { "cat": "account", "question": "How is my data kept safe?", "answer": "We never share your personal information without your consent. All data is encrypted, and every form is validated and protected. We follow industry-standard security practices." },
+      { "cat": "features", "question": "What is the Knowledge Center?", "answer": "Our Knowledge Center is a library of expert-reviewed articles covering cat health, nutrition, breeding, behavior, vaccinations, and the heat cycle — everything a cat parent needs." },
+      { "cat": "features", "question": "What are daily interactive features?", "answer": "Every day we offer a Quote of the Day, Cat Fact, Daily Mission checklist, Cat Mood tracker, Community Poll, and Lucky Cat Card — all designed to keep you connected and smiling." },
+      { "cat": "premium", "question": "What will Premium include?", "answer": "Future Premium features include AI health analysis, heat cycle prediction, vaccination reminders, exclusive articles, verified breeder access, marketplace, and a digital pet passport." },
+      { "cat": "general", "question": "Can I recommend Catinder to my vet?", "answer": "Absolutely. Our content is designed to complement — never replace — professional veterinary advice. We always recommend consulting your vet for health decisions." }
+    ],
+    "stillNeedHelpTitle": "Still need help?",
+    "stillNeedHelpSubtitle": "Our team usually replies within 24 hours.",
+    "stillNeedHelpCta": "Contact Us"
+  },
+  "contactPage": {
+    "badge": "Get in Touch",
+    "title": "We'd Love to Hear From You",
+    "subtitle": "Whether it's a question, a partnership idea, or just a hello — we read every message.",
+    "fieldName": "Your Name",
+    "fieldNamePlaceholder": "Nattaya S.",
+    "fieldEmail": "Email Address",
+    "fieldEmailPlaceholder": "you@example.com",
+    "fieldSubject": "Subject",
+    "fieldSubjectPlaceholder": "How can we help?",
+    "fieldMessage": "Message",
+    "fieldMessagePlaceholder": "Tell us anything...",
+    "submit": "Send Message",
+    "sending": "Sending...",
+    "sent": "Message sent! We'll reply within 24 hours. 🐾",
+    "responseTime": "Usually replies within 24 hours",
+    "faqShortcutTitle": "Looking for quick answers?",
+    "faqShortcutSubtitle": "Browse our FAQ first — it might have exactly what you need.",
+    "faqShortcutCta": "Browse FAQ",
+    "socialTitle": "Follow Catinder"
+  },
+  "eventsPage": {
+    "badge": "Events",
+    "title": "Upcoming Events",
+    "subtitle": "Join fellow cat parents at online events — connect, learn, and play from anywhere.",
+    "onlineOnlyBadge": "All events are online",
+    "listView": "List",
+    "calendarView": "Calendar",
+    "filterAll": "All",
+    "filterOnline": "Online",
+    "filterBangkok": "Bangkok",
+    "filterChiangMai": "Chiang Mai",
+    "noEvents": "No events match this filter.",
+    "joinedBadge": "You're going!",
+    "joinedCount": "{n} joined",
+    "calendarComingSoon": "Calendar view is coming soon — stay tuned!"
+  },
+  "communityPage": {
+    "badge": "Community",
+    "title": "Welcome to the Community",
+    "subtitle": "A safe, warm place for every cat parent to connect, share, and grow.",
+    "guidelinesTitle": "Community Guidelines",
+    "guidelinesItems": [
+      { "rule": "Be Kind", "desc": "Treat every member with warmth, patience, and respect." },
+      { "rule": "Be Safe", "desc": "Never share personal identifying information in public spaces." },
+      { "rule": "Be Honest", "desc": "Share real experiences. No fake profiles, no spam, no misinformation." },
+      { "rule": "Be Helpful", "desc": "When in doubt, help. Our community grows through generosity and care." }
+    ],
+    "leaderboardTitle": "Top Contributors This Month",
+    "leaderboardComingSoon": "Leaderboard is coming soon — start contributing to earn your spot!",
+    "joinCtaTitle": "Ready to join the conversation?",
+    "joinCtaSubtitle": "Create your free account and become part of the Catinder family.",
+    "joinCtaCta": "Create Free Account"
+  },
+  "knowledgePage": {
+    "badge": "Knowledge Center",
+    "title": "Everything You Need to Know",
+    "subtitle": "Expert-reviewed guides for every stage of your cat's life.",
+    "searchPlaceholder": "Search articles...",
+    "featuredLabel": "Featured",
+    "allArticles": "All Articles",
+    "noResults": "No articles found. Try a different search or category.",
+    "quizIncluded": "Quiz included",
+    "premiumTitle": "Unlock Advanced Guides",
+    "premiumDesc": "Premium members get access to in-depth health analysis, AI-powered recommendations, and exclusive expert content.",
+    "premiumCta": "Coming Soon",
+    "minRead": "{n} min read",
+    "catAll": "All",
+    "catHealth": "Health",
+    "catNutrition": "Nutrition",
+    "catHeatCycle": "Heat Cycle",
+    "catVaccination": "Vaccination",
+    "catBehavior": "Behavior",
+    "catBreeding": "Breeding"
+  },
+  "articlesPage": {
+    "badge": "Articles",
+    "title": "Articles Worth Reading",
+    "subtitle": "Stories, guides, and expert advice — all in one place.",
+    "searchPlaceholder": "Search articles...",
+    "sortPopular": "Popular",
+    "sortNewest": "Newest",
+    "sortEditors": "Editor's Pick",
+    "noResults": "No articles match your search.",
+    "editorsPickLabel": "Editor's Pick",
+    "likesLabel": "{n} likes"
+  },
+  "articlePage": {
+    "backToArticles": "All Articles",
+    "minRead": "{n} min read",
+    "tableOfContents": "In this article",
+    "tocIntro": "Introduction",
+    "tocWhatToKnow": "What to Know",
+    "tocPracticalTips": "Practical Tips",
+    "tocExpertAdvice": "Expert Advice",
+    "tocSummary": "Quick Summary",
+    "bookmarkSave": "Saved",
+    "bookmarkAdd": "Save",
+    "likeBtn": "Helpful",
+    "shareBtn": "Share",
+    "shareCopied": "Link copied!",
+    "quizTitle": "Quick Knowledge Check",
+    "quizSubtitle": "Test what you just learned",
+    "quizCorrect": "Correct! Well done.",
+    "quizWrong": "Not quite — the answer is",
+    "quizScore": "You got {n} out of 3",
+    "quizRetry": "Try Again",
+    "relatedTitle": "You Might Also Like",
+    "authorLabel": "Catinder Editorial Team",
+    "reviewedLabel": "Expert Reviewed",
+    "commentsPlaceholder": "Comments are coming soon — join the community to be first to reply."
+  },
+  "auth": {
+    "loginBadge": "Welcome Back",
+    "loginTitle": "Log in to Catinder",
+    "loginSubtitle": "Good to see you again. Your cats missed you.",
+    "registerBadge": "Join Free",
+    "registerTitle": "Create Your Account",
+    "registerSubtitle": "Join thousands of cat parents building happier lives for their cats.",
+    "fieldName": "Full Name",
+    "fieldNamePlaceholder": "Your name",
+    "fieldEmail": "Email Address",
+    "fieldEmailPlaceholder": "you@example.com",
+    "fieldPassword": "Password",
+    "fieldPasswordPlaceholder": "At least 8 characters",
+    "fieldConfirmPassword": "Confirm Password",
+    "fieldConfirmPasswordPlaceholder": "Repeat your password",
+    "loginBtn": "Log In",
+    "registerBtn": "Create Free Account",
+    "googleBtn": "Continue with Google",
+    "orWith": "or continue with",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "signUpLink": "Sign up free",
+    "loginLink": "Log in",
+    "terms": "By creating an account you agree to our Terms of Service and Privacy Policy.",
+    "emailError": "Please enter a valid email address.",
+    "passwordError": "Password must be at least 8 characters.",
+    "matchError": "Passwords do not match.",
+    "genericError": "Something went wrong. Please try again.",
+    "notFoundError": "No account found with this email. Please register first.",
+    "wrongPasswordError": "Incorrect password. Please try again.",
+    "tooManyError": "Too many attempts. Please wait a moment and try again.",
+    "disabledError": "This account has been disabled. Please contact support.",
+    "emailInUseError": "An account with this email already exists. Please log in instead.",
+    "weakPasswordError": "Password is too weak. Please choose a stronger password.",
+    "loggingIn": "Logging in...",
+    "registering": "Creating account...",
+    "verifyTitle": "Check your inbox!",
+    "verifyBody1": "We sent a verification link to",
+    "verifyBody2": "Click the link to verify your email and start your Catinder journey.",
+    "verifyGoLogin": "Go to Login",
+    "verifySpamHint": "Can't find it? Check your spam or junk folder."
+  },
+  "articleData": {
+    "vaccination-basics": {
+      "title": "A Gentle Guide to Kitten Vaccinations",
+      "excerpt": "What to expect, when to schedule, and how to keep your kitten comfortable."
+    },
+    "heat-cycle-101": {
+      "title": "Understanding Your Cat's Heat Cycle",
+      "excerpt": "Signs to watch for and how to support your cat with patience and care."
+    },
+    "nutrition-fundamentals": {
+      "title": "Nutrition Fundamentals for Every Life Stage",
+      "excerpt": "Building healthy habits from kittenhood through their golden years."
+    },
+    "cat-behavior-kneading": {
+      "title": "Why Does My Cat Knead? The Science of Comfort",
+      "excerpt": "Kneading is more than a habit — it is a sign of deep trust and contentment."
+    },
+    "breeding-readiness": {
+      "title": "Is Your Cat Ready to Breed? A Complete Checklist",
+      "excerpt": "Health, timing, and emotional readiness — everything to consider before breeding."
+    },
+    "annual-health-checkup": {
+      "title": "The Annual Health Checkup: What to Expect",
+      "excerpt": "A calm, complete guide to what your vet checks and why it matters every year."
+    },
+    "raw-food-diet": {
+      "title": "Raw Food Diet for Cats: Benefits and Risks",
+      "excerpt": "A balanced look at raw feeding — what the science says and how to do it safely."
+    },
+    "vaccination-schedule": {
+      "title": "The Complete Vaccination Schedule (0–12 Months)",
+      "excerpt": "Month-by-month guide to keeping your kitten protected during the critical first year."
+    },
+    "heat-cycle-care": {
+      "title": "Caring for Your Cat During Her Heat Cycle",
+      "excerpt": "Practical, compassionate tips to keep your cat comfortable and stress-free."
+    },
+    "cat-stress-signs": {
+      "title": "10 Signs Your Cat Is Stressed (And What to Do)",
+      "excerpt": "Learning to read your cat's body language could change everything."
+    },
+    "breeding-genetics": {
+      "title": "Understanding Basic Cat Genetics for Breeders",
+      "excerpt": "Coat colors, patterns, and what hereditary health means for responsible breeding."
+    },
+    "senior-cat-health": {
+      "title": "Senior Cat Health: What Changes After 10 Years",
+      "excerpt": "How to adjust care, diet, and vet visits as your cat enters their golden years."
+    }
+  },
+  "articleBody": {
+    "vaccination-basics": {
+      "paragraphs": [
+        "Your kitten's first year is the most important for building lifelong immunity. Vaccinations during this window protect against diseases that are entirely preventable — and the process is gentler than most new cat parents expect.",
+        "The core vaccines recommended for all kittens include protection against Feline Panleukopenia (FPV), Feline Herpesvirus (FHV-1), and Feline Calicivirus (FCV). These are typically given in a series starting at 6 to 8 weeks of age, with boosters every 3–4 weeks until 16 weeks old.",
+        "Your vet may also recommend non-core vaccines based on your cat's lifestyle. Indoor cats have different risk profiles than cats with outdoor access. Rabies vaccination requirements also vary by location and local law.",
+        "Preparing your kitten for the vet visit is half the battle. Practice gentle handling at home, make the carrier a comfortable familiar space, and bring a favourite toy or blanket. Most kittens handle vaccinations well when their owner stays calm and reassuring.",
+        "After vaccination, mild side effects like temporary drowsiness or reduced appetite are normal and usually resolve within 24 hours. Contact your vet if you notice swelling at the injection site, difficulty breathing, or symptoms lasting more than 48 hours."
+      ]
+    },
+    "nutrition-fundamentals": {
+      "paragraphs": [
+        "Good nutrition is the single most controllable factor in your cat's long-term health. Unlike genetics or environment, what you feed your cat every day is entirely within your hands — and that is both a responsibility and an opportunity.",
+        "Cats are obligate carnivores, meaning they require animal-based protein to survive and thrive. Unlike dogs or humans, cats cannot synthesise certain amino acids like taurine on their own — they must get them from their food.",
+        "Life stage matters enormously. Kitten food is formulated with higher protein and calorie density to support rapid growth. Adult formulas balance maintenance needs. Senior formulas often address joint health, kidney function, and lower caloric requirements.",
+        "Whether you choose wet food, dry food, or a combination depends on your cat, your vet's guidance, and your lifestyle. Wet food supports hydration — important since cats have a naturally low thirst drive. Dry food offers convenience and potential dental benefits.",
+        "When in doubt, look for food that meets AAFCO or equivalent nutritional standards, appropriate for your cat's life stage. Reading ingredient labels, understanding protein sources, and watching for filler ingredients are skills worth developing as a cat parent."
+      ]
+    },
+    "default": {
+      "paragraphs": [
+        "Every cat parent knows the feeling: something changes, and you are not quite sure what it means. Building confidence starts with knowledge — and that is exactly what this guide is designed to give you.",
+        "The most important thing to understand is that cats communicate differently from us. What looks like a small behaviour shift can carry significant meaning, and learning to read these signals is one of the most valuable skills a cat parent can develop.",
+        "Veterinary experts recommend a proactive, not just reactive, approach to cat care. This means regular check-ins, consistent routines, and staying informed about what is normal for your specific cat's breed, age, and personality.",
+        "Community wisdom matters too. Many of the best insights come from cat parents who have lived through similar situations. Catinder's community is here to share real experiences, ask questions, and support one another without judgment.",
+        "Remember: you do not need to have all the answers. You just need to know where to find them — and to trust that asking questions is always the right choice."
+      ]
+    }
+  },
+  "game": {
+    "badge": "Online Game",
+    "title": "Cat Compatibility Game",
+    "subtitle": "Upload your cat's photo, pick traits, and discover your purrfect feline match!",
+    "step1Title": "Tell us about your cat",
+    "step2Title": "What kind of partner are you looking for?",
+    "step3Title": "Calculating compatibility...",
+    "resultTitle": "Match Result!",
+    "nameLabel": "Your cat's name",
+    "namePlaceholder": "e.g. Mochi",
+    "photoLabel": "Upload your cat's photo",
+    "photoHint": "JPG or PNG, max 5MB",
+    "photoPlaceholder": "Click to upload",
+    "personalityLabel": "Your cat's personality (pick up to 3)",
+    "traits": {
+      "playful": "Playful",
+      "calm": "Calm",
+      "curious": "Curious",
+      "affectionate": "Affectionate",
+      "independent": "Independent",
+      "vocal": "Vocal"
+    },
+    "breedLabel": "Preferred partner breed",
+    "colorLabel": "Preferred partner color",
+    "partnerPersonalityLabel": "Desired personality in a partner",
+    "breeds": {
+      "any": "Any breed",
+      "scottish-fold": "Scottish Fold",
+      "british-shorthair": "British Shorthair",
+      "persian": "Persian",
+      "maine-coon": "Maine Coon",
+      "siamese": "Siamese"
+    },
+    "colors": {
+      "any": "Any color",
+      "white": "White",
+      "black": "Black",
+      "orange": "Orange",
+      "grey": "Grey",
+      "calico": "Calico",
+      "tabby": "Tabby"
+    },
+    "nextBtn": "Next →",
+    "backBtn": "← Back",
+    "generateBtn": "Find My Match! 🐾",
+    "playAgainBtn": "Play Again",
+    "shareBtn": "Share Result",
+    "compatibilityLabel": "Compatibility",
+    "predictedKittensLabel": "Predicted Kitten Names",
+    "resultMessages": [
+      "A match made in heaven! These two would be purrfectly suited for each other.",
+      "What a wonderful pairing! They would make the happiest kittens together.",
+      "Stars aligned! This match is written in the cat cosmos.",
+      "High compatibility detected! Your furry families would blend beautifully."
+    ]
+  }
+}

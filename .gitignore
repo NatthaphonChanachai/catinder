@@ -12,6 +12,19 @@ dist
 dist-ssr
 *.local
 
+# Next.js
+/.next/
+/out/
+*.tsbuildinfo
+next-env.d.ts
+
+# Vercel
+.vercel
+
+# Env files
+.env*
+!.env.example
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
