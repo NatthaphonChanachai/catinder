@@ -13,14 +13,6 @@ import { fadeUp, staggerContainer } from "@/lib/motion";
 
 const GUIDELINE_ICONS = [Heart, Shield, MessageCircle, Lightbulb];
 
-const MOCK_LEADERBOARD = [
-  { rank: 1, name: "Nattaya S.", points: 2140, badge: "🏅" },
-  { rank: 2, name: "Wit P.", points: 1870, badge: "🥈" },
-  { rank: 3, name: "Pim T.", points: 1540, badge: "🥉" },
-  { rank: 4, name: "Suda C.", points: 1200, badge: "" },
-  { rank: 5, name: "Krit A.", points: 980, badge: "" },
-];
-
 function LiveStats() {
   const [stats, setStats] = useState({ xp: 0, streak: 0, daily: 0 });
   const [mounted, setMounted] = useState(false);
@@ -169,34 +161,15 @@ export function CommunityContent() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            variants={staggerContainer}
-            className="overflow-hidden rounded-3xl bg-card shadow-sm ring-1 ring-border/60"
-          >
-            {MOCK_LEADERBOARD.map((entry, i) => (
-              <motion.div
-                key={entry.rank}
-                variants={fadeUp}
-                className={`flex items-center gap-4 px-6 py-4 ${i < MOCK_LEADERBOARD.length - 1 ? "border-b border-border/60" : ""}`}
-              >
-                <span className="w-6 text-center text-sm font-bold text-muted-foreground">{entry.rank}</span>
-                <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[var(--rose-blush)]/40 text-sm font-bold">
-                  {entry.name.charAt(0)}
-                </div>
-                <p className="flex-1 text-sm font-semibold">{entry.name}</p>
-                {entry.badge && <span className="text-lg">{entry.badge}</span>}
-                <span className="text-sm font-bold text-[var(--rose-gold)]">{entry.points.toLocaleString()} pts</span>
-              </motion.div>
-            ))}
-          </motion.div>
-          <motion.p
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
             variants={fadeUp}
-            className="mt-4 text-center text-xs text-muted-foreground"
+            className="flex flex-col items-center gap-4 rounded-3xl border border-dashed border-border/60 bg-card py-14 text-center"
           >
-            {t("leaderboardComingSoon")}
-          </motion.p>
+            <Trophy className="size-10 text-[var(--soft-gold)] opacity-60" />
+            <p className="text-sm font-semibold text-muted-foreground">{t("leaderboardComingSoon")}</p>
+            <p className="max-w-xs text-xs text-muted-foreground/70">
+              อันดับจะอัปเดตแบบเรียลไทม์เมื่อมีผู้ใช้สะสม XP ในชุมชน
+            </p>
+          </motion.div>
         </div>
       </section>
 

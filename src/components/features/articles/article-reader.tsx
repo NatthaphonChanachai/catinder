@@ -21,21 +21,17 @@ import { cn } from "@/lib/utils";
 
 const TOC_SECTIONS = ["tocIntro", "tocWhatToKnow", "tocPracticalTips", "tocExpertAdvice", "tocSummary"] as const;
 
-const LOCALIZED_BODY_SLUGS = ["vaccination-basics", "nutrition-fundamentals"];
-
 export function ArticleReader({ slug }: { slug: string }) {
   const t = useTranslations("articlePage");
   const tk = useTranslations("knowledge");
   const ta = useTranslations("articleData");
-  const tb = useTranslations("articleBody");
 
   const article = ALL_ARTICLES.find((a) => a.slug === slug)!;
   const quiz = getQuizForArticle(article.category);
   const related = ALL_ARTICLES.filter((a) => a.category === article.category && a.slug !== slug).slice(0, 3);
 
   const localTitle = (ta as (key: string) => string)(`${slug}.title`) ?? article.title;
-  const bodyKey = LOCALIZED_BODY_SLUGS.includes(slug) ? slug : "default";
-  const body = (tb.raw as (key: string) => string[])(`${bodyKey}.paragraphs`) ?? getArticleBody(slug);
+  const body = getArticleBody(slug);
 
   const [bookmarks, setBookmarks] = useLocalStorage<string[]>("catinder.bookmarkedArticles", []);
   const [likedArticles, setLikedArticles] = useLocalStorage<string[]>("catinder.likedArticles", []);

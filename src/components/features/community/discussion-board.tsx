@@ -17,54 +17,6 @@ interface Post {
   comments: number;
 }
 
-const SEED_POSTS: Post[] = [
-  {
-    id: "seed-1",
-    name: "Nattaya S.",
-    avatar: "🌸",
-    text: "น้องมิโมะของฉันเพิ่งอายุครบ 1 ขวบ! ขอบคุณ Catinder ที่ช่วยให้รู้เรื่องโภชนาการดีขึ้นมากเลยค่ะ 🎂",
-    time: "2 ชั่วโมงที่แล้ว",
-    likes: 47,
-    comments: 12,
-  },
-  {
-    id: "seed-2",
-    name: "Wit P.",
-    avatar: "🐾",
-    text: "เพิ่งพาน้องสกอตติชโฟลด์ไปฉีดวัคซีนตามที่บทความแนะนำ คุณหมอบอกสุขภาพดีมากครับ ขอบคุณ Catinder!",
-    time: "5 ชั่วโมงที่แล้ว",
-    likes: 32,
-    comments: 8,
-  },
-  {
-    id: "seed-3",
-    name: "Pim T.",
-    avatar: "✨",
-    text: "ทดลองเล่นเกม Cat Compatibility แล้วได้ 94% กับน้องเมนคูนของเพื่อน 😂 แนะนำให้ทุกคนลองเล่นเลย!",
-    time: "เมื่อวาน",
-    likes: 89,
-    comments: 23,
-  },
-  {
-    id: "seed-4",
-    name: "Suda C.",
-    avatar: "🌙",
-    text: "ถามหน่อยนะคะ แมวเปอร์เซียกินอาหารยี่ห้อไหนดีคะ? น้องหน้าพาวขี้เลือกมากเลย 🙈",
-    time: "เมื่อวาน",
-    likes: 21,
-    comments: 34,
-  },
-  {
-    id: "seed-5",
-    name: "Krit A.",
-    avatar: "🏆",
-    text: "รวม Level Tiger แล้ว! สะสม XP จากการอ่านบทความทุกวัน ขอบคุณ Catinder ที่ทำให้ทุกวันสนุก 🐯",
-    time: "2 วันที่แล้ว",
-    likes: 156,
-    comments: 41,
-  },
-];
-
 const AVATARS = ["🐱", "🌸", "🐾", "✨", "🌙", "🏆", "🎀", "🐯", "🦁", "⭐"];
 
 export function DiscussionBoard() {
@@ -85,7 +37,7 @@ export function DiscussionBoard() {
     setMounted(true);
   }, []);
 
-  const allPosts = [...userPosts, ...SEED_POSTS];
+  const allPosts = [...userPosts];
 
   function toggleLike(id: string) {
     setLikedIds((prev) => {
@@ -191,6 +143,17 @@ export function DiscussionBoard() {
 
         {/* Feed */}
         <div className="space-y-3">
+          {allPosts.length === 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col items-center gap-3 rounded-3xl border border-dashed border-border/60 py-12 text-center"
+            >
+              <PawPrint className="size-8 text-muted-foreground/40" />
+              <p className="text-sm font-semibold text-muted-foreground">ยังไม่มีโพสต์</p>
+              <p className="text-xs text-muted-foreground/70">เป็นคนแรกที่แชร์เรื่องราวน้องแมวของคุณ!</p>
+            </motion.div>
+          )}
           <AnimatePresence initial={false}>
             {allPosts.map((post, i) => (
               <motion.div

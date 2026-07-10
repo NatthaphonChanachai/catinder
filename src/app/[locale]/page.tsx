@@ -15,7 +15,6 @@ import { UpcomingEvents } from "@/components/features/home/upcoming-events";
 import { PhotoChallenge } from "@/components/features/home/photo-challenge";
 import { CommunityPoll } from "@/components/features/home/community-poll";
 import { LuckyCatCard } from "@/components/features/home/lucky-cat-card";
-import { SuccessStories } from "@/components/features/home/success-stories";
 import { PremiumSection } from "@/components/features/home/premium-section";
 import { FaqSection } from "@/components/features/home/faq-section";
 
@@ -66,9 +65,6 @@ export default function Home() {
 
         {/* Section 10 — Lucky Cat Card */}
         <LuckyCatCard />
-
-        {/* Section 11 — Success Stories */}
-        <SuccessStories />
 
         <PremiumSection />
 
