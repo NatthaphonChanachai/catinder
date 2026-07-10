@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Heart, Shield, MessageCircle, Lightbulb, Trophy, Flame, Zap } from "lucide-react";
-import { LinkButton } from "@/components/shared/link-button";
 import { PremiumTeaser } from "@/components/shared/premium-teaser";
 import { CatCompatibilityGame } from "@/components/features/community/cat-compatibility-game";
 import { DiscussionBoard } from "@/components/features/community/discussion-board";
@@ -226,18 +225,15 @@ export function CommunityContent() {
           <motion.p variants={fadeUp} className="mt-4 text-base text-muted-foreground">
             {t("joinCtaSubtitle")}
           </motion.p>
-          <motion.div variants={fadeUp} className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-            <LinkButton href="/register" size="lg" className="rounded-full px-10">
-              {t("joinCtaCta")}
-            </LinkButton>
+          <motion.div variants={fadeUp} className="mt-8 flex justify-center">
             <a
               href="https://www.facebook.com/profile.php?id=61591494033259&mibextid=wwXIfr"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2.5 rounded-full px-8 py-3 text-sm font-bold transition-all hover:opacity-90 active:scale-95"
-              style={{ background: "#1877F2", color: "#fff" }}
+              className="inline-flex items-center gap-3 rounded-full px-10 py-4 text-base font-bold transition-all hover:opacity-90 active:scale-95"
+              style={{ background: "#1877F2", color: "#fff", boxShadow: "0 6px 24px rgba(24,119,242,0.40)" }}
             >
-              <svg className="size-4 shrink-0" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <svg className="size-5 shrink-0" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/>
               </svg>
               เข้าร่วมชุมชน Facebook
