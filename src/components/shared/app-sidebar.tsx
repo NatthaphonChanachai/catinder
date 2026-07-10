@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import Image from "next/image";
 import {
   Home, HeartHandshake, PawPrint, MessageCircle, HeartPulse,
-  Dna, BookOpen, Gamepad2, Users, Bookmark, Settings,
+  Dna, BookOpen, Gamepad2, Bookmark, Settings,
   Crown, Gift, Lock, CheckCheck, LogOut,
 } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
@@ -19,7 +19,6 @@ const NAV_LINKS = [
   { icon: Dna,            label: "ผสมพันธุ์",     href: "/breeding",  badge: 0 },
   { icon: BookOpen,       label: "คลังความรู้",   href: "/knowledge", badge: 0 },
   { icon: Gamepad2,        label: "เกม",            href: "/games",     badge: 0 },
-  { icon: Users,          label: "ชุมชน",         href: "/community", badge: 0 },
   { icon: Bookmark,       label: "รายการโปรด",   href: "/favorites", badge: 0 },
   { icon: Settings,       label: "ตั้งค่า",       href: "/settings",  badge: 0 },
 ];
@@ -141,7 +140,7 @@ export function AppSidebar() {
             style={{ background: "rgba(212,175,55,0.15)", color: "#B8920A" }}>ปัจจุบัน</span>
         </div>
         <div className="mb-3 space-y-1.5">
-          {["ดู AI Match ได้ 5 คู่/วัน", "ส่ง Request ได้ 3 ครั้ง/วัน", "อ่านบทความ & กิจกรรม"].map((f) => (
+          {["ดู AI Match ได้ 5 คู่/วัน", "ส่ง Request ได้ 3 ครั้ง/วัน", "อ่านบทความ & เกม"].map((f) => (
             <div key={f} className="flex items-center gap-1.5">
               <CheckCheck className="size-3 flex-shrink-0 text-green-500" />
               <span className="text-[10px]" style={{ color: "rgba(74,20,50,0.70)" }}>{f}</span>

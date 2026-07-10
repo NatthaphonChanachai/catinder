@@ -4,9 +4,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
   HeartHandshake, MessageCircle, PawPrint, Crown, Sparkles,
-  Search, Home, BookOpen, CalendarDays, Users,
+  Search, Home, BookOpen, CalendarDays, Gamepad2, Bookmark,
   ChevronRight, ChevronLeft, HeartPulse, Star, Heart,
-  Dna, Bookmark, Settings, TrendingUp, CheckCircle, Circle,
+  Dna, Settings, TrendingUp, CheckCircle, Circle,
   LogOut, Lock, Zap, Gift, ArrowRight, CheckCheck,
 } from "lucide-react";
 import Image from "next/image";
@@ -51,8 +51,7 @@ const NAV_LINKS = [
   { icon: HeartPulse,    label: "บันทึกสุขภาพ",  href: "/health",    badge: 0 },
   { icon: Dna,           label: "ผสมพันธุ์",     href: "/breeding",  badge: 0 },
   { icon: BookOpen,      label: "คลังความรู้",   href: "/knowledge", badge: 0 },
-  { icon: CalendarDays,  label: "กิจกรรม",       href: "/events",    badge: 0 },
-  { icon: Users,         label: "ชุมชน",         href: "/community", badge: 0 },
+  { icon: Gamepad2,      label: "เกม",            href: "/games",     badge: 0 },
   { icon: Bookmark,      label: "รายการโปรด",   href: "/favorites", badge: 0 },
   { icon: Settings,      label: "ตั้งค่า",       href: "/settings",  badge: 0 },
 ];
@@ -268,7 +267,7 @@ function Sidebar() {
           {[
             "ดู AI Match ได้ 5 คู่/วัน",
             "ส่ง Request ได้ 3 ครั้ง/วัน",
-            "อ่านบทความ & กิจกรรม",
+            "อ่านบทความ & เกม",
           ].map((f) => (
             <div key={f} className="flex items-center gap-1.5">
               <CheckCheck className="size-3 flex-shrink-0 text-green-500" />
@@ -600,10 +599,10 @@ export function DashboardContent() {
             {/* Quick Actions */}
             <motion.div variants={fadeUp} className="grid grid-cols-4 gap-2 sm:grid-cols-4">
               {[
-                { icon: BookOpen,    label: "คลังความรู้", href: "/knowledge", color: "#4A90D9" },
-                { icon: CalendarDays,label: "กิจกรรม",     href: "/events",    color: "#D4AF37" },
-                { icon: Users,       label: "ชุมชน",       href: "/community", color: "#7B5EA7" },
-                { icon: HeartPulse,  label: "สุขภาพ",      href: "/health",    color: "#E8706A" },
+                { icon: BookOpen,   label: "คลังความรู้", href: "/knowledge", color: "#4A90D9" },
+                { icon: Gamepad2,   label: "เกม",          href: "/games",     color: "#D4AF37" },
+                { icon: HeartPulse, label: "สุขภาพ",       href: "/health",    color: "#E8706A" },
+                { icon: Bookmark,   label: "รายการโปรด",  href: "/favorites", color: "#7B5EA7" },
               ].map(({ icon: Icon, label, href, color }) => (
                 <Link key={href} href={href}
                   className="flex flex-col items-center gap-2 rounded-2xl p-3 transition-all hover:-translate-y-0.5 hover:shadow-md"
