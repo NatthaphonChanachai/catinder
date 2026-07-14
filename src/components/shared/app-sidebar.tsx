@@ -5,7 +5,7 @@ import Image from "next/image";
 import {
   Home, HeartHandshake, PawPrint, MessageCircle, HeartPulse,
   Dna, BookOpen, Gamepad2, Bookmark, Settings,
-  Crown, Gift, Lock, CheckCheck, LogOut,
+  Crown, Gift, Lock, CheckCheck, LogOut, Shield,
 } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
@@ -54,7 +54,7 @@ function CatAvatar({ size = 8 }: { size?: number }) {
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
 
   useEffect(() => {
     const locale = window.location.pathname.split("/")[1] || "th";
@@ -160,6 +160,16 @@ export function AppSidebar() {
           อัปเกรดเป็น Premium
         </Link>
       </div>
+
+      {/* Admin link */}
+      {isAdmin && (
+        <Link href="/admin"
+          className="mx-3 mb-1 flex items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold transition-colors hover:bg-[#EDD060]/20"
+          style={{ color: "#B8920A", background: "rgba(212,175,55,0.08)", border: "1px solid rgba(212,175,55,0.20)" }}>
+          <Shield className="size-3.5 text-[#D4AF37]" />
+          Admin Panel
+        </Link>
+      )}
 
       {/* Logout */}
       <button onClick={logout}
