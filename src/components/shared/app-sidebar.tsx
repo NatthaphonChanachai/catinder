@@ -126,6 +126,25 @@ export function AppSidebar() {
             </Link>
           );
         })}
+
+        {/* Admin Panel — เฉพาะ admin */}
+        {isAdmin && (
+          <>
+            <div className="mx-1 my-2 border-t border-[rgba(212,140,165,0.20)]" />
+            <Link
+              href="/admin"
+              className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold transition-all"
+              style={{
+                background: pathname?.includes("/admin") ? "rgba(212,175,55,0.18)" : "rgba(212,175,55,0.08)",
+                color: "#B8920A",
+                border: "1px solid rgba(212,175,55,0.25)",
+              }}
+            >
+              <Shield className="size-4 flex-shrink-0 text-[#D4AF37]" />
+              <span className="flex-1">Admin Panel</span>
+            </Link>
+          </>
+        )}
       </nav>
 
       {/* Plan card */}
@@ -160,16 +179,6 @@ export function AppSidebar() {
           อัปเกรดเป็น Premium
         </Link>
       </div>
-
-      {/* Admin link */}
-      {isAdmin && (
-        <Link href="/admin"
-          className="mx-3 mb-1 flex items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-bold transition-colors hover:bg-[#EDD060]/20"
-          style={{ color: "#B8920A", background: "rgba(212,175,55,0.08)", border: "1px solid rgba(212,175,55,0.20)" }}>
-          <Shield className="size-3.5 text-[#D4AF37]" />
-          Admin Panel
-        </Link>
-      )}
 
       {/* Logout */}
       <button onClick={logout}
