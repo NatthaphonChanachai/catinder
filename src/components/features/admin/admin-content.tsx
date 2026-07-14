@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   collection, onSnapshot, addDoc, updateDoc, deleteDoc,
-  doc, serverTimestamp, query, orderBy, getDocs,
+  doc, serverTimestamp, query, orderBy,
   type DocumentData,
 } from "firebase/firestore";
 import { db } from "@/services/firebase";
@@ -249,7 +249,7 @@ function ArticlesTab() {
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <BookOpen className="mb-3 size-10 text-[#D4AF37]/30" />
           <p className="text-sm font-bold text-[#0B1D3A]">ยังไม่มีบทความ</p>
-          <p className="text-xs text-muted-foreground">กดปุ่ม "เพิ่มบทความ" เพื่อเริ่มต้น</p>
+          <p className="text-xs text-muted-foreground">กดปุ่ม &quot;เพิ่มบทความ&quot; เพื่อเริ่มต้น</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -257,6 +257,7 @@ function ArticlesTab() {
             <div key={a.id} className="flex items-start gap-3 rounded-2xl border border-border p-4">
               {a.imageUrl && (
                 <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-xl bg-muted">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={a.imageUrl} alt="" className="h-full w-full object-cover" />
                 </div>
               )}

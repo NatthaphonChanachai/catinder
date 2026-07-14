@@ -73,7 +73,7 @@ export function BreedingContent() {
           <div className="flex flex-col items-center justify-center py-10 text-center">
             <HeartHandshake className="mb-3 size-8 text-[#D4AF37]/30" />
             <p className="text-sm font-bold text-[#0B1D3A]">ยังไม่มีคำขอที่ส่ง</p>
-            <p className="mt-1 text-xs text-[#6B5232]/50">ไปที่ "จับคู่แมว" เพื่อส่งคำขอผสมพันธุ์</p>
+            <p className="mt-1 text-xs text-[#6B5232]/50">ไปที่ &quot;จับคู่แมว&quot; เพื่อส่งคำขอผสมพันธุ์</p>
           </div>
         </motion.div>
 

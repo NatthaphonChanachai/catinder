@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { Send, Lock, Crown, ChevronLeft } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { AppShell } from "@/components/shared/app-shell";
