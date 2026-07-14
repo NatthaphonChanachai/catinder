@@ -38,7 +38,7 @@ export function Hero() {
       {/* ─── Main hero section ─────────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
 
-        {/* Background: Blackgroud.png */}
+        {/* Background */}
         <Image
           src="/img/Blackgroud.png"
           alt=""
@@ -48,18 +48,18 @@ export function Hero() {
           quality={90}
         />
 
-        {/* Soft overlay — left fade for text legibility only */}
+        {/* Soft overlay */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(110deg, rgba(11,29,58,0.38) 0%, rgba(11,29,58,0.18) 42%, transparent 68%)",
+              "linear-gradient(110deg, rgba(11,29,58,0.42) 0%, rgba(11,29,58,0.20) 42%, transparent 68%)",
           }}
         />
 
         {/* Content */}
-        <div className="relative z-10 mx-auto max-w-7xl px-8 pt-20 pb-24 sm:pt-24 sm:pb-28 lg:pt-28 lg:pb-32 xl:pt-32">
-          <div className="flex flex-col items-center gap-8 lg:flex-row lg:items-center lg:gap-4 xl:gap-8">
+        <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8 pt-10 pb-14 sm:pt-24 sm:pb-28 lg:pt-28 lg:pb-32 xl:pt-32">
+          <div className="flex flex-col items-center gap-6 lg:flex-row lg:items-center lg:gap-4 xl:gap-8">
 
             {/* LEFT: Text */}
             <motion.div
@@ -69,9 +69,9 @@ export function Hero() {
               className="order-1 flex-1 text-center lg:text-left"
             >
               {/* Badge */}
-              <motion.div variants={fadeUp} className="mb-6">
+              <motion.div variants={fadeUp} className="mb-4 sm:mb-6">
                 <span
-                  className="inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-semibold"
+                  className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-semibold"
                   style={{
                     background: "rgba(255,255,255,0.22)",
                     backdropFilter: "blur(10px)",
@@ -85,10 +85,22 @@ export function Hero() {
                 </span>
               </motion.div>
 
-              {/* Main heading */}
+              {/* ── Mobile headline (hidden on sm+) ── */}
               <motion.h1
                 variants={fadeUp}
-                className="font-heading text-5xl font-bold leading-tight tracking-wide sm:text-6xl xl:text-[4.2rem]"
+                className="sm:hidden font-heading text-[2.1rem] font-bold leading-tight tracking-wide text-wrap-balance"
+                style={{
+                  color: "#fff",
+                  textShadow: "0 2px 16px rgba(0,0,0,0.35)",
+                }}
+              >
+                {t("mobileTagline")}
+              </motion.h1>
+
+              {/* ── Desktop headline (hidden on mobile) ── */}
+              <motion.h1
+                variants={fadeUp}
+                className="hidden sm:block font-heading text-5xl font-bold leading-tight tracking-wide sm:text-6xl xl:text-[4.2rem]"
                 style={{
                   color: "#fff",
                   textShadow: "0 2px 16px rgba(0,0,0,0.35), 0 0 60px rgba(0,0,0,0.15)",
@@ -99,17 +111,29 @@ export function Hero() {
                 <span
                   style={{
                     color: "#EDD060",
-                    textShadow:
-                      "0 0 22px rgba(212,175,55,0.80), 0 2px 12px rgba(0,0,0,0.25)",
+                    textShadow: "0 0 22px rgba(212,175,55,0.80), 0 2px 12px rgba(0,0,0,0.25)",
                   }}
                 >
                   {t("headline2")}
                 </span>
               </motion.h1>
 
+              {/* ── Mobile subheadline (hidden on sm+) ── */}
               <motion.p
                 variants={fadeUp}
-                className="mx-auto mt-6 max-w-lg text-lg leading-relaxed lg:mx-0"
+                className="sm:hidden mx-auto mt-3 max-w-xs text-sm leading-relaxed px-1"
+                style={{
+                  color: "rgba(255,255,255,0.88)",
+                  textShadow: "0 1px 6px rgba(0,0,0,0.25)",
+                }}
+              >
+                {t("mobileSubheadline")}
+              </motion.p>
+
+              {/* ── Desktop subheadline (hidden on mobile) ── */}
+              <motion.p
+                variants={fadeUp}
+                className="hidden sm:block mx-auto mt-6 max-w-lg text-lg leading-relaxed lg:mx-0"
                 style={{
                   color: "rgba(255,255,255,0.90)",
                   textShadow: "0 1px 8px rgba(0,0,0,0.30)",
@@ -118,10 +142,41 @@ export function Hero() {
                 {t("subheadline")}
               </motion.p>
 
-              {/* CTA buttons */}
+              {/* ── Mobile CTAs (hidden on sm+) ── */}
               <motion.div
                 variants={fadeUp}
-                className="mt-9 flex flex-col items-center gap-4 sm:flex-row lg:items-start"
+                className="sm:hidden mt-6 flex flex-col gap-3 w-full max-w-xs mx-auto"
+              >
+                <LinkButton
+                  href="/register"
+                  className="h-[52px] w-full rounded-full text-base font-bold"
+                  style={{
+                    background: "linear-gradient(135deg, #EDD060 0%, #D4AF37 50%, #B8920A 100%)",
+                    color: "#0B1D3A",
+                    boxShadow: "0 6px 28px rgba(212,175,55,0.60)",
+                  } as React.CSSProperties}
+                >
+                  {t("ctaPrimary")}
+                </LinkButton>
+                <LinkButton
+                  href="/community"
+                  className="h-[52px] w-full rounded-full font-semibold"
+                  style={{
+                    background: "rgba(255,255,255,0.18)",
+                    backdropFilter: "blur(12px)",
+                    border: "1.5px solid rgba(255,255,255,0.55)",
+                    color: "#fff",
+                    textShadow: "0 1px 6px rgba(0,0,0,0.20)",
+                  } as React.CSSProperties}
+                >
+                  {t("ctaGames")}
+                </LinkButton>
+              </motion.div>
+
+              {/* ── Desktop CTAs (hidden on mobile) ── */}
+              <motion.div
+                variants={fadeUp}
+                className="hidden sm:flex mt-9 flex-col items-center gap-4 sm:flex-row lg:items-start"
               >
                 <a
                   href="https://www.facebook.com/profile.php?id=61591494033259&mibextid=wwXIfr"
@@ -158,10 +213,10 @@ export function Hero() {
                 </LinkButton>
               </motion.div>
 
-              {/* Trust micro-badges */}
+              {/* Trust micro-badges — desktop only */}
               <motion.div
                 variants={fadeUp}
-                className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5 text-sm lg:justify-start"
+                className="hidden sm:flex mt-8 flex-wrap items-center justify-center gap-x-6 gap-y-2.5 text-sm lg:justify-start"
               >
                 {[
                   { icon: <Heart className="size-3.5 fill-[#F9C5D1] text-[#F9C5D1]" />, text: t("freeOnWeb") },
@@ -189,23 +244,16 @@ export function Hero() {
               initial={{ opacity: 0, scale: 0.88, y: 30 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 1.4, ease: "easeOut", delay: 0.2 }}
-              className="order-2 flex w-full max-w-[380px] justify-center sm:max-w-[460px] lg:max-w-[540px] xl:max-w-[640px]"
+              className="order-2 flex w-full max-w-[220px] justify-center sm:max-w-[460px] lg:max-w-[540px] xl:max-w-[640px]"
             >
               <div className="relative w-full">
-                {/* Glow layers */}
+                {/* Glow */}
                 <div
                   className="absolute inset-0 -m-12 rounded-full"
                   style={{
                     background:
                       "radial-gradient(circle, rgba(212,175,55,0.45) 0%, rgba(249,197,209,0.22) 48%, transparent 74%)",
                     filter: "blur(36px)",
-                  }}
-                />
-                <div
-                  className="absolute inset-0 -m-4 rounded-full"
-                  style={{
-                    background: "radial-gradient(circle, rgba(212,175,55,0.22) 0%, transparent 68%)",
-                    filter: "blur(20px)",
                   }}
                 />
                 {/* Floating mascot */}
@@ -233,9 +281,8 @@ export function Hero() {
         </div>
       </section>
 
-      {/* ─── Trust badge strip — Blackgroud2 background ───────────────────── */}
-      <section className="relative overflow-hidden">
-        {/* Blackgroud2 as soft bg */}
+      {/* ─── Trust badge strip ─────────────────────────────────────────────── */}
+      <section className="relative hidden sm:block overflow-hidden">
         <Image
           src="/img/Blackgroud2.png"
           alt=""
@@ -243,7 +290,6 @@ export function Hero() {
           className="object-cover object-center"
           quality={80}
         />
-        {/* Cream overlay so pills read cleanly */}
         <div
           className="absolute inset-0"
           style={{ background: "rgba(255,250,240,0.70)" }}

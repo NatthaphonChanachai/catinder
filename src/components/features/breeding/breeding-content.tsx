@@ -1,25 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Dna, HeartHandshake, Clock, CheckCircle, XCircle, Crown, Lock, Star } from "lucide-react";
-import Image from "next/image";
+import { Dna, HeartHandshake, CheckCircle, Crown, Lock, Star } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { AppShell } from "@/components/shared/app-shell";
 import { fadeUp, staggerContainer } from "@/lib/motion";
 
-const REQUESTS_IN = [
-  { from: "คุณมาลี",  cat: "ลูน่า เบลล์", breed: "Persian",       img: "/img/Persian_dollface_Luna.png",  pct: 97, status: "pending", date: "2 ก.ค." },
-  { from: "คุณก้อง",  cat: "มีซา",        breed: "Maine Coon",    img: "/img/Maine-Coon.png",             pct: 94, status: "pending", date: "5 ก.ค." },
-];
-const REQUESTS_OUT = [
-  { to: "คุณนน",    cat: "ลีโอ",   breed: "Persian",       img: "/img/Persian-Long-Hair-Leo.png",  pct: 88, status: "accepted", date: "1 ก.ค." },
-  { to: "คุณฝน",    cat: "ดัชเชส", breed: "British Shorthair", img: "/img/British-Shorthair.png",  pct: 85, status: "pending",  date: "6 ก.ค." },
-];
-
 const TIPS = [
-  { icon: Star,         title: "เลือกคู่ที่เหมาะสม",      desc: "ดู AI Match Score เพื่อความเข้ากันทางพันธุกรรม" },
-  { icon: CheckCircle,  title: "ตรวจสุขภาพก่อน",           desc: "ทั้งสองฝ่ายควรมีสุขภาพที่ดีและวัคซีนครบ" },
-  { icon: HeartHandshake, title: "ประสานงานกับเจ้าของ",   desc: "ใช้ระบบข้อความเพื่อนัดหมาย (Premium)" },
+  { icon: Star,          title: "เลือกคู่ที่เหมาะสม",    desc: "ดู AI Match Score เพื่อความเข้ากันทางพันธุกรรม" },
+  { icon: CheckCircle,   title: "ตรวจสุขภาพก่อน",         desc: "ทั้งสองฝ่ายควรมีสุขภาพที่ดีและวัคซีนครบ" },
+  { icon: HeartHandshake, title: "ประสานงานกับเจ้าของ",  desc: "ใช้ระบบข้อความเพื่อนัดหมาย (Premium)" },
 ];
 
 export function BreedingContent() {
@@ -43,9 +33,9 @@ export function BreedingContent() {
         {/* Stats */}
         <motion.div variants={fadeUp} className="grid grid-cols-3 gap-3">
           {[
-            { label: "คำขอที่ได้รับ",  value: REQUESTS_IN.length, color: "#D4AF37" },
-            { label: "คำขอที่ส่ง",    value: REQUESTS_OUT.length, color: "#7B5EA7" },
-            { label: "สำเร็จแล้ว",    value: 1,                   color: "#22c55e" },
+            { label: "คำขอที่ได้รับ", value: 0, color: "#D4AF37" },
+            { label: "คำขอที่ส่ง",   value: 0, color: "#7B5EA7" },
+            { label: "สำเร็จแล้ว",   value: 0, color: "#22c55e" },
           ].map((s) => (
             <div key={s.label} className="rounded-2xl p-4 text-center"
               style={{ background: "#FFFAFC", border: "1px solid rgba(212,160,175,0.22)" }}>
@@ -64,34 +54,11 @@ export function BreedingContent() {
               คำขอที่ได้รับ
             </h2>
           </div>
-          {REQUESTS_IN.map((r) => (
-            <div key={r.cat} className="flex items-center gap-4 px-5 py-4"
-              style={{ borderBottom: "1px solid rgba(212,160,175,0.10)" }}>
-              <div className="relative size-14 flex-shrink-0 overflow-hidden rounded-2xl">
-                <Image src={r.img} alt={r.cat} fill className="object-cover" />
-              </div>
-              <div className="flex-1">
-                <p className="font-bold text-[#0B1D3A]">{r.cat}</p>
-                <p className="text-xs text-[#6B5232]/60">{r.breed} · จาก {r.from}</p>
-                <div className="mt-1 flex items-center gap-1.5">
-                  <Star className="size-3 text-[#D4AF37]" />
-                  <span className="text-[11px] font-bold text-[#D4AF37]">{r.pct}% Match</span>
-                  <Clock className="ml-2 size-3 text-[#6B5232]/40" />
-                  <span className="text-[10px] text-[#6B5232]/40">{r.date}</span>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <button className="flex size-9 items-center justify-center rounded-full hover:opacity-80 transition-opacity"
-                  style={{ background: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.25)" }}>
-                  <CheckCircle className="size-4 text-green-600" />
-                </button>
-                <button className="flex size-9 items-center justify-center rounded-full hover:opacity-80 transition-opacity"
-                  style={{ background: "rgba(220,80,80,0.10)", border: "1px solid rgba(220,80,80,0.22)" }}>
-                  <XCircle className="size-4 text-red-500" />
-                </button>
-              </div>
-            </div>
-          ))}
+          <div className="flex flex-col items-center justify-center py-10 text-center">
+            <Dna className="mb-3 size-8 text-[#D4AF37]/30" />
+            <p className="text-sm font-bold text-[#0B1D3A]">ยังไม่มีคำขอ</p>
+            <p className="mt-1 text-xs text-[#6B5232]/50">คำขอผสมพันธุ์จากผู้อื่นจะแสดงที่นี่</p>
+          </div>
         </motion.div>
 
         {/* Outgoing requests */}
@@ -103,31 +70,14 @@ export function BreedingContent() {
               คำขอที่ส่งออก
             </h2>
           </div>
-          {REQUESTS_OUT.map((r) => (
-            <div key={r.cat} className="flex items-center gap-4 px-5 py-4"
-              style={{ borderBottom: "1px solid rgba(212,160,175,0.10)" }}>
-              <div className="relative size-14 flex-shrink-0 overflow-hidden rounded-2xl">
-                <Image src={r.img} alt={r.cat} fill className="object-cover" />
-              </div>
-              <div className="flex-1">
-                <p className="font-bold text-[#0B1D3A]">{r.cat}</p>
-                <p className="text-xs text-[#6B5232]/60">{r.breed} · ถึง {r.to}</p>
-                <div className="mt-1 flex items-center gap-1.5">
-                  <Clock className="size-3 text-[#6B5232]/40" />
-                  <span className="text-[10px] text-[#6B5232]/40">{r.date}</span>
-                </div>
-              </div>
-              <span className="rounded-full px-2.5 py-1 text-[11px] font-bold"
-                style={r.status === "accepted"
-                  ? { background: "rgba(34,197,94,0.12)", color: "#16a34a" }
-                  : { background: "rgba(212,175,55,0.15)", color: "#B8920A" }}>
-                {r.status === "accepted" ? "ยอมรับแล้ว" : "รอการตอบรับ"}
-              </span>
-            </div>
-          ))}
+          <div className="flex flex-col items-center justify-center py-10 text-center">
+            <HeartHandshake className="mb-3 size-8 text-[#D4AF37]/30" />
+            <p className="text-sm font-bold text-[#0B1D3A]">ยังไม่มีคำขอที่ส่ง</p>
+            <p className="mt-1 text-xs text-[#6B5232]/50">ไปที่ "จับคู่แมว" เพื่อส่งคำขอผสมพันธุ์</p>
+          </div>
         </motion.div>
 
-        {/* Tips + Premium */}
+        {/* Tips */}
         <motion.div variants={fadeUp} className="grid gap-3 sm:grid-cols-3">
           {TIPS.map(({ icon: Icon, title, desc }) => (
             <div key={title} className="rounded-2xl p-4"

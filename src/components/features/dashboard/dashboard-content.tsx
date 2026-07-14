@@ -5,9 +5,9 @@ import { useEffect, useState } from "react";
 import {
   HeartHandshake, MessageCircle, PawPrint, Crown, Sparkles,
   Search, Home, BookOpen, CalendarDays, Gamepad2, Bookmark,
-  ChevronRight, ChevronLeft, HeartPulse, Star, Heart,
-  Dna, Settings, TrendingUp, CheckCircle, Circle,
-  LogOut, Lock, Zap, Gift, ArrowRight, CheckCheck,
+  ChevronRight, ChevronLeft, HeartPulse, Star,
+  Dna, Settings,
+  LogOut, Lock, Zap, Gift, CheckCheck,
 } from "lucide-react";
 import Image from "next/image";
 import { Link, usePathname } from "@/i18n/navigation";
@@ -15,33 +15,6 @@ import { useAuth } from "@/contexts/auth-context";
 import { fadeUp, staggerContainer } from "@/lib/motion";
 
 // ── Data ─────────────────────────────────────────────────────────────────────
-
-const MATCHES = [
-  { name: "ลูน่า เบลล์", breed: "Persian", age: "2 ปี", gender: "♀", img: "/img/Persian_dollface_Luna.png", pct: 97, traits: ["อ่อนโยน", "เป็นมิตร"] },
-  { name: "มีซา", breed: "Maine Coon", age: "3 ปี", gender: "♂", img: "/img/Maine-Coon.png", pct: 94, traits: ["เล่นสนุก", "ฉลาด"] },
-  { name: "โมจิ", breed: "Scottish Fold", age: "2 ปี", gender: "♀", img: "/img/Scottish-fold-mochi.png", pct: 91, traits: ["สงบ", "น่ารัก"] },
-  { name: "ลีโอ", breed: "Persian", age: "4 ปี", gender: "♂", img: "/img/Persian-Long-Hair-Leo.png", pct: 88, traits: ["ซื่อสัตย์", "อ่อนโยน"] },
-];
-
-const FEATURED = [
-  { name: "ดัชเชส เพิร์ล", breed: "British Shorthair", age: "3 ปี", gender: "♀", img: "/img/British-Shorthair.png" },
-  { name: "เซอร์ ไมโล", breed: "Ragdoll", age: "2 ปี", gender: "♂", img: "/img/Ragdoll.png" },
-  { name: "สยาม", breed: "Siamese", age: "1 ปี", gender: "♀", img: "/img/Siamese_Cat.png" },
-  { name: "ลีโอ พรินซ์", breed: "Persian", age: "4 ปี", gender: "♂", img: "/img/Persian-Long-Hair-Leo.png" },
-];
-
-const MESSAGES = [
-  { name: "คุณมาลี", abbr: "มล", text: "ลูน่าน่ารักมากเลยค่ะ!", time: "2 นาที", unread: true },
-  { name: "คุณก้อง", abbr: "กง", text: "แมวฉีดวัคซีนแล้วหรือยังครับ?", time: "1 ชม.", unread: true },
-  { name: "Dr. ศิริพร", abbr: "ศพ", text: "ผลตรวจสุขภาพออกมาแล้วนะคะ", time: "3 ชม.", unread: false },
-];
-
-const HEALTH_ITEMS = [
-  { label: "วัคซีน", detail: "ครบแล้ว", ok: true },
-  { label: "ถ่ายพยาธิ", detail: "ครบแล้ว", ok: true },
-  { label: "ตรวจสุขภาพ", detail: "ถัดไป: 20 ก.ย.", ok: null },
-  { label: "ยาป้องกันปรสิต", detail: "ครบแล้ว", ok: true },
-];
 
 const NAV_LINKS = [
   { icon: Home,          label: "แดชบอร์ด",     href: "/dashboard", badge: 0 },
@@ -55,46 +28,6 @@ const NAV_LINKS = [
   { icon: Bookmark,      label: "รายการโปรด",   href: "/favorites", badge: 0 },
   { icon: Settings,      label: "ตั้งค่า",       href: "/settings",  badge: 0 },
 ];
-
-// ── Mini sparkline SVG ────────────────────────────────────────────────────────
-
-function Sparkline({ points, color = "#22c55e" }: { points: string; color?: string }) {
-  return (
-    <svg viewBox="0 0 80 32" className="h-8 w-20" preserveAspectRatio="none">
-      <polyline points={points} fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-// ── Health ring SVG ───────────────────────────────────────────────────────────
-
-function HealthRing({ score }: { score: number }) {
-  const r = 44;
-  const circ = 2 * Math.PI * r;
-  const dash = circ * (score / 100);
-  return (
-    <svg viewBox="0 0 100 100" className="size-24">
-      <defs>
-        <linearGradient id="hg" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#EDD060" />
-          <stop offset="100%" stopColor="#D4AF37" />
-        </linearGradient>
-      </defs>
-      <circle cx="50" cy="50" r={r} fill="none" stroke="rgba(212,175,55,0.15)" strokeWidth="8" />
-      <circle
-        cx="50" cy="50" r={r} fill="none"
-        stroke="url(#hg)" strokeWidth="8"
-        strokeLinecap="round"
-        strokeDasharray={`${dash} ${circ}`}
-        strokeDashoffset={circ / 4}
-        transform="rotate(-90 50 50)"
-        style={{ transition: "stroke-dasharray 1s ease" }}
-      />
-      <text x="50" y="46" textAnchor="middle" fontSize="18" fontWeight="800" fill="#0B1D3A">{score}</text>
-      <text x="50" y="60" textAnchor="middle" fontSize="8" fill="#6B5232">ดีเยี่ยม</text>
-    </svg>
-  );
-}
 
 // ── Mini Calendar ─────────────────────────────────────────────────────────────
 
@@ -323,19 +256,9 @@ function RightPanel() {
           <span className="cursor-pointer text-[11px] font-semibold text-[#D4AF37] hover:underline">ดูทั้งหมด</span>
         </div>
         <MiniCalendar />
-        {/* Appointment item */}
-        <div className="mt-3 flex items-center gap-3 rounded-xl p-3"
-          style={{ background: "rgba(212,175,55,0.07)", border: "1px solid rgba(212,175,55,0.18)" }}>
-          <div className="flex size-9 flex-shrink-0 flex-col items-center justify-center rounded-xl text-center"
-            style={{ background: "linear-gradient(135deg,#EDD060,#D4AF37)", color: "#0B1D3A" }}>
-            <span className="text-[9px] font-bold leading-none">ก.ค.</span>
-            <span className="text-base font-extrabold leading-none">20</span>
-          </div>
-          <div>
-            <p className="text-xs font-bold text-[#0B1D3A]">ตรวจสุขภาพประจำปี</p>
-            <p className="text-[11px]" style={{ color: "#6B5232" }}>โมจิ · Scottish Fold</p>
-            <p className="text-[10px] text-[#6B5232]/60">14:00 น.</p>
-          </div>
+        <div className="mt-3 flex flex-col items-center justify-center rounded-xl py-4 text-center"
+          style={{ background: "rgba(212,175,55,0.07)", border: "1px dashed rgba(212,175,55,0.25)" }}>
+          <p className="text-xs text-[#6B5232]/50">ยังไม่มีนัดหมาย</p>
         </div>
       </div>
 
@@ -349,23 +272,9 @@ function RightPanel() {
           </h3>
           <span className="cursor-pointer text-[11px] font-semibold text-[#D4AF37] hover:underline">รายละเอียด</span>
         </div>
-        <div className="flex items-center gap-4">
-          <HealthRing score={92} />
-          <div className="flex-1 space-y-2">
-            {HEALTH_ITEMS.map((h) => (
-              <div key={h.label} className="flex items-center justify-between gap-2">
-                <span className="text-[11px] text-[#6B5232]/80">{h.label}</span>
-                <div className="flex items-center gap-1">
-                  {h.ok === true && <CheckCircle className="size-3 text-green-500" />}
-                  {h.ok === null && <Circle className="size-3 text-[#D4AF37]/60" />}
-                  <span className="text-[10px] font-semibold"
-                    style={{ color: h.ok === true ? "#16a34a" : h.ok === null ? "#B8920A" : "#dc2626" }}>
-                    {h.detail}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="flex flex-col items-center justify-center py-6 text-center">
+          <HeartPulse className="mb-2 size-8 text-[#D4AF37]/30" />
+          <p className="text-xs text-[#6B5232]/50">เพิ่มแมวเพื่อดูสรุปสุขภาพ</p>
         </div>
       </div>
 
@@ -379,27 +288,9 @@ function RightPanel() {
           </h3>
           <span className="cursor-pointer text-[11px] font-semibold text-[#D4AF37] hover:underline">ดูทั้งหมด</span>
         </div>
-        <div className="space-y-3">
-          {MESSAGES.map((m) => (
-            <div key={m.name} className="flex items-start gap-3">
-              <div className="relative">
-                <div className="flex size-9 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold"
-                  style={{ background: "rgba(212,175,55,0.16)", color: "#D4AF37" }}>
-                  {m.abbr}
-                </div>
-                {m.unread && (
-                  <span className="absolute -right-0.5 -top-0.5 size-2.5 rounded-full border-2 border-white bg-[#D4AF37]" />
-                )}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between">
-                  <p className="text-xs font-bold text-[#0B1D3A]">{m.name}</p>
-                  <span className="text-[10px] text-[#6B5232]/50">{m.time}</span>
-                </div>
-                <p className="mt-0.5 truncate text-[11px]" style={{ color: "#6B5232" }}>{m.text}</p>
-              </div>
-            </div>
-          ))}
+        <div className="flex flex-col items-center justify-center py-6 text-center">
+          <MessageCircle className="mb-2 size-8 text-[#D4AF37]/30" />
+          <p className="text-xs text-[#6B5232]/50">ยังไม่มีข้อความ</p>
         </div>
       </div>
 
@@ -435,22 +326,12 @@ export function DashboardContent() {
   const { user } = useAuth();
   const displayName = user?.displayName ?? user?.email?.split("@")[0] ?? "คุณตะนาสรน์";
   const initial = displayName[0]?.toUpperCase() ?? "ต";
-  const [requestsLeft, setRequestsLeft] = useState(3);
-  const [sentTo, setSentTo] = useState<string[]>([]);
   const [toast, setToast] = useState<string | null>(null);
   const [checkedIn, setCheckedIn] = useState(false);
 
   function showToast(msg: string) {
     setToast(msg);
     setTimeout(() => setToast(null), 2500);
-  }
-
-  function handleRequest(name: string) {
-    if (sentTo.includes(name)) return;
-    if (requestsLeft === 0) { showToast("ใช้ครบ 3 คำขอแล้ววันนี้ — อัปเกรดเพื่อส่งเพิ่ม"); return; }
-    setSentTo((p) => [...p, name]);
-    setRequestsLeft((n) => n - 1);
-    showToast(`ส่งคำขอหา ${name} แล้ว! 🐾`);
   }
 
   function handleCheckIn() {
@@ -619,21 +500,15 @@ export function DashboardContent() {
             {/* Stats row */}
             <motion.div variants={fadeUp} className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {[
-                { label: "การจับคู่ที่แอคทีฟ", value: "24", trend: "+12%", spark: "0,28 15,24 30,20 50,14 65,10 80,5" },
-                { label: "ยอดเข้าชมโปรไฟล์", value: "1,248", trend: "+18%", spark: "0,26 15,22 30,18 50,13 65,8 80,4" },
-                { label: "ไลค์ที่ได้รับ", value: "312", trend: "+8%", spark: "0,25 20,22 40,19 55,15 70,10 80,7" },
-                { label: "จับคู่สำเร็จ", value: "15", trend: "+25%", spark: "0,28 15,22 35,17 55,12 70,7 80,3" },
+                { label: "การจับคู่ที่แอคทีฟ" },
+                { label: "ยอดเข้าชมโปรไฟล์" },
+                { label: "ไลค์ที่ได้รับ" },
+                { label: "จับคู่สำเร็จ" },
               ].map((s) => (
                 <div key={s.label} className="rounded-2xl p-4"
                   style={{ background: "#FFFAFC", border: "1px solid rgba(212,160,175,0.20)", boxShadow: "0 2px 10px rgba(160,60,90,0.06)" }}>
                   <p className="mb-1 text-[11px] text-[#6B5232]/70">{s.label}</p>
-                  <p className="text-xl font-extrabold text-[#0B1D3A]">{s.value}</p>
-                  <div className="mt-2 flex items-end justify-between">
-                    <span className="flex items-center gap-1 text-[11px] font-semibold text-green-600">
-                      <TrendingUp className="size-3" />{s.trend}
-                    </span>
-                    <Sparkline points={s.spark} />
-                  </div>
+                  <p className="text-xl font-extrabold text-[#0B1D3A]">--</p>
                 </div>
               ))}
             </motion.div>
@@ -645,50 +520,19 @@ export function DashboardContent() {
                   <Star className="mr-1.5 inline size-4 text-[#D4AF37]" />
                   AI แนะนำการจับคู่
                 </h2>
-                <div className="flex items-center gap-2">
-                  <span className="rounded-full px-2.5 py-1 text-[11px] font-bold"
-                    style={{ background: requestsLeft > 0 ? "rgba(212,175,55,0.15)" : "rgba(220,80,80,0.12)", color: requestsLeft > 0 ? "#B8920A" : "#B03030" }}>
-                    เหลือ {requestsLeft}/3 คำขอวันนี้
-                  </span>
-                  <Link href="/discover" className="flex items-center gap-1 text-xs font-semibold text-[#D4AF37] hover:underline">
-                    ดูทั้งหมด <ChevronRight className="size-3" />
-                  </Link>
-                </div>
+                <Link href="/discover" className="flex items-center gap-1 text-xs font-semibold text-[#D4AF37] hover:underline">
+                  ดูทั้งหมด <ChevronRight className="size-3" />
+                </Link>
               </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                {MATCHES.map((m) => {
-                  const sent = sentTo.includes(m.name);
-                  return (
-                    <div key={m.name} className="group relative rounded-2xl p-4 transition-all hover:-translate-y-0.5 hover:shadow-lg"
-                      style={{ background: "#FFFAFC", border: "1px solid rgba(212,160,175,0.20)", boxShadow: "0 2px 12px rgba(160,60,90,0.06)" }}>
-                      <div className="relative mx-auto mb-3 size-20">
-                        <div className="size-20 overflow-hidden rounded-full ring-2 ring-[rgba(212,175,55,0.40)] ring-offset-1">
-                          <Image src={m.img} alt={m.name} fill className="object-cover" />
-                        </div>
-                        <div className="absolute -right-1 -top-1 flex h-7 min-w-[28px] items-center justify-center rounded-full px-1 text-[10px] font-extrabold"
-                          style={{ background: "linear-gradient(135deg,#EDD060,#D4AF37)", color: "#0B1D3A", boxShadow: "0 2px 8px rgba(212,175,55,0.40)" }}>
-                          {m.pct}%
-                        </div>
-                      </div>
-                      <p className="text-center text-sm font-bold text-[#0B1D3A]">{m.name}</p>
-                      <p className="text-center text-[11px]" style={{ color: "#6B5232" }}>{m.breed} · {m.age} {m.gender}</p>
-                      <div className="mt-2 flex flex-wrap justify-center gap-1">
-                        {m.traits.map((t) => (
-                          <span key={t} className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
-                            style={{ background: "rgba(212,175,55,0.12)", color: "#B8920A" }}>{t}</span>
-                        ))}
-                      </div>
-                      <button
-                        onClick={() => handleRequest(m.name)}
-                        disabled={sent}
-                        className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-xl py-2 text-[11px] font-bold transition-all hover:opacity-90 disabled:opacity-70"
-                        style={{ background: sent ? "rgba(34,197,94,0.15)" : "linear-gradient(135deg,#EDD060,#D4AF37)", color: sent ? "#16a34a" : "#0B1D3A" }}>
-                        {sent ? <CheckCheck className="size-3" /> : <Heart className="size-3" />}
-                        {sent ? "ส่งแล้ว ✓" : "ส่งคำขอ"}
-                      </button>
-                    </div>
-                  );
-                })}
+              <div className="flex flex-col items-center justify-center rounded-2xl py-12 text-center"
+                style={{ background: "#FFFAFC", border: "1px solid rgba(212,160,175,0.20)" }}>
+                <HeartHandshake className="mb-3 size-10 text-[#D4AF37]/40" />
+                <p className="text-sm font-bold text-[#0B1D3A]">ยังไม่มีการจับคู่</p>
+                <p className="mt-1 text-xs text-[#6B5232]/50">เพิ่มแมวก่อน แล้ว AI จะหาคู่ที่ใช่ให้คุณ</p>
+                <Link href="/cats" className="mt-4 inline-flex items-center gap-2 rounded-full px-5 py-2 text-sm font-bold hover:opacity-90 transition-opacity"
+                  style={{ background: "linear-gradient(135deg,#EDD060,#D4AF37)", color: "#0B1D3A" }}>
+                  เพิ่มแมว
+                </Link>
               </div>
             </motion.section>
 
@@ -699,28 +543,15 @@ export function DashboardContent() {
                   <Crown className="mr-1.5 inline size-4 text-[#D4AF37]" />
                   โปรไฟล์แมวแนะนำ
                 </h2>
-                <Link href="/cats" className="flex items-center gap-1 text-xs font-semibold text-[#D4AF37] hover:underline">
+                <Link href="/discover" className="flex items-center gap-1 text-xs font-semibold text-[#D4AF37] hover:underline">
                   ดูทั้งหมด <ChevronRight className="size-3" />
                 </Link>
               </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                {FEATURED.map((f) => (
-                  <div key={f.name} className="group overflow-hidden rounded-2xl transition-all hover:-translate-y-0.5 hover:shadow-lg"
-                    style={{ background: "#FFFAFC", border: "1px solid rgba(212,160,175,0.20)", boxShadow: "0 2px 12px rgba(160,60,90,0.06)" }}>
-                    <div className="relative h-36 overflow-hidden">
-                      <Image src={f.img} alt={f.name} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
-                      {/* Star badge */}
-                      <div className="absolute left-2 top-2 flex size-6 items-center justify-center rounded-full"
-                        style={{ background: "linear-gradient(135deg,#EDD060,#D4AF37)", boxShadow: "0 2px 8px rgba(212,175,55,0.40)" }}>
-                        <Star className="size-3 text-[#0B1D3A]" />
-                      </div>
-                    </div>
-                    <div className="p-3">
-                      <p className="text-sm font-bold text-[#0B1D3A]">{f.name}</p>
-                      <p className="text-[11px]" style={{ color: "#6B5232" }}>{f.breed} · {f.age} · {f.gender === "♀" ? "เมีย" : "ผู้"}</p>
-                    </div>
-                  </div>
-                ))}
+              <div className="flex flex-col items-center justify-center rounded-2xl py-12 text-center"
+                style={{ background: "#FFFAFC", border: "1px solid rgba(212,160,175,0.20)" }}>
+                <Crown className="mb-3 size-10 text-[#D4AF37]/40" />
+                <p className="text-sm font-bold text-[#0B1D3A]">ยังไม่มีโปรไฟล์แนะนำ</p>
+                <p className="mt-1 text-xs text-[#6B5232]/50">โปรไฟล์แมวจากชุมชนจะแสดงที่นี่</p>
               </div>
             </motion.section>
 

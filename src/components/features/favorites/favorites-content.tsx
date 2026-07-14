@@ -8,15 +8,8 @@ import { Link } from "@/i18n/navigation";
 import { AppShell } from "@/components/shared/app-shell";
 import { fadeUp, staggerContainer } from "@/lib/motion";
 
-const INITIAL_FAVS = [
-  { name: "ลูน่า เบลล์", breed: "Persian",       age: "2 ปี", gender: "♀", img: "/img/Persian_dollface_Luna.png",  pct: 97 },
-  { name: "มีซา",         breed: "Maine Coon",    age: "3 ปี", gender: "♂", img: "/img/Maine-Coon.png",             pct: 94 },
-  { name: "โมจิ",         breed: "Scottish Fold", age: "2 ปี", gender: "♀", img: "/img/Scottish-fold-mochi.png",    pct: 91 },
-  { name: "ดัชเชส",       breed: "British Shorthair", age: "3 ปี", gender: "♀", img: "/img/British-Shorthair.png",  pct: 85 },
-];
-
 export function FavoritesContent() {
-  const [favs, setFavs] = useState(INITIAL_FAVS);
+  const [favs, setFavs] = useState<{ name: string; breed: string; age: string; gender: string; img: string; pct: number }[]>([]);
 
   function remove(name: string) {
     setFavs((p) => p.filter((f) => f.name !== name));

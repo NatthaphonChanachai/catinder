@@ -17,34 +17,39 @@ import { CommunityPoll } from "@/components/features/home/community-poll";
 import { LuckyCatCard } from "@/components/features/home/lucky-cat-card";
 import { PremiumSection } from "@/components/features/home/premium-section";
 import { FaqSection } from "@/components/features/home/faq-section";
+import { TodayJourney } from "@/components/features/home/today-journey";
 
 export default function Home() {
   return (
     <>
       <Navbar />
-      <main className="flex-1">
+      <main className="flex-1 pb-20 lg:pb-0">
         <Hero />
+
+        {/* ── Mobile-only: Today's Journey daily action strip ── */}
+        <TodayJourney />
+
         <Mission />
         <CommunityBenefits />
         <FeatureCards />
 
         {/* Section 1 — Quote of the Day */}
-        <div className="px-6 py-4">
+        <div className="px-4 sm:px-6 py-4">
           <QuoteCard />
         </div>
 
         {/* Section 2 — Today's Cat Fact */}
-        <div className="px-6 py-4">
+        <div id="cat-fact" className="px-4 sm:px-6 py-4">
           <CatFact />
         </div>
 
         {/* Section 3 — Today's Cat Mood */}
-        <div className="px-6 py-4">
+        <div id="cat-mood" className="px-4 sm:px-6 py-4">
           <CatMood />
         </div>
 
         {/* Section 4 — Today's Daily Mission */}
-        <div className="px-6 py-4">
+        <div id="daily-mission" className="px-4 sm:px-6 py-4">
           <DailyMission />
         </div>
 
@@ -64,7 +69,9 @@ export default function Home() {
         <CommunityPoll />
 
         {/* Section 10 — Lucky Cat Card */}
-        <LuckyCatCard />
+        <div id="lucky-cat">
+          <LuckyCatCard />
+        </div>
 
         <PremiumSection />
 

@@ -25,9 +25,13 @@
     "badge": "The AI-Powered Cat Ecosystem",
     "headline1": "Where Happy Cats Begin Their",
     "headline2": "Forever Story.",
+    "mobileTagline": "The Happy Home for Every Cat Family",
     "subheadline": "Helping every cat parent build healthier generations through trusted matching, AI technology, expert knowledge and community.",
+    "mobileSubheadline": "Care, learn, play, and connect with cat lovers in one place.",
     "ctaJoin": "Join Community",
     "ctaLearn": "Learn About Cats",
+    "ctaPrimary": "Start Today",
+    "ctaGames": "Play Daily Games",
     "freeOnWeb": "Free on Web",
     "marketStat": "THB 40B+ Thai Pet Market",
     "swipeChatBook": "Swipe · Chat · Book Venues"
@@ -206,6 +210,31 @@
     "placeholder": "you@example.com",
     "subscribe": "Subscribe",
     "thanks": "Thank you for joining us!"
+  },
+  "bottomNav": {
+    "home": "Home",
+    "games": "Games",
+    "community": "Community",
+    "myCats": "My Cats",
+    "profile": "Profile",
+    "dashboard": "Dashboard"
+  },
+  "journey": {
+    "title": "Today's Journey",
+    "checkin": "Check-in",
+    "checkinDone": "Checked in!",
+    "checkinSub": "Tap for +10 XP",
+    "lucky": "Lucky Card",
+    "luckySub": "Draw today's card",
+    "luckyDone": "Drawn ✨",
+    "mission": "Mission",
+    "missionSub": "{done}/{total} tasks",
+    "mood": "Cat Mood",
+    "moodSub": "How's your cat?",
+    "fact": "Cat Fact",
+    "factSub": "Daily knowledge",
+    "xpTitle": "My XP",
+    "xpSub": "{xp} XP · {level}"
   },
   "footer": {
     "tagline": "Connecting cats safely. Building happiness forever.",
