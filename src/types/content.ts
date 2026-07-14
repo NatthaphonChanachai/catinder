@@ -5,6 +5,7 @@ export interface Article {
   category: string;
   image: string;
   readMinutes: number;
+  likes?: number;
 }
 
 export interface CatEvent {

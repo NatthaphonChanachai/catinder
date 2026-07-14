@@ -361,16 +361,18 @@ function SupportTab() {
     }
   }
 
+  function toDate(ts: DocumentData): Date {
+    if (!ts) return new Date();
+    if (typeof ts.toDate === "function") return ts.toDate() as Date;
+    return new Date(ts as unknown as string);
+  }
+
   function formatTime(ts: DocumentData) {
-    if (!ts) return "";
-    const d = ts.toDate ? ts.toDate() : new Date(ts);
-    return d.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" });
+    return toDate(ts).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" });
   }
 
   function formatDate(ts: DocumentData) {
-    if (!ts) return "";
-    const d = ts.toDate ? ts.toDate() : new Date(ts);
-    return d.toLocaleDateString("th-TH", { day: "numeric", month: "short" });
+    return toDate(ts).toLocaleDateString("th-TH", { day: "numeric", month: "short" });
   }
 
   if (rulesError) {
