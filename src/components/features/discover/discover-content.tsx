@@ -18,6 +18,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { AppShell } from "@/components/shared/app-shell";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
+import { normalizeCatRecord, type CatRecord } from "@/lib/cat-record";
 import {
   HeartHandshake,
   X,
@@ -31,19 +32,7 @@ import {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface Cat {
-  id: string;
-  ownerId: string;
-  ownerName: string;
-  ownerEmail?: string;
-  name: string;
-  breed: string;
-  age: number;
-  gender: "male" | "female";
-  photos: string[];
-  description: string;
-  vaccinated: boolean;
-}
+type Cat = CatRecord;
 
 interface MatchModalData {
   myCat: Cat;
@@ -110,7 +99,7 @@ export function DiscoverContent() {
         allSnap.forEach((d) => {
           const data = d.data();
           if (data.ownerId !== user.uid) {
-            allCats.push({ id: d.id, ...(data as Omit<Cat, "id">) });
+            allCats.push(normalizeCatRecord(d.id, data));
           }
         });
 
@@ -142,16 +131,19 @@ export function DiscoverContent() {
   // ─── Load user's own cats on mount ─────────────────────────────────────────
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setOwnCats([]);
+      setQueue([]);
+      setIsLoading(false);
+      return;
+    }
     (async () => {
       try {
         const snap = await getDocs(
           query(collection(db, "cats"), where("ownerId", "==", user.uid))
         );
         const cats: Cat[] = [];
-        snap.forEach((d) =>
-          cats.push({ id: d.id, ...(d.data() as Omit<Cat, "id">) })
-        );
+        snap.forEach((d) => cats.push(normalizeCatRecord(d.id, d.data())));
         setOwnCats(cats);
         const first = cats[0];
         if (first) {

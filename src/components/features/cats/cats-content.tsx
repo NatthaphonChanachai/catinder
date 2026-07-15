@@ -12,7 +12,6 @@ import {
   deleteDoc,
   doc,
   serverTimestamp,
-  orderBy,
 } from "firebase/firestore";
 import {
   ref as storageRef,
@@ -26,6 +25,11 @@ import { AppShell } from "@/components/shared/app-shell";
 import { fadeUp, staggerContainer } from "@/lib/motion";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
+import {
+  normalizeCatRecord,
+  type CatGender,
+  type CatRecord,
+} from "@/lib/cat-record";
 import {
   Plus,
   PawPrint,
@@ -77,23 +81,7 @@ const AGE_OPTIONS = [
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type CatGender = "male" | "female";
-
-interface Cat {
-  id: string;
-  ownerId: string;
-  ownerName: string;
-  name: string;
-  breed: string;
-  age: number;
-  gender: CatGender;
-  photos: string[];
-  description: string;
-  vaccinated: boolean;
-  registry?: string;
-  registrationNumber?: string;
-  petCertificateUrl?: string;
-}
+type Cat = CatRecord;
 
 interface CatFormValues {
   name: string;
@@ -940,19 +928,14 @@ export function CatsContent() {
       return;
     }
 
-    const q = query(
-      collection(db, "cats"),
-      where("ownerId", "==", user.uid),
-      orderBy("createdAt", "desc")
-    );
+    const q = query(collection(db, "cats"), where("ownerId", "==", user.uid));
 
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const data: Cat[] = snapshot.docs.map((d) => ({
-          id: d.id,
-          ...(d.data() as Omit<Cat, "id">),
-        }));
+        const data: Cat[] = snapshot.docs.map((d) =>
+          normalizeCatRecord(d.id, d.data())
+        );
         setCats(data);
         setCatsLoading(false);
       },
