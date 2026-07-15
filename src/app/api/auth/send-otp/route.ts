@@ -26,6 +26,8 @@ export async function POST(req: NextRequest) {
   const expiresAt = Date.now() + OTP_TTL_MS;
   const token = signToken(email, code, expiresAt);
 
+  const safeEmail = email.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.RESEND_FROM ?? "onboarding@resend.dev";
 
@@ -44,7 +46,7 @@ export async function POST(req: NextRequest) {
             </div>
             <h2 style="color:#0B1D3A;margin:0 0 8px;font-size:20px;">รหัสยืนยันของคุณ</h2>
             <p style="color:#6B5232;margin:0 0 24px;font-size:14px;line-height:1.6;">
-              ใช้รหัสนี้เพื่อยืนยันอีเมล <strong>${email}</strong> บน Catinder<br/>
+              ใช้รหัสนี้เพื่อยืนยันอีเมล <strong>${safeEmail}</strong> บน Catinder<br/>
               รหัสหมดอายุใน <strong>10 นาที</strong>
             </p>
             <div style="background:linear-gradient(135deg,#EDD060,#D4AF37);border-radius:16px;padding:28px;text-align:center;margin-bottom:28px;">

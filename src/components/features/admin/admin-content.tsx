@@ -211,6 +211,8 @@ function ArticlesTab() {
   const [loading, setLoading] = useState(true);
   const [modalArticle, setModalArticle] = useState<(Partial<FSArticle> & { id?: string }) | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [actionError, setActionError] = useState("");
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; title: string } | null>(null);
 
   useEffect(() => {
     const q = query(collection(db, "articles"), orderBy("createdAt", "desc"));
@@ -222,12 +224,22 @@ function ArticlesTab() {
   }, []);
 
   async function togglePublished(id: string, current: boolean) {
-    await updateDoc(doc(db, "articles", id), { published: !current, updatedAt: serverTimestamp() });
+    try {
+      await updateDoc(doc(db, "articles", id), { published: !current, updatedAt: serverTimestamp() });
+    } catch {
+      setActionError("อัปเดตสถานะไม่สำเร็จ กรุณาลองอีกครั้ง");
+    }
   }
 
-  async function handleDelete(id: string, title: string) {
-    if (!window.confirm(`ลบบทความ "${title}" ใช่ไหม?`)) return;
-    await deleteDoc(doc(db, "articles", id));
+  async function confirmDelete() {
+    if (!pendingDelete) return;
+    try {
+      await deleteDoc(doc(db, "articles", pendingDelete.id));
+    } catch {
+      setActionError("ลบไม่สำเร็จ กรุณาลองอีกครั้ง");
+    } finally {
+      setPendingDelete(null);
+    }
   }
 
   const catLabel = (v: string) => CATEGORIES.find((c) => c.value === v)?.label ?? v;
@@ -281,7 +293,7 @@ function ArticlesTab() {
                   className="rounded-full p-1.5 hover:bg-muted transition-colors">
                   <Pencil className="size-4 text-muted-foreground" />
                 </button>
-                <button onClick={() => handleDelete(a.id, a.title)}
+                <button onClick={() => setPendingDelete({ id: a.id, title: a.title })}
                   className="rounded-full p-1.5 hover:bg-muted transition-colors">
                   <Trash2 className="size-4 text-red-400" />
                 </button>
@@ -290,6 +302,42 @@ function ArticlesTab() {
           ))}
         </div>
       )}
+
+      {/* Error toast */}
+      <AnimatePresence>
+        {actionError && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            className="mt-3 rounded-2xl px-4 py-3 text-sm font-semibold text-red-700"
+            style={{ background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.20)" }}>
+            {actionError}
+            <button onClick={() => setActionError("")} className="ml-2 underline text-xs">ปิด</button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Inline delete confirm */}
+      <AnimatePresence>
+        {pendingDelete && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-6" style={{ background: "rgba(11,29,58,0.45)" }}>
+            <motion.div initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.92, opacity: 0 }}
+              className="w-full max-w-sm rounded-3xl p-6" style={{ background: "var(--background)" }}>
+              <p className="mb-1 font-bold text-[#0B1D3A]">ลบบทความนี้?</p>
+              <p className="mb-5 text-sm text-muted-foreground line-clamp-2">{pendingDelete.title}</p>
+              <div className="flex gap-3">
+                <button onClick={() => setPendingDelete(null)}
+                  className="flex-1 rounded-full border border-border py-2.5 text-sm font-semibold hover:bg-muted transition-colors">
+                  ยกเลิก
+                </button>
+                <button onClick={confirmDelete}
+                  className="flex-1 rounded-full py-2.5 text-sm font-bold text-white transition-opacity hover:opacity-90"
+                  style={{ background: "#EF4444" }}>
+                  ลบ
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {showModal && (
@@ -312,10 +360,12 @@ function SupportTab() {
   const [selected, setSelected] = useState<SupportChat | null>(null);
   const [messages, setMessages] = useState<SupportMessage[]>([]);
   const [reply, setReply] = useState("");
+  const [replyError, setReplyError] = useState("");
   const [sending, setSending] = useState(false);
   const [loadingChats, setLoadingChats] = useState(true);
   const [rulesError, setRulesError] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     const q = query(collection(db, "supportChats"), orderBy("lastMessageAt", "desc"));
@@ -332,20 +382,26 @@ function SupportTab() {
 
   useEffect(() => {
     if (!selected) return;
+    // Reset state when switching conversations
+    setMessages([]);
+    setReply("");
+    setReplyError("");
     const q = query(collection(db, "supportChats", selected.id, "messages"), orderBy("createdAt", "asc"));
     const unsub = onSnapshot(q, (snap) => {
       setMessages(snap.docs.map((d) => ({ id: d.id, ...d.data() } as SupportMessage)));
-      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+      clearTimeout(scrollTimerRef.current);
+      scrollTimerRef.current = setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
     });
-    return unsub;
+    return () => { unsub(); clearTimeout(scrollTimerRef.current); };
   }, [selected]);
 
   async function sendReply(e: React.FormEvent) {
     e.preventDefault();
     if (!reply.trim() || !selected || sending) return;
     setSending(true);
+    setReplyError("");
     const text = reply.trim();
-    setReply("");
+    setReply(""); // optimistic clear
     try {
       await addDoc(collection(db, "supportChats", selected.id, "messages"), {
         text, from: "admin",
@@ -357,6 +413,9 @@ function SupportTab() {
         lastMessageAt: serverTimestamp(),
         unreadAdmin: 0,
       });
+    } catch {
+      setReply(text); // restore on failure
+      setReplyError("ส่งไม่สำเร็จ กรุณาลองอีกครั้ง");
     } finally {
       setSending(false);
     }
@@ -437,8 +496,11 @@ function SupportTab() {
         </div>
 
         {/* Reply box */}
-        <form onSubmit={sendReply} className="mt-3 flex gap-2">
-          <input value={reply} onChange={(e) => setReply(e.target.value)}
+        {replyError && (
+          <p className="mb-1 text-xs font-semibold text-red-600">{replyError}</p>
+        )}
+        <form onSubmit={sendReply} className="mt-1 flex gap-2">
+          <input value={reply} onChange={(e) => { setReply(e.target.value); setReplyError(""); }}
             placeholder="ตอบกลับลูกค้า..."
             className="flex-1 rounded-full border border-border bg-background px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[var(--soft-gold)]"
             autoFocus />

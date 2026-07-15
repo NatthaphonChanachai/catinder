@@ -8,7 +8,7 @@ import {
   updateProfile,
   signInWithPopup,
 } from "firebase/auth";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { auth, googleProvider, db } from "@/services/firebase";
 import { fadeUp, staggerContainer } from "@/lib/motion";
 import { CheckCircle, Eye, EyeOff, RefreshCw } from "lucide-react";
@@ -98,7 +98,7 @@ export function RegisterContent() {
     const text = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
     if (!text) return;
     e.preventDefault();
-    const next = text.padEnd(6, "").split("").slice(0, 6);
+    const next = Array.from({ length: 6 }, (_, i) => text[i] ?? "");
     setOtp(next);
     otpRefs.current[Math.min(text.length, 5)]?.focus();
   }
@@ -169,13 +169,18 @@ export function RegisterContent() {
     try {
       const cred = await signInWithPopup(auth, googleProvider);
       const u = cred.user;
-      await setDoc(doc(db, "users", u.uid), {
-        displayName: u.displayName ?? "",
-        email: u.email ?? "",
-        phone: "",
-        role: "user",
-        createdAt: serverTimestamp(),
-      }, { merge: true });
+      const userRef = doc(db, "users", u.uid);
+      const snap = await getDoc(userRef);
+      // Only create doc on first sign-in; never overwrite existing role
+      if (!snap.exists()) {
+        await setDoc(userRef, {
+          displayName: u.displayName ?? "",
+          email: u.email ?? "",
+          phone: "",
+          role: "user",
+          createdAt: serverTimestamp(),
+        });
+      }
       router.push("/dashboard");
     } catch {
       setError("เกิดข้อผิดพลาด กรุณาลองอีกครั้ง");
