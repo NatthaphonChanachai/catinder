@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans, Noto_Sans_Thai, Cinzel } from "next/font/google";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+import Script from "next/script";
 import { routing, type Locale } from "@/i18n/routing";
 import { XPToastProvider } from "@/components/shared/xp-toast";
 import { AuthProvider } from "@/contexts/auth-context";
@@ -65,6 +66,16 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} className={`${jakarta.variable} ${notoThai.variable} ${cinzel.variable} h-full antialiased`}>
+      <Script
+        src="https://www.googletagmanager.com/gtag/js?id=G-10E0SNRRJV"
+        strategy="afterInteractive"
+      />
+      <Script id="gtag-init" strategy="afterInteractive">{`
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-10E0SNRRJV');
+      `}</Script>
       <body className="min-h-full flex flex-col font-sans bg-background text-foreground">
         <NextIntlClientProvider>
           <AuthProvider>

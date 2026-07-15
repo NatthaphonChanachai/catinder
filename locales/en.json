@@ -217,7 +217,13 @@
     "community": "Community",
     "myCats": "My Cats",
     "profile": "Profile",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "discover": "Discover",
+    "chat": "Chat",
+    "me": "Me",
+    "articles": "Articles",
+    "events": "Events",
+    "login": "Login"
   },
   "journey": {
     "title": "Today's Journey",

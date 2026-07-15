@@ -3,7 +3,16 @@
 import { usePathname } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { motion } from "framer-motion";
-import { Home, Gamepad2, Users2, PawPrint, User, LayoutDashboard } from "lucide-react";
+import {
+  Home,
+  HeartHandshake,
+  PawPrint,
+  MessageCircle,
+  User,
+  BookOpen,
+  Users2,
+  CalendarDays,
+} from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
@@ -13,7 +22,7 @@ export function MobileBottomNav() {
   const pathname = usePathname();
   const { user, loading } = useAuth();
 
-  // pathname is e.g. "/th", "/th/games", "/en/community"
+  // pathname is e.g. "/th", "/th/discover", "/en/chat"
   const localePrefix = pathname.startsWith("/en") ? "/en" : "/th";
 
   function isActive(href: string): boolean {
@@ -21,17 +30,23 @@ export function MobileBottomNav() {
     return pathname.startsWith(localePrefix + href);
   }
 
-  const items = [
-    { href: "/",          icon: Home,            label: t("home")      },
-    { href: "/community", icon: Gamepad2,         label: t("games")     },
-    { href: "/community", icon: Users2,           label: t("community") },
-    { href: "/knowledge", icon: PawPrint,         label: t("myCats")    },
-    {
-      href:  !loading && user ? "/dashboard" : "/login",
-      icon:  !loading && user ? LayoutDashboard : User,
-      label: !loading && user ? t("dashboard") : t("profile"),
-    },
+  const loggedInItems = [
+    { href: "/dashboard",  icon: Home,          label: t("dashboard") },
+    { href: "/discover",   icon: HeartHandshake, label: t("discover")  },
+    { href: "/cats",       icon: PawPrint,       label: t("myCats")    },
+    { href: "/chat",       icon: MessageCircle,  label: t("chat")      },
+    { href: "/settings",   icon: User,           label: t("me")        },
   ] as const;
+
+  const loggedOutItems = [
+    { href: "/",          icon: Home,        label: t("home")      },
+    { href: "/articles",  icon: BookOpen,    label: t("articles")  },
+    { href: "/community", icon: Users2,      label: t("community") },
+    { href: "/events",    icon: CalendarDays, label: t("events")   },
+    { href: "/login",     icon: User,        label: t("login")     },
+  ] as const;
+
+  const items = !loading && user ? loggedInItems : loggedOutItems;
 
   return (
     <nav

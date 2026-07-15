@@ -217,7 +217,13 @@
     "community": "ชุมชน",
     "myCats": "แมวของฉัน",
     "profile": "โปรไฟล์",
-    "dashboard": "แดชบอร์ด"
+    "dashboard": "แดชบอร์ด",
+    "discover": "จับคู่",
+    "chat": "แชท",
+    "me": "ฉัน",
+    "articles": "บทความ",
+    "events": "อีเวนต์",
+    "login": "เข้าสู่ระบบ"
   },
   "journey": {
     "title": "วันนี้ของคุณ",

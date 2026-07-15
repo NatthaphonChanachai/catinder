@@ -7,8 +7,10 @@ import {
   Search, Home, BookOpen, CalendarDays, Gamepad2, Bookmark,
   ChevronRight, ChevronLeft, HeartPulse, Star,
   Dna, Settings,
-  LogOut, Lock, Zap, Gift, CheckCheck,
+  LogOut, Lock, Zap, Gift, CheckCheck, X,
 } from "lucide-react";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { db } from "@/services/firebase";
 import Image from "next/image";
 import { Link, usePathname } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
@@ -329,6 +331,42 @@ export function DashboardContent() {
   const [toast, setToast] = useState<string | null>(null);
   const [checkedIn, setCheckedIn] = useState(false);
 
+  // ── Real data ───────────────────────────────────────────────────────────────
+  const [catCount, setCatCount] = useState<number | null>(null);
+  const [matchCount, setMatchCount] = useState<number | null>(null);
+  const [onboardingDismissed, setOnboardingDismissed] = useState(false);
+
+  // Load dismissed flag from localStorage (client only)
+  useEffect(() => {
+    setOnboardingDismissed(
+      localStorage.getItem("catinder_onboarding_dismissed") === "true",
+    );
+  }, []);
+
+  // Listen to user's cats count
+  useEffect(() => {
+    if (!user) return;
+    const q = query(collection(db, "cats"), where("ownerId", "==", user.uid));
+    return onSnapshot(q, (snap) => setCatCount(snap.size));
+  }, [user]);
+
+  // Listen to user's matches count
+  useEffect(() => {
+    if (!user) return;
+    const q = query(
+      collection(db, "matches"),
+      where("users", "array-contains", user.uid),
+    );
+    return onSnapshot(q, (snap) => setMatchCount(snap.size));
+  }, [user]);
+
+  const showOnboarding = catCount === 0 && !onboardingDismissed;
+
+  function dismissOnboarding() {
+    localStorage.setItem("catinder_onboarding_dismissed", "true");
+    setOnboardingDismissed(true);
+  }
+
   function showToast(msg: string) {
     setToast(msg);
     setTimeout(() => setToast(null), 2500);
@@ -433,6 +471,94 @@ export function DashboardContent() {
               )}
             </AnimatePresence>
 
+            {/* Onboarding welcome card — shown only when user has no cats */}
+            {showOnboarding && (
+              <motion.div
+                variants={fadeUp}
+                className="relative overflow-hidden rounded-2xl p-5"
+                style={{
+                  background: "linear-gradient(135deg,rgba(237,208,96,0.12),rgba(249,197,209,0.18))",
+                  border: "1px solid rgba(212,175,55,0.30)",
+                }}
+              >
+                {/* Dismiss */}
+                <button
+                  onClick={dismissOnboarding}
+                  className="absolute right-4 top-4 flex size-7 items-center justify-center rounded-full transition-colors hover:bg-[#F9C5D1]/40"
+                  aria-label="ปิด"
+                >
+                  <X className="size-4 text-[#6B5232]/50" />
+                </button>
+
+                <p className="mb-1 text-lg font-extrabold text-[#0B1D3A]">
+                  🐾 ยินดีต้อนรับสู่ Catinder!
+                </p>
+                <p className="mb-4 text-xs text-[#6B5232]/60">
+                  เริ่มต้นง่ายๆ ใน 3 ขั้นตอน
+                </p>
+
+                {/* Step indicators */}
+                <div className="mb-5 flex items-center gap-0">
+                  {[
+                    { n: 1, label: "เพิ่มแมว", active: true },
+                    { n: 2, label: "จับคู่", active: false },
+                    { n: 3, label: "แชท", active: false },
+                  ].map((step, i, arr) => (
+                    <div key={step.n} className="flex flex-1 items-center">
+                      <div className="flex flex-1 flex-col items-center gap-1.5">
+                        <div
+                          className="flex size-8 items-center justify-center rounded-full text-sm font-bold"
+                          style={
+                            step.active
+                              ? {
+                                  background:
+                                    "linear-gradient(135deg,#EDD060,#D4AF37)",
+                                  color: "#0B1D3A",
+                                  boxShadow: "0 2px 10px rgba(212,175,55,0.40)",
+                                }
+                              : {
+                                  background: "rgba(107,82,50,0.10)",
+                                  color: "rgba(107,82,50,0.45)",
+                                }
+                          }
+                        >
+                          {step.n}
+                        </div>
+                        <span
+                          className="text-[10px] font-semibold"
+                          style={{
+                            color: step.active ? "#D4AF37" : "rgba(107,82,50,0.45)",
+                          }}
+                        >
+                          {step.label}
+                        </span>
+                      </div>
+                      {i < arr.length - 1 && (
+                        <div
+                          className="h-px flex-1 mb-5"
+                          style={{ background: "rgba(212,175,55,0.25)" }}
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* CTA */}
+                <Link
+                  href="/cats"
+                  className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold hover:opacity-90 transition-opacity"
+                  style={{
+                    background: "linear-gradient(135deg,#EDD060,#D4AF37)",
+                    color: "#0B1D3A",
+                    boxShadow: "0 4px 14px rgba(212,175,55,0.35)",
+                  }}
+                >
+                  <PawPrint className="size-4" />
+                  เพิ่มแมวตัวแรก →
+                </Link>
+              </motion.div>
+            )}
+
             {/* Hero banner */}
             <motion.div variants={fadeUp} className="relative overflow-hidden rounded-2xl" style={{ minHeight: "200px" }}>
               <Image src="/img/Blackgroud.png" alt="" fill className="object-cover object-center" quality={85} />
@@ -500,15 +626,21 @@ export function DashboardContent() {
             {/* Stats row */}
             <motion.div variants={fadeUp} className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {[
-                { label: "การจับคู่ที่แอคทีฟ" },
-                { label: "ยอดเข้าชมโปรไฟล์" },
-                { label: "ไลค์ที่ได้รับ" },
-                { label: "จับคู่สำเร็จ" },
+                {
+                  label: "การจับคู่ที่แอคทีฟ",
+                  value: matchCount !== null ? String(matchCount) : "--",
+                },
+                { label: "ยอดเข้าชมโปรไฟล์", value: "--" },
+                { label: "ไลค์ที่ได้รับ", value: "--" },
+                {
+                  label: "จับคู่สำเร็จ",
+                  value: matchCount !== null ? String(matchCount) : "--",
+                },
               ].map((s) => (
                 <div key={s.label} className="rounded-2xl p-4"
                   style={{ background: "#FFFAFC", border: "1px solid rgba(212,160,175,0.20)", boxShadow: "0 2px 10px rgba(160,60,90,0.06)" }}>
                   <p className="mb-1 text-[11px] text-[#6B5232]/70">{s.label}</p>
-                  <p className="text-xl font-extrabold text-[#0B1D3A]">--</p>
+                  <p className="text-xl font-extrabold text-[#0B1D3A]">{s.value}</p>
                 </div>
               ))}
             </motion.div>
