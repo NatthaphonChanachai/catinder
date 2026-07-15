@@ -39,6 +39,9 @@ import {
   ChevronDown,
   Shield,
   AlertTriangle,
+  FileText,
+  Upload,
+  ExternalLink,
 } from "lucide-react";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -87,6 +90,9 @@ interface Cat {
   photos: string[];
   description: string;
   vaccinated: boolean;
+  registry?: string;
+  registrationNumber?: string;
+  petCertificateUrl?: string;
 }
 
 interface CatFormValues {
@@ -96,7 +102,19 @@ interface CatFormValues {
   gender: CatGender;
   description: string;
   vaccinated: boolean;
+  registry: string;
+  registrationNumber: string;
 }
+
+const REGISTRY_OPTIONS = [
+  { value: "", label: "ยังไม่มีการลงทะเบียน" },
+  { value: "TICA", label: "TICA – The International Cat Association" },
+  { value: "WCF", label: "WCF – World Cat Federation" },
+  { value: "GCCF", label: "GCCF – Governing Council of the Cat Fancy" },
+  { value: "CFA", label: "CFA – Cat Fanciers' Association" },
+  { value: "สมาคมแมวไทย", label: "สมาคมแมวแห่งประเทศไทย" },
+  { value: "อื่นๆ", label: "สมาคม / ชมรมอื่นๆ" },
+];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -144,6 +162,8 @@ function CatFormModal({
           gender: cat.gender,
           description: cat.description,
           vaccinated: cat.vaccinated,
+          registry: cat.registry ?? "",
+          registrationNumber: cat.registrationNumber ?? "",
         }
       : {
           name: "",
@@ -152,6 +172,8 @@ function CatFormModal({
           gender: "female",
           description: "",
           vaccinated: false,
+          registry: "",
+          registrationNumber: "",
         }
   );
 
@@ -161,8 +183,14 @@ function CatFormModal({
   );
   const [saving, setSaving] = useState(false);
   const [fieldError, setFieldError] = useState<string | null>(null);
+  const [showPetInfo, setShowPetInfo] = useState(false);
+  const [certFile, setCertFile] = useState<File | null>(null);
+  const [certFileName, setCertFileName] = useState<string>(
+    cat?.petCertificateUrl ? "เอกสารที่อัปโหลดแล้ว" : ""
+  );
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const certInputRef = useRef<HTMLInputElement>(null);
   // Track latest photoPreview in a ref to avoid stale closure in cleanup
   const latestPreviewRef = useRef<string>(photoPreview);
   useEffect(() => {
@@ -199,6 +227,18 @@ function CatFormModal({
     setPhotoPreview(URL.createObjectURL(file));
   }
 
+  function handleCertFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      setFieldError("ไฟล์ใบเพดดีกรีต้องไม่เกิน 10MB");
+      return;
+    }
+    setFieldError(null);
+    setCertFile(file);
+    setCertFileName(file.name);
+  }
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!form.name.trim()) {
@@ -216,35 +256,42 @@ function CatFormModal({
         const path = `cats/${userId}/${Date.now()}.${ext}`;
         const snap = await uploadBytes(storageRef(storage, path), photoFile);
         const downloadUrl = await getDownloadURL(snap.ref);
-        // Delete the old first photo from Storage if replacing
         const oldPhoto = cat?.photos[0];
         if (oldPhoto) await tryDeleteStoragePhoto(oldPhoto);
         photos = [downloadUrl, ...(cat?.photos.slice(1) ?? [])];
       }
 
+      let petCertificateUrl: string | undefined = cat?.petCertificateUrl;
+      if (certFile) {
+        const ext = certFile.name.split(".").pop() ?? "pdf";
+        const path = `cats/${userId}/docs/${Date.now()}.${ext}`;
+        const snap = await uploadBytes(storageRef(storage, path), certFile);
+        petCertificateUrl = await getDownloadURL(snap.ref);
+      }
+
+      const baseFields = {
+        name: form.name.trim(),
+        breed: form.breed,
+        age: form.age,
+        gender: form.gender,
+        description: form.description.trim(),
+        vaccinated: form.vaccinated,
+        photos,
+        ownerName: userDisplayName,
+        registry: form.registry,
+        registrationNumber: form.registrationNumber.trim(),
+        ...(petCertificateUrl !== undefined ? { petCertificateUrl } : {}),
+      };
+
       if (cat) {
         await updateDoc(doc(db, "cats", cat.id), {
-          name: form.name.trim(),
-          breed: form.breed,
-          age: form.age,
-          gender: form.gender,
-          description: form.description.trim(),
-          vaccinated: form.vaccinated,
-          photos,
-          ownerName: userDisplayName,
+          ...baseFields,
           updatedAt: serverTimestamp(),
         });
       } else {
         await addDoc(collection(db, "cats"), {
-          name: form.name.trim(),
-          breed: form.breed,
-          age: form.age,
-          gender: form.gender,
-          description: form.description.trim(),
-          vaccinated: form.vaccinated,
-          photos,
+          ...baseFields,
           ownerId: userId,
-          ownerName: userDisplayName,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         });
@@ -484,6 +531,170 @@ function CatFormModal({
                 )}
               </button>
 
+              {/* ─── Pet Certificate Section ────────────────────────────── */}
+              <div
+                className="rounded-2xl overflow-hidden"
+                style={{ border: "1px solid rgba(212,175,55,0.30)" }}
+              >
+                {/* Section header / toggle */}
+                <button
+                  type="button"
+                  onClick={() => setShowPetInfo((v) => !v)}
+                  className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold"
+                  style={{ background: "rgba(212,175,55,0.08)", color: "#6B5232" }}
+                >
+                  <span className="flex items-center gap-2">
+                    <FileText className="size-4 text-[#D4AF37]" />
+                    ใบเพดดีกรี / ทะเบียนพันธุ์แท้ (Pet Certificate)
+                  </span>
+                  <ChevronDown
+                    className={`size-4 transition-transform ${showPetInfo ? "rotate-180" : ""}`}
+                  />
+                </button>
+
+                <AnimatePresence initial={false}>
+                  {showPetInfo && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.22 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-4 py-4 space-y-4">
+                        {/* Educational panel */}
+                        <div
+                          className="rounded-xl p-3.5 text-xs leading-relaxed text-[#6B5232] space-y-2"
+                          style={{ background: "rgba(237,208,96,0.10)" }}
+                        >
+                          <p className="font-semibold text-[#0B1D3A] flex items-center gap-1.5">
+                            <FileText className="size-3.5 text-[#D4AF37]" />
+                            ใบเพดดีกรีคืออะไร?
+                          </p>
+                          <p>
+                            เอกสารรับรองว่าแมวมีสายพันธุ์แท้ ออกโดยสมาคมแมวที่ได้รับการยอมรับระดับสากล เช่น
+                            <strong> TICA</strong>, <strong>WCF</strong>, <strong>GCCF</strong>, <strong>CFA</strong>
+                            หรือ <strong>สมาคมแมวแห่งประเทศไทย</strong>
+                          </p>
+                          <p className="font-semibold text-[#0B1D3A]">วิธีตรวจสอบ:</p>
+                          <ul className="list-disc list-inside space-y-1">
+                            <li>ตรวจเลขทะเบียนบนใบเพดดีกรีว่าตรงกับชื่อแมว</li>
+                            <li>มีตราประทับและลายเซ็นจากสมาคม</li>
+                            <li>ระบุชื่อพ่อ–แม่พันธุ์ (parentage) อย่างชัดเจน</li>
+                            <li>สามารถค้นหาออนไลน์ที่ <strong>tica.org</strong> หรือ <strong>wcf-online.org</strong></li>
+                          </ul>
+                          <div className="flex gap-2 pt-1 flex-wrap">
+                            <a
+                              href="https://tica.org/find-a-cat"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold"
+                              style={{ background: "rgba(212,175,55,0.20)", color: "#6B5232" }}
+                            >
+                              <ExternalLink className="size-3" /> tic.org
+                            </a>
+                            <a
+                              href="https://wcf-online.org"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold"
+                              style={{ background: "rgba(212,175,55,0.20)", color: "#6B5232" }}
+                            >
+                              <ExternalLink className="size-3" /> wcf-online.org
+                            </a>
+                          </div>
+                        </div>
+
+                        {/* Registry selector */}
+                        <div>
+                          <label className="mb-1.5 block text-xs font-semibold text-[#6B5232]">
+                            สมาคม / ชมรมที่ลงทะเบียน
+                          </label>
+                          <div className="relative">
+                            <select
+                              value={form.registry}
+                              onChange={(e) => patchForm("registry", e.target.value)}
+                              className="w-full appearance-none rounded-xl px-3.5 py-2.5 pr-9 text-sm text-[#0B1D3A] outline-none"
+                              style={{
+                                background: "#FFF5F8",
+                                border: "1px solid rgba(212,160,175,0.35)",
+                              }}
+                            >
+                              {REGISTRY_OPTIONS.map((o) => (
+                                <option key={o.value} value={o.value}>
+                                  {o.label}
+                                </option>
+                              ))}
+                            </select>
+                            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-[#6B5232]/50" />
+                          </div>
+                        </div>
+
+                        {/* Registration number */}
+                        {form.registry && form.registry !== "ยังไม่มีการลงทะเบียน" && (
+                          <div>
+                            <label className="mb-1.5 block text-xs font-semibold text-[#6B5232]">
+                              เลขทะเบียน
+                            </label>
+                            <input
+                              type="text"
+                              value={form.registrationNumber}
+                              onChange={(e) => patchForm("registrationNumber", e.target.value)}
+                              placeholder="เช่น TH-TICA-2023-00123"
+                              className="w-full rounded-xl px-3.5 py-2.5 text-sm text-[#0B1D3A] outline-none"
+                              style={{
+                                background: "#FFF5F8",
+                                border: "1px solid rgba(212,160,175,0.35)",
+                              }}
+                            />
+                          </div>
+                        )}
+
+                        {/* Certificate file upload */}
+                        <div>
+                          <label className="mb-1.5 block text-xs font-semibold text-[#6B5232]">
+                            อัปโหลดใบเพดดีกรี (PDF / รูปภาพ)
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => certInputRef.current?.click()}
+                            className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm transition-opacity hover:opacity-80"
+                            style={{
+                              background: "#FFF5F8",
+                              border: "1.5px dashed rgba(212,175,55,0.50)",
+                              color: "#6B5232",
+                            }}
+                          >
+                            <Upload className="size-4 shrink-0 text-[#D4AF37]" />
+                            <span className="truncate text-xs">
+                              {certFileName || "เลือกไฟล์ใบเพดดีกรี..."}
+                            </span>
+                          </button>
+                          <input
+                            ref={certInputRef}
+                            type="file"
+                            accept="image/*,application/pdf"
+                            className="hidden"
+                            onChange={handleCertFileChange}
+                          />
+                          {cat?.petCertificateUrl && !certFile && (
+                            <a
+                              href={cat.petCertificateUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="mt-1.5 flex items-center gap-1 text-xs text-[#D4AF37] underline"
+                            >
+                              <ExternalLink className="size-3" />
+                              ดูเอกสารที่อัปโหลดแล้ว
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               {/* Description */}
               <div>
                 <label className="mb-1.5 block text-xs font-semibold text-[#6B5232]">
@@ -615,6 +826,15 @@ function CatCard({
         <p className="mt-0.5 text-xs text-[#6B5232]/70">
           {cat.breed} · {getAgeLabel(cat.age)}
         </p>
+        {cat.registry && (
+          <span
+            className="mt-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+            style={{ background: "rgba(212,175,55,0.18)", color: "#6B5232" }}
+          >
+            <FileText className="size-3" />
+            {cat.registry}
+          </span>
+        )}
         {cat.description && (
           <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-[#6B5232]/60">
             {cat.description}

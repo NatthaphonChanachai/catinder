@@ -35,6 +35,7 @@ interface Cat {
   id: string;
   ownerId: string;
   ownerName: string;
+  ownerEmail?: string;
   name: string;
   breed: string;
   age: number;
@@ -79,7 +80,7 @@ function formatAge(months: number): string {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function DiscoverContent() {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
 
   const [ownCats, setOwnCats] = useState<Cat[]>([]);
   const [activeCatIndex, setActiveCatIndex] = useState(0);
@@ -191,6 +192,7 @@ export function DiscoverContent() {
       await setDoc(doc(db, "passes", `${liker.id}_${target.id}`), {
         fromCatId: liker.id,
         toCatId: target.id,
+        fromUserId: user?.uid ?? "",
         createdAt: serverTimestamp(),
       });
     } catch (err) {
@@ -245,6 +247,21 @@ export function DiscoverContent() {
           ],
           createdAt: serverTimestamp(),
         });
+
+        // Send email notification to the other cat's owner (fire-and-forget)
+        if (userProfile?.email) {
+          fetch("/api/match-notification", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              toEmail: target.ownerEmail ?? "",
+              toName: target.ownerName,
+              matchedCatName: target.name,
+              myName: liker.name,
+            }),
+          }).catch(() => {});
+        }
+
         advance("right");
         // Small delay so card exit animation starts before overlay mounts
         setTimeout(
