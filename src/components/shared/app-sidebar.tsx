@@ -14,7 +14,7 @@ const NAV_LINKS = [
   { icon: Home,           label: "แดชบอร์ด",     href: "/dashboard", badge: 0 },
   { icon: HeartHandshake, label: "จับคู่แมว",     href: "/discover",  badge: 0 },
   { icon: PawPrint,       label: "โปรไฟล์แมว",   href: "/cats",      badge: 0 },
-  { icon: MessageCircle,  label: "ข้อความ",       href: "/chat",      badge: 4 },
+  { icon: MessageCircle,  label: "ข้อความ",       href: "/chat",      badge: 0 },
   { icon: HeartPulse,     label: "บันทึกสุขภาพ",  href: "/health",    badge: 0 },
   { icon: Dna,            label: "ผสมพันธุ์",     href: "/breeding",  badge: 0 },
   { icon: BookOpen,       label: "คลังความรู้",   href: "/knowledge", badge: 0 },
