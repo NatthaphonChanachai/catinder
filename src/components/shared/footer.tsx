@@ -132,6 +132,25 @@ export function Footer() {
           style={{ background: "linear-gradient(to right, transparent, rgba(212,175,55,0.35), transparent)" }}
         />
 
+        {/* Legal links */}
+        <div className="mb-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs sm:justify-start">
+          {[
+            { href: "/terms", label: "ข้อกำหนดการใช้บริการ" },
+            { href: "/privacy", label: "นโยบายความเป็นส่วนตัว" },
+            { href: "/refund", label: "การชำระเงินและคืนเงิน" },
+            { href: "/pricing", label: "แผนราคา" },
+          ].map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="transition-colors hover:text-[#D4AF37]"
+              style={{ color: "rgba(247,215,171,0.55)" }}
+            >
+              {l.label}
+            </Link>
+          ))}
+        </div>
+
         {/* Bottom row */}
         <div className="flex flex-col items-center justify-between gap-4 text-xs sm:flex-row" style={{ color: "rgba(247,215,171,0.40)" }}>
           <p>© {new Date().getFullYear()} Catinder. สงวนลิขสิทธิ์ทุกประการ</p>

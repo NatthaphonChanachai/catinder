@@ -1,9 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Crown, Check, Zap, Shield, Heart, Star, ChevronDown } from "lucide-react";
+import { Crown, Check, Zap, Shield, Heart, Star, ChevronDown, Loader2, CheckCircle, Mail } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { useState } from "react";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "@/services/firebase";
+import { useAuth } from "@/contexts/auth-context";
 
 const FREE_FEATURES = [
   { icon: Heart,  text: "แมวสูงสุด 2 ตัว" },
@@ -27,18 +30,50 @@ const FAQ_ITEMS = [
     a: "แพลนฟรีให้คุณสร้างโปรไฟล์แมวได้สูงสุด 2 ตัว รับ AI Match 5 คู่ต่อวัน อ่านบทความ เล่นเกม และเข้าร่วมชุมชน Catinder ได้ทั้งหมด — ไม่มีค่าใช้จ่าย",
   },
   {
-    q: "Premium จะเปิดให้ใช้เมื่อไหร่?",
-    a: "เราอยู่ระหว่างพัฒนาระบบชำระเงินด้วย Omise และกำลังจะเปิดตัวเร็วๆ นี้ สมาชิกที่ลงทะเบียนก่อนจะได้รับสิทธิ์ Early Bird พิเศษ",
+    q: "จ่ายเงินยังไง? ปลอดภัยไหม?",
+    a: "ช่วงเปิดตัวเรารับชำระผ่าน PromptPay — สแกน QR โอนตามยอด แล้วแนบสลิป ทีมงานจะตรวจสอบและเปิดใช้งาน Premium ให้ภายใน 24 ชั่วโมง คุณไม่ต้องกรอกเลขบัตรใดๆ",
+  },
+  {
+    q: "ต้องสมัครสมาชิกก่อนไหมถึงจะอัปเกรดได้?",
+    a: "ใช่ค่ะ ต้องมีบัญชี (สมัครฟรี) ก่อน เพื่อผูกสิทธิ์ Premium กับแมวของคุณ หากยังไม่ได้เข้าสู่ระบบ ระบบจะพาไปสมัครฟรีก่อน แล้วค่อยชำระเงิน",
   },
   {
     q: "ถ้าสมัคร Premium แล้วเปลี่ยนใจได้ไหม?",
-    a: "ได้เลย คุณสามารถยกเลิกได้ตลอดเวลาก่อนรอบบิลถัดไป และยังคงใช้งาน Premium จนหมดรอบบิลปัจจุบัน",
+    a: "ช่วงชำระแบบ PromptPay บริการจะไม่ต่ออายุอัตโนมัติ เมื่อหมดรอบบัญชีจะกลับสู่แผนฟรีโดยข้อมูลยังอยู่ครบ ดูรายละเอียดการคืนเงินได้ที่นโยบายการคืนเงิน",
   },
 ];
 
 export function PricingContent() {
+  const { user } = useAuth();
   const [annual, setAnnual] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  // Early Bird email capture
+  const [email, setEmail] = useState("");
+  const [ebStatus, setEbStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
+
+  async function submitEarlyBird(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email.includes("@") || email.length < 4) {
+      setEbStatus("error");
+      return;
+    }
+    setEbStatus("saving");
+    try {
+      await addDoc(collection(db, "premiumInterest"), {
+        email: email.trim(),
+        plan: annual ? "annual" : "monthly",
+        userId: user?.uid ?? null,
+        createdAt: serverTimestamp(),
+      });
+      setEbStatus("done");
+      setEmail("");
+    } catch {
+      setEbStatus("error");
+    }
+  }
+
+  const checkoutHref = `/premium/checkout?plan=${annual ? "annual" : "monthly"}`;
 
   return (
     <div className="min-h-screen" style={{ background: "#FFF5F8" }}>
@@ -279,22 +314,82 @@ export function PricingContent() {
               ))}
             </ul>
 
-            {/* Coming soon button */}
-            <button
-              disabled
-              className="w-full rounded-xl py-3 text-sm font-bold text-center cursor-not-allowed opacity-70"
+            {/* Upgrade button → checkout (handles logged-out gracefully) */}
+            <Link
+              href={checkoutHref}
+              className="w-full rounded-xl py-3 text-sm font-bold text-center block transition-opacity hover:opacity-90"
               style={{
                 background: "linear-gradient(135deg,#EDD060,#D4AF37)",
                 color: "#0B1D3A",
               }}
             >
-              เร็วๆ นี้
-            </button>
+              อัปเกรดเป็น Premium
+            </Link>
             <p className="text-center text-xs mt-2 text-white/40">
-              ระบบชำระเงินกำลังพัฒนา
+              จ่ายผ่าน PromptPay · เปิดใช้ภายใน 24 ชม.
             </p>
           </motion.div>
         </div>
+
+        {/* Early Bird waitlist */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.2 }}
+          className="mb-12 rounded-2xl p-6 text-center"
+          style={{
+            background: "linear-gradient(135deg, rgba(237,208,96,0.10), rgba(249,197,209,0.14))",
+            border: "1px solid rgba(212,175,55,0.25)",
+          }}
+        >
+          <span
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold mb-3"
+            style={{ background: "#F9C5D1", color: "#B04060" }}
+          >
+            <Star className="size-3 fill-current" /> Early Bird
+          </span>
+          <h3 className="font-heading text-lg font-bold mb-1.5" style={{ color: "#0B1D3A" }}>
+            ยังไม่พร้อมจ่ายตอนนี้?
+          </h3>
+          <p className="text-sm mb-5 max-w-sm mx-auto" style={{ color: "#6B5232" }}>
+            ทิ้งอีเมลไว้ รับสิทธิ์ Early Bird ส่วนลดพิเศษเมื่อ Premium เปิดตัวเต็มรูปแบบ
+          </p>
+
+          {ebStatus === "done" ? (
+            <div
+              className="mx-auto flex max-w-sm items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold"
+              style={{ background: "rgba(34,197,94,0.12)", color: "#166534" }}
+            >
+              <CheckCircle className="size-4" />
+              ลงทะเบียนแล้ว! เราจะแจ้งคุณเป็นคนแรก 🎉
+            </div>
+          ) : (
+            <form onSubmit={submitEarlyBird} className="mx-auto flex max-w-sm flex-col gap-2 sm:flex-row">
+              <div className="relative flex-1">
+                <Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#6B5232]/40" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); if (ebStatus === "error") setEbStatus("idle"); }}
+                  placeholder="อีเมลของคุณ"
+                  className="w-full rounded-xl py-2.5 pl-9 pr-3 text-sm text-[#0B1D3A] outline-none"
+                  style={{ background: "#FFFAFC", border: "1px solid rgba(212,160,175,0.35)" }}
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={ebStatus === "saving"}
+                className="flex items-center justify-center gap-1.5 rounded-xl px-5 py-2.5 text-sm font-bold transition-opacity hover:opacity-90 disabled:opacity-60"
+                style={{ background: "linear-gradient(135deg,#EDD060,#D4AF37)", color: "#0B1D3A" }}
+              >
+                {ebStatus === "saving" ? <Loader2 className="size-4 animate-spin" /> : "รับสิทธิ์"}
+              </button>
+            </form>
+          )}
+          {ebStatus === "error" && (
+            <p className="mt-2 text-xs text-[#B04060]">กรุณากรอกอีเมลให้ถูกต้อง</p>
+          )}
+        </motion.div>
 
         {/* Feature comparison note */}
         <motion.div

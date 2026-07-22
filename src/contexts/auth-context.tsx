@@ -10,6 +10,8 @@ export type UserProfile = {
   email: string;
   phone?: string;
   role: "user" | "admin";
+  plan?: "free" | "premium";
+  premiumUntil?: string; // ISO date string
   createdAt?: string;
 };
 
@@ -17,6 +19,7 @@ type AuthCtx = {
   user: User | null;
   userProfile: UserProfile | null;
   isAdmin: boolean;
+  isPremium: boolean;
   loading: boolean;
   logout: () => Promise<void>;
 };
@@ -25,9 +28,16 @@ const AuthContext = createContext<AuthCtx>({
   user: null,
   userProfile: null,
   isAdmin: false,
+  isPremium: false,
   loading: true,
   logout: async () => {},
 });
+
+function computeIsPremium(profile: UserProfile | null): boolean {
+  if (!profile || profile.plan !== "premium") return false;
+  if (!profile.premiumUntil) return true; // no expiry set = lifetime/manual
+  return new Date(profile.premiumUntil).getTime() > Date.now();
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -57,6 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         userProfile,
         isAdmin: userProfile?.role === "admin",
+        isPremium: computeIsPremium(userProfile),
         loading,
         logout: () => signOut(auth),
       }}

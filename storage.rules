@@ -22,5 +22,13 @@ service firebase.storage {
       allow write: if request.auth != null && request.auth.uid == userId
         && request.resource.size < 5 * 1024 * 1024;
     }
+
+    // Payment slips (PromptPay manual): owner writes, authenticated reads
+    // (admin verifies via the app)
+    match /premiumSlips/{userId}/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId
+        && request.resource.size < 5 * 1024 * 1024;
+    }
   }
 }

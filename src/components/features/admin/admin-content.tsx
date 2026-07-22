@@ -13,7 +13,7 @@ import { AppShell } from "@/components/shared/app-shell";
 import {
   Shield, FileText, Headphones, Plus, Pencil, Trash2, X,
   Eye, EyeOff, Send, CheckCircle, AlertCircle, ChevronLeft,
-  Loader2, Star, BookOpen,
+  Loader2, Star, BookOpen, Crown, Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -550,9 +550,231 @@ function SupportTab() {
   );
 }
 
+// ─── Premium Requests Tab ─────────────────────────────────────────────────────
+
+interface PremiumReq {
+  id: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  plan: string;
+  planLabel?: string;
+  amount: number;
+  days: number;
+  slipUrl?: string;
+  status: "pending" | "approved" | "rejected";
+  createdAt: DocumentData;
+}
+
+function PremiumTab() {
+  const [reqs, setReqs] = useState<PremiumReq[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [rulesError, setRulesError] = useState(false);
+  const [actionError, setActionError] = useState("");
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [viewSlip, setViewSlip] = useState<string | null>(null);
+
+  useEffect(() => {
+    const q = query(collection(db, "premiumRequests"), orderBy("createdAt", "desc"));
+    const unsub = onSnapshot(q,
+      (snap) => {
+        setReqs(snap.docs.map((d) => ({ id: d.id, ...d.data() } as PremiumReq)));
+        setLoading(false);
+        setRulesError(false);
+      },
+      () => { setRulesError(true); setLoading(false); }
+    );
+    return unsub;
+  }, []);
+
+  async function approve(r: PremiumReq) {
+    setBusyId(r.id);
+    setActionError("");
+    try {
+      const until = new Date();
+      until.setDate(until.getDate() + (r.days || 30));
+      // Grant premium on the user profile
+      await updateDoc(doc(db, "users", r.userId), {
+        plan: "premium",
+        premiumUntil: until.toISOString(),
+      });
+      // Mark request approved
+      await updateDoc(doc(db, "premiumRequests", r.id), {
+        status: "approved",
+        approvedAt: serverTimestamp(),
+      });
+    } catch (e) {
+      setActionError("อนุมัติไม่สำเร็จ: " + String(e));
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function reject(r: PremiumReq) {
+    setBusyId(r.id);
+    setActionError("");
+    try {
+      await updateDoc(doc(db, "premiumRequests", r.id), {
+        status: "rejected",
+        rejectedAt: serverTimestamp(),
+      });
+    } catch (e) {
+      setActionError("ปฏิเสธไม่สำเร็จ: " + String(e));
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  function fmtDate(ts: DocumentData) {
+    if (!ts) return "";
+    const d: Date = typeof ts.toDate === "function" ? ts.toDate() : new Date(ts as unknown as string);
+    return d.toLocaleString("th-TH", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+  }
+
+  if (rulesError) {
+    return (
+      <div className="rounded-2xl border border-red-200 bg-red-50 p-6">
+        <div className="flex items-start gap-3">
+          <AlertCircle className="mt-0.5 size-5 flex-shrink-0 text-red-500" />
+          <div>
+            <p className="font-bold text-red-700">อ่านคำขอ Premium ไม่ได้</p>
+            <p className="mt-1 text-sm text-red-600">
+              ตรวจสอบว่า Firestore Rules สำหรับ premiumRequests deploy แล้ว
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const pending = reqs.filter((r) => r.status === "pending");
+  const processed = reqs.filter((r) => r.status !== "pending");
+
+  return (
+    <div>
+      {actionError && (
+        <div className="mb-3 rounded-2xl px-4 py-3 text-sm font-semibold text-red-700"
+          style={{ background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.20)" }}>
+          {actionError}
+          <button onClick={() => setActionError("")} className="ml-2 text-xs underline">ปิด</button>
+        </div>
+      )}
+
+      {loading ? (
+        <div className="flex justify-center py-16"><Loader2 className="size-6 animate-spin text-[#D4AF37]" /></div>
+      ) : reqs.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <Crown className="mb-3 size-10 text-[#D4AF37]/30" />
+          <p className="text-sm font-bold text-[#0B1D3A]">ยังไม่มีคำขอ Premium</p>
+        </div>
+      ) : (
+        <div className="space-y-5">
+          {pending.length > 0 && (
+            <div>
+              <p className="mb-2 flex items-center gap-1.5 text-xs font-bold text-[#B04060]">
+                <Clock className="size-3.5" /> รอตรวจสอบ ({pending.length})
+              </p>
+              <div className="space-y-3">
+                {pending.map((r) => (
+                  <ReqCard key={r.id} r={r} busy={busyId === r.id}
+                    onApprove={() => approve(r)} onReject={() => reject(r)}
+                    onViewSlip={() => r.slipUrl && setViewSlip(r.slipUrl)} fmtDate={fmtDate} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {processed.length > 0 && (
+            <div>
+              <p className="mb-2 text-xs font-bold text-muted-foreground">ดำเนินการแล้ว</p>
+              <div className="space-y-3">
+                {processed.map((r) => (
+                  <ReqCard key={r.id} r={r} busy={false} fmtDate={fmtDate}
+                    onViewSlip={() => r.slipUrl && setViewSlip(r.slipUrl)} />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Slip viewer */}
+      <AnimatePresence>
+        {viewSlip && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: "rgba(11,29,58,0.7)" }} onClick={() => setViewSlip(null)}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={viewSlip} alt="slip" className="max-h-[85vh] max-w-full rounded-2xl" />
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function ReqCard({
+  r, busy, onApprove, onReject, onViewSlip, fmtDate,
+}: {
+  r: PremiumReq;
+  busy: boolean;
+  onApprove?: () => void;
+  onReject?: () => void;
+  onViewSlip: () => void;
+  fmtDate: (ts: DocumentData) => string;
+}) {
+  const statusBadge = {
+    pending: { label: "รอตรวจสอบ", cls: "bg-amber-100 text-amber-700" },
+    approved: { label: "อนุมัติแล้ว", cls: "bg-green-100 text-green-700" },
+    rejected: { label: "ปฏิเสธ", cls: "bg-gray-100 text-gray-500" },
+  }[r.status];
+
+  return (
+    <div className="rounded-2xl border border-border p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-bold text-[#0B1D3A]">{r.userName || "ไม่ระบุชื่อ"}</p>
+          <p className="truncate text-xs text-muted-foreground">{r.userEmail}</p>
+          <div className="mt-1.5 flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-[var(--warm-ivory)] px-2 py-0.5 text-[10px] font-semibold text-[#6B5232]">
+              {r.planLabel || r.plan} · {r.amount} ฿
+            </span>
+            <span className={cn("rounded-full px-2 py-0.5 text-[10px] font-bold", statusBadge.cls)}>
+              {statusBadge.label}
+            </span>
+            <span className="text-[10px] text-muted-foreground">{fmtDate(r.createdAt)}</span>
+          </div>
+        </div>
+        {r.slipUrl && (
+          <button onClick={onViewSlip}
+            className="flex-shrink-0 overflow-hidden rounded-lg border border-border" title="ดูสลิป">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={r.slipUrl} alt="slip" className="h-14 w-14 object-cover" />
+          </button>
+        )}
+      </div>
+
+      {r.status === "pending" && onApprove && onReject && (
+        <div className="mt-3 flex gap-2">
+          <button onClick={onApprove} disabled={busy}
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-full py-2 text-xs font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
+            style={{ background: "#16A34A" }}>
+            {busy ? <Loader2 className="size-3.5 animate-spin" /> : <CheckCircle className="size-3.5" />}
+            อนุมัติ & เปิด Premium
+          </button>
+          <button onClick={onReject} disabled={busy}
+            className="flex flex-1 items-center justify-center rounded-full py-2 text-xs font-semibold transition-colors hover:bg-muted disabled:opacity-60"
+            style={{ border: "1px solid rgba(212,160,175,0.35)", color: "#6B5232" }}>
+            ปฏิเสธ
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main Admin Content ───────────────────────────────────────────────────────
 
-type Tab = "articles" | "support";
+type Tab = "articles" | "support" | "premium";
 
 export function AdminContent() {
   const { user, isAdmin, loading } = useAuth();
@@ -582,6 +804,7 @@ export function AdminContent() {
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
     { key: "articles", label: "ข่าวสาร", icon: <FileText className="size-4" /> },
+    { key: "premium", label: "Premium", icon: <Crown className="size-4" /> },
     { key: "support", label: "ตอบลูกค้า", icon: <Headphones className="size-4" /> },
   ];
 
@@ -613,7 +836,7 @@ export function AdminContent() {
 
         <AnimatePresence mode="wait">
           <motion.div key={tab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}>
-            {tab === "articles" ? <ArticlesTab /> : <SupportTab />}
+            {tab === "articles" ? <ArticlesTab /> : tab === "premium" ? <PremiumTab /> : <SupportTab />}
           </motion.div>
         </AnimatePresence>
       </div>
