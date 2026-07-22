@@ -172,7 +172,7 @@ export function AppSidebar() {
             </div>
           ))}
         </div>
-        <Link href="/register"
+        <Link href="/pricing"
           className="flex items-center justify-center gap-1.5 rounded-xl py-2 text-[11px] font-bold hover:opacity-90 transition-opacity"
           style={{ background: "linear-gradient(135deg,#EDD060,#D4AF37)", color: "#0B1D3A" }}>
           <Crown className="size-3" />

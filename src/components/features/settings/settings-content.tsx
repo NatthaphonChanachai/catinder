@@ -67,7 +67,7 @@ export function SettingsContent() {
             <p className="text-sm font-bold text-[#4A1030]">แผนฟรี</p>
             <p className="text-xs text-[#6B5232]/60">อัปเกรดเพื่อปลดล็อกฟีเจอร์ทั้งหมด</p>
           </div>
-          <Link href="/register" className="rounded-full px-3 py-1.5 text-xs font-bold hover:opacity-90 transition-opacity"
+          <Link href="/pricing" className="rounded-full px-3 py-1.5 text-xs font-bold hover:opacity-90 transition-opacity"
             style={{ background: "linear-gradient(135deg,#EDD060,#D4AF37)", color: "#0B1D3A" }}>
             Premium
           </Link>
