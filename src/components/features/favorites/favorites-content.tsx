@@ -49,7 +49,7 @@ export function FavoritesContent() {
               <div key={f.name} className="group overflow-hidden rounded-2xl transition-all hover:-translate-y-0.5 hover:shadow-lg"
                 style={{ background: "#FFFAFC", border: "1px solid rgba(212,160,175,0.22)", boxShadow: "0 2px 12px rgba(160,60,90,0.06)" }}>
                 <div className="relative h-44 overflow-hidden">
-                  <Image src={f.img} alt={f.name} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <Image src={f.img} alt={f.name} fill className="object-cover transition-transform duration-500 group-hover:scale-105" unoptimized />
                   <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(11,29,58,0.55) 0%, transparent 50%)" }} />
                   {/* Match badge */}
                   <div className="absolute right-3 top-3 rounded-full px-2.5 py-1 text-[11px] font-extrabold"

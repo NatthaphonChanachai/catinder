@@ -200,6 +200,7 @@ export function ChatContent() {
                             fill
                             className="object-cover"
                             sizes="40px"
+                            unoptimized
                           />
                         </div>
                       ) : (
@@ -270,6 +271,7 @@ export function ChatContent() {
                       fill
                       className="object-cover"
                       sizes="36px"
+                      unoptimized
                     />
                   </div>
                 ) : (

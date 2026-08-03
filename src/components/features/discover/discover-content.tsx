@@ -362,6 +362,7 @@ export function DiscoverContent() {
                       fill
                       className="object-cover"
                       sizes="20px"
+                      unoptimized
                     />
                   </span>
                 )}
@@ -399,6 +400,7 @@ export function DiscoverContent() {
                       className="object-cover"
                       sizes="(max-width: 640px) 100vw, 384px"
                       priority
+                      unoptimized
                     />
                   ) : (
                     <div
@@ -740,6 +742,7 @@ export function DiscoverContent() {
                       fill
                       className="object-cover"
                       sizes="96px"
+                      unoptimized
                     />
                   ) : (
                     <div
@@ -767,6 +770,7 @@ export function DiscoverContent() {
                       fill
                       className="object-cover"
                       sizes="96px"
+                      unoptimized
                     />
                   ) : (
                     <div

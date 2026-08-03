@@ -97,7 +97,7 @@ export function BreedingContent() {
             <p className="font-bold text-[#4A1030]">Pedigree Certificate & Priority Listing</p>
             <p className="text-xs text-[#6B5232]/60">ปลดล็อก Pedigree ดิจิทัล + แสดงโปรไฟล์ก่อนใคร</p>
           </div>
-          <Link href="/register" className="flex-shrink-0 rounded-full px-4 py-2 text-xs font-bold hover:opacity-90 transition-opacity"
+          <Link href="/pricing" className="flex-shrink-0 rounded-full px-4 py-2 text-xs font-bold hover:opacity-90 transition-opacity"
             style={{ background: "linear-gradient(135deg,#EDD060,#D4AF37)", color: "#0B1D3A" }}>
             <Crown className="mr-1 inline size-3" /> Premium
           </Link>

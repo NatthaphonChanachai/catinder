@@ -65,7 +65,7 @@ export function HealthContent() {
                 <h3 className="font-bold text-[#4A1030]">Health Passport เต็มรูปแบบ</h3>
               </div>
               <p className="mt-1 text-xs text-[#6B5232]/60">รายงานสุขภาพ PDF · ประวัติทั้งหมด · แชร์กับสัตวแพทย์ · ติดตามผลเลือด</p>
-              <Link href="/register" className="mt-3 inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[11px] font-bold hover:opacity-90 transition-opacity"
+              <Link href="/pricing" className="mt-3 inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[11px] font-bold hover:opacity-90 transition-opacity"
                 style={{ background: "linear-gradient(135deg,#EDD060,#D4AF37)", color: "#0B1D3A" }}>
                 <Crown className="size-3" /> ปลดล็อกด้วย Premium
               </Link>
