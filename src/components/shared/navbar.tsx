@@ -86,7 +86,7 @@ export function Navbar() {
                 } as React.CSSProperties}
               >
                 <LayoutDashboard className="mr-1.5 size-4" />
-                แดชบอร์ด
+                หน้าหลัก
               </LinkButton>
               <button
                 onClick={logout}
@@ -170,7 +170,7 @@ export function Navbar() {
                   <>
                     <LinkButton href="/dashboard" className="flex-1 rounded-full font-bold"
                       style={{ background: "linear-gradient(135deg, #E8C84A 0%, #D4AF37 100%)", color: "#0B1D3A" } as React.CSSProperties}>
-                      แดชบอร์ด
+                      หน้าหลัก
                     </LinkButton>
                     <button onClick={logout}
                       className="flex-1 rounded-full border border-border py-2 text-sm font-semibold text-[#6B5232]">

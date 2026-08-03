@@ -193,7 +193,7 @@ export function CheckoutContent() {
             className="mt-6 rounded-full px-6 py-3 text-sm font-bold"
             style={{ background: "linear-gradient(135deg,#EDD060,#D4AF37)", color: "#0B1D3A" }}
           >
-            ไปที่แดชบอร์ด
+            ไปที่หน้าหลัก
           </button>
         </div>
       </Shell>

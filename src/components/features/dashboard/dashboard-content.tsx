@@ -19,7 +19,7 @@ import { fadeUp, staggerContainer } from "@/lib/motion";
 // ── Data ─────────────────────────────────────────────────────────────────────
 
 const NAV_LINKS = [
-  { icon: Home,          label: "แดชบอร์ด",     href: "/dashboard", badge: 0 },
+  { icon: Home,          label: "หน้าหลัก",     href: "/dashboard", badge: 0 },
   { icon: HeartHandshake,label: "จับคู่แมว",     href: "/discover",  badge: 0 },
   { icon: PawPrint,      label: "โปรไฟล์แมว",   href: "/cats",      badge: 0 },
   { icon: MessageCircle, label: "ข้อความ",       href: "/chat",      badge: 4 },
