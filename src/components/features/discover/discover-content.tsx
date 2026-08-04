@@ -33,7 +33,10 @@ import {
   ChevronDown,
   Flag,
   Ban,
+  MapPin,
+  HeartPulse,
 } from "lucide-react";
+import { THAI_PROVINCES, HEALTH_TESTS } from "@/constants/cat-attributes";
 
 const DISCOVER_BREEDS = [
   "เปอร์เซีย", "สก็อตติชโฟลด์", "อเมริกันช็อตแฮร์", "เมนคูน", "รัสเซียนบลู",
@@ -43,9 +46,10 @@ const DISCOVER_BREEDS = [
 interface DiscoverFilters {
   breed: string;
   gender: "" | "male" | "female";
+  province: string;
   vaccinatedOnly: boolean;
 }
-const EMPTY_FILTERS: DiscoverFilters = { breed: "", gender: "", vaccinatedOnly: false };
+const EMPTY_FILTERS: DiscoverFilters = { breed: "", gender: "", province: "", vaccinatedOnly: false };
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -111,7 +115,7 @@ export function DiscoverContent() {
   const filtersRef = useRef<DiscoverFilters>(filters);
   useEffect(() => { filtersRef.current = filters; }, [filters]);
   const activeFilterCount =
-    (filters.breed ? 1 : 0) + (filters.gender ? 1 : 0) + (filters.vaccinatedOnly ? 1 : 0);
+    (filters.breed ? 1 : 0) + (filters.gender ? 1 : 0) + (filters.province ? 1 : 0) + (filters.vaccinatedOnly ? 1 : 0);
 
   const activeCat: Cat | undefined = ownCats[activeCatIndex];
   const currentCat: Cat | undefined = queue[queueIndex];
@@ -155,6 +159,7 @@ export function DiscoverContent() {
           if (blockedRef.current.has(c.ownerId)) return false;
           if (f.breed && c.breed !== f.breed) return false;
           if (f.gender && c.gender !== f.gender) return false;
+          if (f.province && c.province !== f.province) return false;
           if (f.vaccinatedOnly && !c.vaccinated) return false;
           return true;
         });
@@ -796,7 +801,41 @@ export function DiscoverContent() {
                     <CheckCircle className="size-3" /> ฉีดวัคซีนแล้ว
                   </span>
                 )}
+                {infoModal.province && (
+                  <span className="flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold"
+                    style={{ background: "rgba(212,175,55,0.12)", color: "#6B5232" }}>
+                    <MapPin className="size-3" /> {infoModal.province}
+                  </span>
+                )}
               </div>
+
+              {/* Health screening results */}
+              {infoModal.healthTests && HEALTH_TESTS.some((t) => infoModal.healthTests?.[t.key as "hcm" | "pkd" | "felv" | "fiv"]) && (
+                <div className="mb-4 rounded-xl p-3" style={{ background: "rgba(74,144,217,0.06)", border: "1px solid rgba(74,144,217,0.18)" }}>
+                  <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-[#0B1D3A]">
+                    <HeartPulse className="size-3.5 text-[#4A90D9]" /> ผลตรวจสุขภาพ
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {HEALTH_TESTS.map((t) => {
+                      const v = infoModal.healthTests?.[t.key as "hcm" | "pkd" | "felv" | "fiv"];
+                      if (!v) return null;
+                      return (
+                        <span key={t.key} className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                          style={v === "clear"
+                            ? { background: "rgba(34,197,94,0.14)", color: "#166534" }
+                            : { background: "rgba(176,64,96,0.10)", color: "#B04060" }}>
+                          {t.label}: {v === "clear" ? "ผ่าน ✓" : "พบผิดปกติ"}
+                        </span>
+                      );
+                    })}
+                    {infoModal.healthTests?.bloodType && (
+                      <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ background: "rgba(74,144,217,0.14)", color: "#2563eb" }}>
+                        กรุ๊ปเลือด {infoModal.healthTests.bloodType}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
 
               <p className="text-sm leading-relaxed text-[#6B5232]/75">
                 {infoModal.description || "ยังไม่มีคำอธิบาย"}
@@ -1016,6 +1055,21 @@ export function DiscoverContent() {
                       className="w-full appearance-none rounded-xl px-3.5 py-2.5 pr-9 text-sm text-[#0B1D3A] outline-none" style={{ background: "#FFF5F8", border: "1px solid rgba(212,160,175,0.35)" }}>
                       <option value="">ทุกสายพันธุ์</option>
                       {DISCOVER_BREEDS.map((b) => <option key={b} value={b}>{b}</option>)}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-[#6B5232]/50" />
+                  </div>
+                </div>
+
+                {/* Province */}
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold text-[#6B5232]">
+                    <MapPin className="mr-1 inline size-3 text-[#D4AF37]" /> จังหวัด
+                  </label>
+                  <div className="relative">
+                    <select value={draftFilters.province} onChange={(e) => setDraftFilters((f) => ({ ...f, province: e.target.value }))}
+                      className="w-full appearance-none rounded-xl px-3.5 py-2.5 pr-9 text-sm text-[#0B1D3A] outline-none" style={{ background: "#FFF5F8", border: "1px solid rgba(212,160,175,0.35)" }}>
+                      <option value="">ทุกจังหวัด</option>
+                      {THAI_PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}
                     </select>
                     <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-[#6B5232]/50" />
                   </div>

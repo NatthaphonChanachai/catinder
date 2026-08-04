@@ -29,7 +29,10 @@ import {
   normalizeCatRecord,
   type CatGender,
   type CatRecord,
+  type TestStatus,
+  type HealthTests,
 } from "@/lib/cat-record";
+import { THAI_PROVINCES, HEALTH_TESTS, BLOOD_TYPES } from "@/constants/cat-attributes";
 import {
   Plus,
   PawPrint,
@@ -46,6 +49,9 @@ import {
   FileText,
   Upload,
   ExternalLink,
+  MapPin,
+  Stethoscope,
+  HeartPulse,
 } from "lucide-react";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -92,6 +98,12 @@ interface CatFormValues {
   vaccinated: boolean;
   registry: string;
   registrationNumber: string;
+  province: string;
+  hcm: TestStatus;
+  pkd: TestStatus;
+  felv: TestStatus;
+  fiv: TestStatus;
+  bloodType: string;
 }
 
 const REGISTRY_OPTIONS = [
@@ -110,6 +122,11 @@ function getAgeLabel(months: number): string {
   return (
     AGE_OPTIONS.find((o) => o.value === months)?.label ?? `${months} เดือน`
   );
+}
+
+function countClearTests(t?: HealthTests): number {
+  if (!t) return 0;
+  return [t.hcm, t.pkd, t.felv, t.fiv].filter((v) => v === "clear").length;
 }
 
 async function tryDeleteStoragePhoto(photoUrl: string): Promise<void> {
@@ -152,6 +169,12 @@ function CatFormModal({
           vaccinated: cat.vaccinated,
           registry: cat.registry ?? "",
           registrationNumber: cat.registrationNumber ?? "",
+          province: cat.province ?? "",
+          hcm: cat.healthTests?.hcm ?? "",
+          pkd: cat.healthTests?.pkd ?? "",
+          felv: cat.healthTests?.felv ?? "",
+          fiv: cat.healthTests?.fiv ?? "",
+          bloodType: cat.healthTests?.bloodType ?? "",
         }
       : {
           name: "",
@@ -162,6 +185,12 @@ function CatFormModal({
           vaccinated: false,
           registry: "",
           registrationNumber: "",
+          province: "",
+          hcm: "",
+          pkd: "",
+          felv: "",
+          fiv: "",
+          bloodType: "",
         }
   );
 
@@ -257,6 +286,11 @@ function CatFormModal({
         petCertificateUrl = await getDownloadURL(snap.ref);
       }
 
+      const healthTests: HealthTests = {
+        hcm: form.hcm, pkd: form.pkd, felv: form.felv, fiv: form.fiv,
+        bloodType: form.bloodType,
+      };
+
       const baseFields = {
         name: form.name.trim(),
         breed: form.breed,
@@ -268,6 +302,8 @@ function CatFormModal({
         ownerName: userDisplayName,
         registry: form.registry,
         registrationNumber: form.registrationNumber.trim(),
+        province: form.province,
+        healthTests,
         ...(petCertificateUrl !== undefined ? { petCertificateUrl } : {}),
       };
 
@@ -491,6 +527,28 @@ function CatFormModal({
                 </div>
               </div>
 
+              {/* Province */}
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-[#6B5232]">
+                  <MapPin className="mr-1 inline size-3 text-[#D4AF37]" />
+                  จังหวัด <span className="text-[#6B5232]/40">(ช่วยหาคู่ใกล้บ้าน)</span>
+                </label>
+                <div className="relative">
+                  <select
+                    value={form.province}
+                    onChange={(e) => patchForm("province", e.target.value)}
+                    className="w-full appearance-none rounded-xl px-3.5 py-2.5 pr-9 text-sm text-[#0B1D3A] outline-none"
+                    style={{ background: "#FFF5F8", border: "1px solid rgba(212,160,175,0.35)" }}
+                  >
+                    <option value="">ไม่ระบุจังหวัด</option>
+                    {THAI_PROVINCES.map((p) => (
+                      <option key={p} value={p}>{p}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-[#6B5232]/50" />
+                </div>
+              </div>
+
               {/* Vaccinated toggle */}
               <button
                 type="button"
@@ -518,6 +576,58 @@ function CatFormModal({
                   <CheckCircle className="ml-auto size-4 text-green-600" />
                 )}
               </button>
+
+              {/* ─── Health screening (breeding trust signals) ──────────── */}
+              <div className="rounded-2xl p-4" style={{ background: "rgba(74,144,217,0.06)", border: "1px solid rgba(74,144,217,0.20)" }}>
+                <div className="mb-1 flex items-center gap-2">
+                  <Stethoscope className="size-4 text-[#4A90D9]" />
+                  <p className="text-sm font-semibold text-[#0B1D3A]">ผลตรวจสุขภาพเชิงลึก</p>
+                </div>
+                <p className="mb-3 text-[11px] text-[#6B5232]/60">
+                  สำหรับการผสมพันธุ์ — ผลตรวจช่วยสร้างความน่าเชื่อถือให้โปรไฟล์ (ไม่บังคับ)
+                </p>
+                <div className="space-y-2.5">
+                  {HEALTH_TESTS.map((t) => {
+                    const val = form[t.key as "hcm" | "pkd" | "felv" | "fiv"];
+                    return (
+                      <div key={t.key} className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-medium text-[#0B1D3A]" title={t.full}>{t.label}</span>
+                        <div className="flex gap-1">
+                          {([["clear", "ผ่าน"], ["affected", "พบเชื้อ/ผิดปกติ"], ["", "ยังไม่ตรวจ"]] as const).map(([sv, sl]) => (
+                            <button key={sv} type="button"
+                              onClick={() => patchForm(t.key as "hcm" | "pkd" | "felv" | "fiv", sv as TestStatus)}
+                              className="rounded-full px-2.5 py-1 text-[10px] font-semibold transition-all"
+                              style={val === sv
+                                ? sv === "clear"
+                                  ? { background: "rgba(34,197,94,0.15)", color: "#166534", border: "1px solid rgba(34,197,94,0.4)" }
+                                  : sv === "affected"
+                                    ? { background: "rgba(176,64,96,0.12)", color: "#B04060", border: "1px solid rgba(176,64,96,0.35)" }
+                                    : { background: "rgba(107,82,50,0.10)", color: "#6B5232", border: "1px solid rgba(212,160,175,0.35)" }
+                                : { background: "#FFF5F8", color: "#6B5232", border: "1px solid rgba(212,160,175,0.25)" }}>
+                              {sl}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {/* Blood type */}
+                  <div className="flex items-center justify-between gap-2 pt-1">
+                    <span className="text-xs font-medium text-[#0B1D3A]">กรุ๊ปเลือด</span>
+                    <div className="flex gap-1">
+                      {["", ...BLOOD_TYPES].map((bt) => (
+                        <button key={bt || "none"} type="button" onClick={() => patchForm("bloodType", bt)}
+                          className="rounded-full px-2.5 py-1 text-[10px] font-semibold transition-all"
+                          style={form.bloodType === bt
+                            ? { background: "rgba(74,144,217,0.15)", color: "#2563eb", border: "1px solid rgba(74,144,217,0.4)" }
+                            : { background: "#FFF5F8", color: "#6B5232", border: "1px solid rgba(212,160,175,0.25)" }}>
+                          {bt || "ไม่ทราบ"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               {/* ─── Pet Certificate Section ────────────────────────────── */}
               <div
@@ -813,16 +923,22 @@ function CatCard({
         </h3>
         <p className="mt-0.5 text-xs text-[#6B5232]/70">
           {cat.breed} · {getAgeLabel(cat.age)}
+          {cat.province && <> · <MapPin className="inline size-3 text-[#D4AF37]" /> {cat.province}</>}
         </p>
-        {cat.registry && (
-          <span
-            className="mt-1.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
-            style={{ background: "rgba(212,175,55,0.18)", color: "#6B5232" }}
-          >
-            <FileText className="size-3" />
-            {cat.registry}
-          </span>
-        )}
+        <div className="mt-1.5 flex flex-wrap gap-1">
+          {cat.registry && (
+            <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+              style={{ background: "rgba(212,175,55,0.18)", color: "#6B5232" }}>
+              <FileText className="size-3" /> {cat.registry}
+            </span>
+          )}
+          {countClearTests(cat.healthTests) > 0 && (
+            <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+              style={{ background: "rgba(34,197,94,0.14)", color: "#166534" }}>
+              <HeartPulse className="size-3" /> ตรวจสุขภาพ {countClearTests(cat.healthTests)} รายการ
+            </span>
+          )}
+        </div>
         {cat.description && (
           <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-[#6B5232]/60">
             {cat.description}

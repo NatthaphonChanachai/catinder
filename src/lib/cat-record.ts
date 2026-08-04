@@ -1,5 +1,16 @@
 export type CatGender = "male" | "female";
 
+/** Health-screening result: "clear" = normal/negative (good), "affected" = positive/found, "" = not tested */
+export type TestStatus = "clear" | "affected" | "";
+
+export interface HealthTests {
+  hcm?: TestStatus;   // Hypertrophic Cardiomyopathy (heart)
+  pkd?: TestStatus;   // Polycystic Kidney Disease
+  felv?: TestStatus;  // Feline Leukemia Virus
+  fiv?: TestStatus;   // Feline Immunodeficiency Virus
+  bloodType?: string; // A | B | AB
+}
+
 export interface CatRecord {
   id: string;
   ownerId: string;
@@ -15,6 +26,8 @@ export interface CatRecord {
   registry?: string;
   registrationNumber?: string;
   petCertificateUrl?: string;
+  province?: string;
+  healthTests?: HealthTests;
 }
 
 type UnknownRecord = Record<string, unknown>;
@@ -25,6 +38,25 @@ function stringValue(value: unknown, fallback = ""): string {
 
 function numberValue(value: unknown, fallback = 0): number {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function testStatus(value: unknown): TestStatus {
+  return value === "clear" || value === "affected" ? value : "";
+}
+
+function normalizeHealthTests(raw: unknown): HealthTests | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const d = raw as UnknownRecord;
+  const t: HealthTests = {
+    hcm: testStatus(d.hcm),
+    pkd: testStatus(d.pkd),
+    felv: testStatus(d.felv),
+    fiv: testStatus(d.fiv),
+    bloodType: stringValue(d.bloodType) || undefined,
+  };
+  // return undefined if nothing meaningful was set
+  const hasAny = t.hcm || t.pkd || t.felv || t.fiv || t.bloodType;
+  return hasAny ? t : undefined;
 }
 
 /** Normalize documents created by both the legacy Vite and current Next app. */
@@ -57,5 +89,7 @@ export function normalizeCatRecord(id: string, raw: unknown): CatRecord {
       stringValue(data.registrationNumber || data.registryNumber) || undefined,
     petCertificateUrl:
       stringValue(data.petCertificateUrl || data.certPhotoURL) || undefined,
+    province: stringValue(data.province) || undefined,
+    healthTests: normalizeHealthTests(data.healthTests),
   };
 }
