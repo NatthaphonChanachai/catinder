@@ -339,6 +339,18 @@ export function DiscoverContent() {
           createdAt: serverTimestamp(),
         });
 
+        // In-app notification for the other cat's owner (fire-and-forget)
+        addDoc(collection(db, "notifications"), {
+          userId: target.ownerId,
+          fromUserId: user.uid,
+          type: "match",
+          title: "มีแมตช์ใหม่! 🎉",
+          body: `${target.name} แมตช์กับ ${liker.name} แล้ว`,
+          link: "/matches",
+          read: false,
+          createdAt: serverTimestamp(),
+        }).catch(() => {});
+
         // Send email notification to the other cat's owner (fire-and-forget)
         if (userProfile?.email) {
           fetch("/api/match-notification", {

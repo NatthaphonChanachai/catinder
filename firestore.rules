@@ -80,6 +80,14 @@ service cloud.firestore {
       }
     }
 
+    // Notifications: recipient reads/updates own; any authed user can create one
+    // for another user (e.g. on a match), stamped with their own fromUserId.
+    match /notifications/{notifId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.fromUserId == request.auth.uid;
+      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
     // Reports (safety): a user files a report; only admin can read/triage.
     match /reports/{reportId} {
       allow create: if request.auth != null

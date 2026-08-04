@@ -6,6 +6,7 @@ import { Gift } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
 import { AppSidebar, CatAvatar } from "@/components/shared/app-sidebar";
+import { NotificationsBell } from "@/components/shared/notifications-bell";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
@@ -28,6 +29,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <input type="text" placeholder="ค้นหาแมว ผู้เพาะพันธุ์ ..." className="flex-1 bg-transparent text-sm outline-none placeholder:text-[#6B5232]/40" />
           </div>
           <div className="ml-auto flex items-center gap-2.5">
+            <NotificationsBell />
             <CatAvatar size={10} />
             <div className="hidden sm:block">
               <p className="text-xs font-bold text-[#0B1D3A]">{displayName}</p>
