@@ -9,6 +9,7 @@ import {
   getDocs,
   getDoc,
   setDoc,
+  addDoc,
   doc,
   serverTimestamp,
   limit,
@@ -30,6 +31,8 @@ import {
   CheckCircle,
   SlidersHorizontal,
   ChevronDown,
+  Flag,
+  Ban,
 } from "lucide-react";
 
 const DISCOVER_BREEDS = [
@@ -95,6 +98,12 @@ export function DiscoverContent() {
   const [infoModal, setInfoModal] = useState<Cat | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
+  // Report / block (safety)
+  const [reportTarget, setReportTarget] = useState<Cat | null>(null);
+  const [reportSending, setReportSending] = useState(false);
+  const [safetyToast, setSafetyToast] = useState<string | null>(null);
+  const blockedRef = useRef<Set<string>>(new Set());
+
   // Discover filters
   const [filters, setFilters] = useState<DiscoverFilters>(EMPTY_FILTERS);
   const [showFilters, setShowFilters] = useState(false);
@@ -143,6 +152,7 @@ export function DiscoverContent() {
         const f = filtersRef.current;
         const filtered = allCats.filter((c) => {
           if (skipIds.has(c.id)) return false;
+          if (blockedRef.current.has(c.ownerId)) return false;
           if (f.breed && c.breed !== f.breed) return false;
           if (f.gender && c.gender !== f.gender) return false;
           if (f.vaccinatedOnly && !c.vaccinated) return false;
@@ -170,6 +180,14 @@ export function DiscoverContent() {
     }
     (async () => {
       try {
+        // Load blocked users first so they're filtered out of the queue
+        try {
+          const blkSnap = await getDocs(query(collection(db, "blocks"), where("userId", "==", user.uid)));
+          const set = new Set<string>();
+          blkSnap.forEach((d) => set.add(d.data().blockedUserId as string));
+          blockedRef.current = set;
+        } catch { /* ignore */ }
+
         const snap = await getDocs(
           query(collection(db, "cats"), where("ownerId", "==", user.uid))
         );
@@ -203,6 +221,56 @@ export function DiscoverContent() {
     setExitDir(dir);
     setQueueIndex((i) => i + 1);
   };
+
+  // ─── Report / Block (safety) ────────────────────────────────────────────────
+
+  function showSafetyToast(msg: string) {
+    setSafetyToast(msg);
+    setTimeout(() => setSafetyToast(null), 2500);
+  }
+
+  async function submitReport(target: Cat, reason: string) {
+    if (!user) return;
+    setReportSending(true);
+    try {
+      await addDoc(collection(db, "reports"), {
+        reporterId: user.uid,
+        targetCatId: target.id,
+        targetUserId: target.ownerId,
+        targetName: target.name,
+        reason,
+        status: "open",
+        createdAt: serverTimestamp(),
+      });
+      setReportTarget(null);
+      showSafetyToast("ส่งรายงานแล้ว ทีมงานจะตรวจสอบ");
+    } catch (err) {
+      console.error("[Discover] report error:", err);
+      showSafetyToast("ส่งรายงานไม่สำเร็จ");
+    } finally {
+      setReportSending(false);
+    }
+  }
+
+  async function blockOwner(target: Cat) {
+    if (!user) return;
+    try {
+      await setDoc(doc(db, "blocks", `${user.uid}_${target.ownerId}`), {
+        userId: user.uid,
+        blockedUserId: target.ownerId,
+        createdAt: serverTimestamp(),
+      });
+      blockedRef.current.add(target.ownerId);
+      setInfoModal(null);
+      setReportTarget(null);
+      // Drop this owner's cats from the current queue
+      setQueue((q) => q.filter((c) => c.ownerId !== target.ownerId));
+      showSafetyToast("บล็อกผู้ใช้นี้แล้ว");
+    } catch (err) {
+      console.error("[Discover] block error:", err);
+      showSafetyToast("บล็อกไม่สำเร็จ");
+    }
+  }
 
   // ─── Pass ───────────────────────────────────────────────────────────────────
 
@@ -724,8 +792,59 @@ export function DiscoverContent() {
               <p className="mt-3 text-xs text-[#6B5232]/45">
                 โดย {infoModal.ownerName}
               </p>
+
+              {/* Safety actions */}
+              <div className="mt-5 flex gap-2 border-t pt-4" style={{ borderColor: "rgba(212,160,175,0.18)" }}>
+                <button onClick={() => setReportTarget(infoModal)}
+                  className="flex flex-1 items-center justify-center gap-1.5 rounded-full py-2.5 text-xs font-semibold transition-colors"
+                  style={{ background: "rgba(212,160,175,0.10)", color: "#B04060" }}>
+                  <Flag className="size-3.5" /> รายงาน
+                </button>
+                <button onClick={() => blockOwner(infoModal)}
+                  className="flex flex-1 items-center justify-center gap-1.5 rounded-full py-2.5 text-xs font-semibold transition-colors"
+                  style={{ background: "rgba(176,64,96,0.08)", color: "#B04060" }}>
+                  <Ban className="size-3.5" /> บล็อกผู้ใช้นี้
+                </button>
+              </div>
             </motion.div>
           </>
+        )}
+      </AnimatePresence>
+
+      {/* Report reason sheet */}
+      <AnimatePresence>
+        {reportTarget && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center sm:p-4">
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => !reportSending && setReportTarget(null)} />
+            <motion.div initial={{ y: "100%" }} animate={{ y: 0, transition: { type: "spring", damping: 26, stiffness: 280 } }} exit={{ y: "100%" }}
+              className="relative w-full rounded-t-3xl p-5 pb-8 sm:max-w-sm sm:rounded-3xl" style={{ background: "#FFFAFC", border: "1px solid rgba(212,160,175,0.22)" }} onClick={(e) => e.stopPropagation()}>
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="font-heading text-lg font-bold text-[#0B1D3A]">รายงาน {reportTarget.name}</h3>
+                <button onClick={() => setReportTarget(null)} className="flex size-8 items-center justify-center rounded-full hover:bg-[#F9C5D1]/30"><X className="size-4 text-[#6B5232]" /></button>
+              </div>
+              <p className="mb-3 text-xs text-[#6B5232]/60">เลือกเหตุผลในการรายงาน</p>
+              <div className="space-y-2">
+                {["ข้อมูล/รูปภาพไม่เหมาะสม", "หลอกลวง / สแปม", "โปรไฟล์ปลอม", "ข้อมูลสายพันธุ์เป็นเท็จ", "อื่นๆ"].map((reason) => (
+                  <button key={reason} onClick={() => submitReport(reportTarget, reason)} disabled={reportSending}
+                    className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-medium text-[#0B1D3A] transition-colors hover:bg-[#FFF5F8] disabled:opacity-60"
+                    style={{ background: "#FFF5F8", border: "1px solid rgba(212,160,175,0.25)" }}>
+                    {reason}
+                    {reportSending ? <Loader2 className="size-4 animate-spin text-[#D4AF37]" /> : <Flag className="size-3.5 text-[#B04060]/50" />}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Safety toast */}
+      <AnimatePresence>
+        {safetyToast && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-24 left-1/2 z-[70] -translate-x-1/2 rounded-full px-5 py-2.5 text-sm font-semibold text-white shadow-lg lg:bottom-6" style={{ background: "#0B1D3A" }}>
+            {safetyToast}
+          </motion.div>
         )}
       </AnimatePresence>
 

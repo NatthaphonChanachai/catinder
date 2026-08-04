@@ -80,6 +80,19 @@ service cloud.firestore {
       }
     }
 
+    // Reports (safety): a user files a report; only admin can read/triage.
+    match /reports/{reportId} {
+      allow create: if request.auth != null
+        && request.resource.data.reporterId == request.auth.uid;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Blocks (safety): a user manages their own block list.
+    match /blocks/{blockId} {
+      allow read, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    }
+
     // Support chat: each user owns their own thread (doc id == their uid);
     // admin can read/write every thread to reply.
     match /supportChats/{uid} {
