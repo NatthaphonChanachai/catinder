@@ -7,7 +7,7 @@ import {
   Home,
   HeartHandshake,
   PawPrint,
-  MessageCircle,
+  Heart,
   User,
   BookOpen,
   Users2,
@@ -31,10 +31,10 @@ export function MobileBottomNav() {
   }
 
   const loggedInItems = [
-    { href: "/dashboard",  icon: Home,          label: t("dashboard") },
+    { href: "/dashboard",  icon: Home,           label: t("dashboard") },
     { href: "/discover",   icon: HeartHandshake, label: t("discover")  },
+    { href: "/matches",    icon: Heart,          label: t("matches")   },
     { href: "/cats",       icon: PawPrint,       label: t("myCats")    },
-    { href: "/chat",       icon: MessageCircle,  label: t("chat")      },
     { href: "/settings",   icon: User,           label: t("me")        },
   ] as const;
 

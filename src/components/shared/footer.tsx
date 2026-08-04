@@ -4,8 +4,7 @@ import { Link } from "@/i18n/navigation";
 
 const EXPLORE = [
   { href: "/about",     label: "เกี่ยวกับเรา" },
-  { href: "/knowledge", label: "คลังความรู้" },
-  { href: "/articles",  label: "บทความ" },
+  { href: "/articles",  label: "คลังความรู้" },
   { href: "/events",    label: "กิจกรรม" },
 ];
 const COMMUNITY = [

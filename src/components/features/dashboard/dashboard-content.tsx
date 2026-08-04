@@ -6,7 +6,7 @@ import {
   HeartHandshake, MessageCircle, PawPrint, Crown, Sparkles,
   Search, Home, BookOpen, CalendarDays, Gamepad2, Bookmark,
   ChevronRight, ChevronLeft, HeartPulse, Star,
-  Dna, Settings,
+  Heart, Settings,
   LogOut, Lock, Zap, Gift, CheckCheck, X,
 } from "lucide-react";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
@@ -18,18 +18,20 @@ import { fadeUp, staggerContainer } from "@/lib/motion";
 
 // ── Data ─────────────────────────────────────────────────────────────────────
 
-const NAV_LINKS = [
-  { icon: Home,          label: "หน้าหลัก",     href: "/dashboard", badge: 0 },
-  { icon: HeartHandshake,label: "จับคู่แมว",     href: "/discover",  badge: 0 },
-  { icon: PawPrint,      label: "โปรไฟล์แมว",   href: "/cats",      badge: 0 },
-  { icon: MessageCircle, label: "ข้อความ",       href: "/chat",      badge: 4 },
-  { icon: HeartPulse,    label: "บันทึกสุขภาพ",  href: "/health",    badge: 0 },
-  { icon: Dna,           label: "ผสมพันธุ์",     href: "/breeding",  badge: 0 },
-  { icon: BookOpen,      label: "คลังความรู้",   href: "/knowledge", badge: 0 },
-  { icon: Gamepad2,      label: "เกม",            href: "/games",     badge: 0 },
-  { icon: Bookmark,      label: "รายการโปรด",   href: "/favorites", badge: 0 },
-  { icon: Settings,      label: "ตั้งค่า",       href: "/settings",  badge: 0 },
+const NAV_PRIMARY = [
+  { icon: Home,          label: "หน้าหลัก",   href: "/dashboard", badge: 0 },
+  { icon: HeartHandshake,label: "จับคู่",     href: "/discover",  badge: 0 },
+  { icon: Heart,         label: "คู่ของฉัน",  href: "/matches",   badge: 0 },
+  { icon: PawPrint,      label: "แมวของฉัน",  href: "/cats",      badge: 0 },
+  { icon: Settings,      label: "ตั้งค่า",    href: "/settings",  badge: 0 },
 ];
+const NAV_SECONDARY = [
+  { icon: MessageCircle, label: "ข้อความ",       href: "/chat",     badge: 0 },
+  { icon: HeartPulse,    label: "บันทึกสุขภาพ",  href: "/health",   badge: 0 },
+  { icon: BookOpen,      label: "ความรู้",       href: "/articles", badge: 0 },
+  { icon: Gamepad2,      label: "เกม",           href: "/games",    badge: 0 },
+];
+const NAV_LINKS = [...NAV_PRIMARY, ...NAV_SECONDARY];
 
 // ── Mini Calendar ─────────────────────────────────────────────────────────────
 
@@ -159,7 +161,7 @@ function Sidebar() {
 
       {/* Nav */}
       <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-3 py-3">
-        {NAV_LINKS.map((l) => {
+        {NAV_PRIMARY.map((l) => {
           const Icon = l.icon;
           const active = pathname?.endsWith(l.href) || (l.href === "/dashboard" && pathname?.includes("dashboard"));
           return (
@@ -180,6 +182,28 @@ function Sidebar() {
                   {l.badge}
                 </span>
               )}
+            </Link>
+          );
+        })}
+
+        <p className="mt-4 mb-1 px-3 text-[10px] font-bold uppercase tracking-wider" style={{ color: "rgba(176,64,96,0.40)" }}>
+          เพิ่มเติม
+        </p>
+        {NAV_SECONDARY.map((l) => {
+          const Icon = l.icon;
+          const active = pathname?.endsWith(l.href);
+          return (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="group flex items-center gap-3 rounded-xl px-3 py-2 text-[13px] font-medium transition-all hover:bg-[#F9C5D1]/30"
+              style={{
+                background: active ? "rgba(212,140,165,0.20)" : "transparent",
+                color: active ? "#B04060" : "rgba(74,20,50,0.50)",
+              }}
+            >
+              <Icon className="size-4 flex-shrink-0" style={{ color: active ? "#D4AF37" : "rgba(176,64,96,0.45)" }} />
+              <span className="flex-1">{l.label}</span>
             </Link>
           );
         })}
@@ -606,10 +630,10 @@ export function DashboardContent() {
             {/* Quick Actions */}
             <motion.div variants={fadeUp} className="grid grid-cols-4 gap-2 sm:grid-cols-4">
               {[
-                { icon: BookOpen,   label: "คลังความรู้", href: "/knowledge", color: "#4A90D9" },
+                { icon: BookOpen,   label: "ความรู้",     href: "/articles", color: "#4A90D9" },
                 { icon: Gamepad2,   label: "เกม",          href: "/games",     color: "#D4AF37" },
                 { icon: HeartPulse, label: "สุขภาพ",       href: "/health",    color: "#E8706A" },
-                { icon: Bookmark,   label: "รายการโปรด",  href: "/favorites", color: "#7B5EA7" },
+                { icon: Bookmark,   label: "คู่ของฉัน",   href: "/matches", color: "#7B5EA7" },
               ].map(({ icon: Icon, label, href, color }) => (
                 <Link key={href} href={href}
                   className="flex flex-col items-center gap-2 rounded-2xl p-3 transition-all hover:-translate-y-0.5 hover:shadow-md"

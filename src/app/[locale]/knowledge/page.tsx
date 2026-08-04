@@ -1,19 +1,12 @@
-import { Navbar } from "@/components/shared/navbar";
-import { Footer } from "@/components/shared/footer";
-import { Newsletter } from "@/components/shared/newsletter";
-import { BackToTop } from "@/components/shared/back-to-top";
-import { KnowledgeContent } from "@/components/features/knowledge/knowledge-content";
+import { redirect } from "@/i18n/navigation";
 
-export default function KnowledgePage() {
-  return (
-    <>
-      <Navbar />
-      <main className="flex-1">
-        <KnowledgeContent />
-        <Newsletter />
-      </main>
-      <Footer />
-      <BackToTop />
-    </>
-  );
+// "คลังความรู้" merged into "บทความ" (/articles) — one content hub instead of two.
+// Kept as a redirect so old links still work.
+export default async function KnowledgePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  redirect({ href: "/articles", locale });
 }

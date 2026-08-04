@@ -19,7 +19,7 @@ const FEATURES = [
     icon: <BookOpen className="size-6" />,
     title: "ความรู้สุขภาพแมว",
     desc: "บทความและคู่มือจากผู้เชี่ยวชาญด้านสุขภาพ โภชนาการ และการดูแลแมว",
-    href: "/knowledge",
+    href: "/articles",
     color: "#F9C5D1",
     bg: "rgba(249,197,209,0.18)",
   },

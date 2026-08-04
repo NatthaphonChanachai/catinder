@@ -196,7 +196,7 @@ export function Hero() {
                   {t("ctaJoin")}
                 </a>
                 <LinkButton
-                  href="/knowledge"
+                  href="/articles"
                   variant="outline"
                   size="lg"
                   className="h-13 w-full rounded-full px-9 text-base font-semibold sm:w-auto"

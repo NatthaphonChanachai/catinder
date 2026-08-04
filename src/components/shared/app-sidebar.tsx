@@ -4,24 +4,30 @@ import { useEffect } from "react";
 import Image from "next/image";
 import {
   Home, HeartHandshake, PawPrint, MessageCircle, HeartPulse,
-  Dna, BookOpen, Gamepad2, Bookmark, Settings,
+  Heart, BookOpen, Gamepad2, Settings,
   Crown, Gift, Lock, CheckCheck, LogOut, Shield,
 } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { useAuth } from "@/contexts/auth-context";
 
-const NAV_LINKS = [
-  { icon: Home,           label: "หน้าหลัก",     href: "/dashboard", badge: 0 },
-  { icon: HeartHandshake, label: "จับคู่แมว",     href: "/discover",  badge: 0 },
-  { icon: PawPrint,       label: "โปรไฟล์แมว",   href: "/cats",      badge: 0 },
-  { icon: MessageCircle,  label: "ข้อความ",       href: "/chat",      badge: 0 },
-  { icon: HeartPulse,     label: "บันทึกสุขภาพ",  href: "/health",    badge: 0 },
-  { icon: Dna,            label: "ผสมพันธุ์",     href: "/breeding",  badge: 0 },
-  { icon: BookOpen,       label: "คลังความรู้",   href: "/knowledge", badge: 0 },
-  { icon: Gamepad2,        label: "เกม",            href: "/games",     badge: 0 },
-  { icon: Bookmark,       label: "รายการโปรด",   href: "/favorites", badge: 0 },
-  { icon: Settings,       label: "ตั้งค่า",       href: "/settings",  badge: 0 },
+// 5 core destinations (match the mobile bottom nav)
+const NAV_PRIMARY = [
+  { icon: Home,           label: "หน้าหลัก",   href: "/dashboard", badge: 0 },
+  { icon: HeartHandshake, label: "จับคู่",     href: "/discover",  badge: 0 },
+  { icon: Heart,          label: "คู่ของฉัน",  href: "/matches",   badge: 0 },
+  { icon: PawPrint,       label: "แมวของฉัน",  href: "/cats",      badge: 0 },
+  { icon: Settings,       label: "ตั้งค่า",    href: "/settings",  badge: 0 },
 ];
+
+// Secondary — reachable but not primary
+const NAV_SECONDARY = [
+  { icon: MessageCircle,  label: "ข้อความ",       href: "/chat",     badge: 0 },
+  { icon: HeartPulse,     label: "บันทึกสุขภาพ",  href: "/health",   badge: 0 },
+  { icon: BookOpen,       label: "ความรู้",       href: "/articles", badge: 0 },
+  { icon: Gamepad2,       label: "เกม",           href: "/games",    badge: 0 },
+];
+
+const NAV_LINKS = [...NAV_PRIMARY, ...NAV_SECONDARY];
 
 function CatAvatar({ size = 8 }: { size?: number }) {
   const cls = `size-${size}`;
@@ -102,7 +108,7 @@ export function AppSidebar() {
 
       {/* Nav */}
       <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-3 py-3">
-        {NAV_LINKS.map((l) => {
+        {NAV_PRIMARY.map((l) => {
           const Icon = l.icon;
           const active = pathname?.endsWith(l.href) || (l.href === "/dashboard" && pathname?.includes("dashboard"));
           return (
@@ -123,6 +129,29 @@ export function AppSidebar() {
                   {l.badge}
                 </span>
               )}
+            </Link>
+          );
+        })}
+
+        {/* Secondary group */}
+        <p className="mt-4 mb-1 px-3 text-[10px] font-bold uppercase tracking-wider" style={{ color: "rgba(176,64,96,0.40)" }}>
+          เพิ่มเติม
+        </p>
+        {NAV_SECONDARY.map((l) => {
+          const Icon = l.icon;
+          const active = pathname?.endsWith(l.href);
+          return (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="group flex items-center gap-3 rounded-xl px-3 py-2 text-[13px] font-medium transition-all hover:bg-[#F9C5D1]/30"
+              style={{
+                background: active ? "rgba(212,140,165,0.20)" : "transparent",
+                color: active ? "#B04060" : "rgba(74,20,50,0.50)",
+              }}
+            >
+              <Icon className="size-4 flex-shrink-0" style={{ color: active ? "#D4AF37" : "rgba(176,64,96,0.45)" }} />
+              <span className="flex-1">{l.label}</span>
             </Link>
           );
         })}

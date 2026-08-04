@@ -66,7 +66,7 @@ export function AboutPageContent() {
             <LinkButton href="/register" size="lg" className="rounded-full px-8">
               {t("ctaJoin")}
             </LinkButton>
-            <LinkButton href="/knowledge" variant="outline" size="lg" className="rounded-full px-8">
+            <LinkButton href="/articles" variant="outline" size="lg" className="rounded-full px-8">
               {t("ctaLearn")}
             </LinkButton>
           </motion.div>
@@ -217,7 +217,7 @@ export function AboutPageContent() {
             <LinkButton href="/register" size="lg" className="rounded-full px-8">
               {t("ctaJoin")}
             </LinkButton>
-            <LinkButton href="/knowledge" variant="outline" size="lg" className="rounded-full px-8 bg-white/60">
+            <LinkButton href="/articles" variant="outline" size="lg" className="rounded-full px-8 bg-white/60">
               {t("ctaLearn")}
             </LinkButton>
           </motion.div>
