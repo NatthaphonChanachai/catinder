@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import {
   collection,
@@ -28,7 +28,21 @@ import {
   Loader2,
   Shield,
   CheckCircle,
+  SlidersHorizontal,
+  ChevronDown,
 } from "lucide-react";
+
+const DISCOVER_BREEDS = [
+  "เปอร์เซีย", "สก็อตติชโฟลด์", "อเมริกันช็อตแฮร์", "เมนคูน", "รัสเซียนบลู",
+  "สยาม", "เบงกอล", "บริติชช็อตแฮร์", "อบิสซิเนียน", "โคราช", "วิเชียรมาศ", "แมวไทย", "ลูกผสม",
+];
+
+interface DiscoverFilters {
+  breed: string;
+  gender: "" | "male" | "female";
+  vaccinatedOnly: boolean;
+}
+const EMPTY_FILTERS: DiscoverFilters = { breed: "", gender: "", vaccinatedOnly: false };
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -81,6 +95,15 @@ export function DiscoverContent() {
   const [infoModal, setInfoModal] = useState<Cat | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
+  // Discover filters
+  const [filters, setFilters] = useState<DiscoverFilters>(EMPTY_FILTERS);
+  const [showFilters, setShowFilters] = useState(false);
+  const [draftFilters, setDraftFilters] = useState<DiscoverFilters>(EMPTY_FILTERS);
+  const filtersRef = useRef<DiscoverFilters>(filters);
+  useEffect(() => { filtersRef.current = filters; }, [filters]);
+  const activeFilterCount =
+    (filters.breed ? 1 : 0) + (filters.gender ? 1 : 0) + (filters.vaccinatedOnly ? 1 : 0);
+
   const activeCat: Cat | undefined = ownCats[activeCatIndex];
   const currentCat: Cat | undefined = queue[queueIndex];
 
@@ -117,7 +140,15 @@ export function DiscoverContent() {
         likedSnap.forEach((d) => skipIds.add(d.data().toCatId as string));
         passedSnap.forEach((d) => skipIds.add(d.data().toCatId as string));
 
-        setQueue(allCats.filter((c) => !skipIds.has(c.id)));
+        const f = filtersRef.current;
+        const filtered = allCats.filter((c) => {
+          if (skipIds.has(c.id)) return false;
+          if (f.breed && c.breed !== f.breed) return false;
+          if (f.gender && c.gender !== f.gender) return false;
+          if (f.vaccinatedOnly && !c.vaccinated) return false;
+          return true;
+        });
+        setQueue(filtered);
         setQueueIndex(0);
       } catch (err) {
         console.error("[Discover] loadQueue error:", err);
@@ -326,11 +357,25 @@ export function DiscoverContent() {
     <AppShell>
       <div className="mx-auto max-w-sm">
         {/* Header */}
-        <div className="mb-4">
-          <h1 className="text-xl font-extrabold text-[#0B1D3A]">จับคู่แมว</h1>
-          <p className="text-xs text-[#6B5232]/60">
-            {activeCat ? `จับคู่ให้ ${activeCat.name}` : "เลือกแมวที่ต้องการจับคู่"}
-          </p>
+        <div className="mb-4 flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <h1 className="text-xl font-extrabold text-[#0B1D3A]">จับคู่แมว</h1>
+            <p className="truncate text-xs text-[#6B5232]/60">
+              {activeCat ? `จับคู่ให้ ${activeCat.name}` : "เลือกแมวที่ต้องการจับคู่"}
+            </p>
+          </div>
+          <button
+            onClick={() => { setDraftFilters(filters); setShowFilters(true); }}
+            className="relative flex flex-shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold transition-colors"
+            style={{ background: "rgba(212,175,55,0.12)", border: "1px solid rgba(212,175,55,0.30)", color: "#C4A020" }}
+          >
+            <SlidersHorizontal className="size-3.5" /> ตัวกรอง
+            {activeFilterCount > 0 && (
+              <span className="flex size-4 items-center justify-center rounded-full text-[9px] font-bold text-[#0B1D3A]" style={{ background: "#D4AF37" }}>
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
         </div>
 
         {/* Cat selector (only shown when user has >1 cat) */}
@@ -813,6 +858,74 @@ export function DiscoverContent() {
                 >
                   ดูต่อ
                 </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Filter bottom sheet */}
+      <AnimatePresence>
+        {showFilters && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowFilters(false)} />
+            <motion.div initial={{ y: "100%" }} animate={{ y: 0, transition: { type: "spring", damping: 26, stiffness: 280 } }} exit={{ y: "100%" }}
+              className="relative w-full rounded-t-3xl p-5 pb-8 sm:max-w-sm sm:rounded-3xl" style={{ background: "#FFFAFC", border: "1px solid rgba(212,160,175,0.22)" }} onClick={(e) => e.stopPropagation()}>
+              <div className="mb-5 flex items-center justify-between">
+                <h3 className="font-heading text-lg font-bold text-[#0B1D3A]">ตัวกรองการจับคู่</h3>
+                <button onClick={() => setShowFilters(false)} className="flex size-8 items-center justify-center rounded-full hover:bg-[#F9C5D1]/30"><X className="size-4 text-[#6B5232]" /></button>
+              </div>
+
+              <div className="space-y-4">
+                {/* Breed */}
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold text-[#6B5232]">สายพันธุ์</label>
+                  <div className="relative">
+                    <select value={draftFilters.breed} onChange={(e) => setDraftFilters((f) => ({ ...f, breed: e.target.value }))}
+                      className="w-full appearance-none rounded-xl px-3.5 py-2.5 pr-9 text-sm text-[#0B1D3A] outline-none" style={{ background: "#FFF5F8", border: "1px solid rgba(212,160,175,0.35)" }}>
+                      <option value="">ทุกสายพันธุ์</option>
+                      {DISCOVER_BREEDS.map((b) => <option key={b} value={b}>{b}</option>)}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-[#6B5232]/50" />
+                  </div>
+                </div>
+
+                {/* Gender */}
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold text-[#6B5232]">เพศ</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {([["", "ทั้งหมด"], ["female", "♀ เมีย"], ["male", "♂ ผู้"]] as const).map(([val, lbl]) => (
+                      <button key={val} onClick={() => setDraftFilters((f) => ({ ...f, gender: val }))}
+                        className="rounded-xl py-2.5 text-sm font-semibold transition-all"
+                        style={draftFilters.gender === val
+                          ? { background: "linear-gradient(135deg,#EDD060,#D4AF37)", color: "#0B1D3A" }
+                          : { background: "#FFF5F8", border: "1px solid rgba(212,160,175,0.35)", color: "#6B5232" }}>
+                        {lbl}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Vaccinated */}
+                <button onClick={() => setDraftFilters((f) => ({ ...f, vaccinatedOnly: !f.vaccinatedOnly }))}
+                  className="flex w-full items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-semibold transition-all"
+                  style={draftFilters.vaccinatedOnly
+                    ? { background: "rgba(34,197,94,0.10)", border: "1px solid rgba(34,197,94,0.35)", color: "#166534" }
+                    : { background: "#FFF5F8", border: "1px solid rgba(212,160,175,0.35)", color: "#6B5232" }}>
+                  <Shield className={`size-4 ${draftFilters.vaccinatedOnly ? "text-green-600" : "text-[#6B5232]/50"}`} />
+                  เฉพาะที่ฉีดวัคซีนแล้ว
+                  {draftFilters.vaccinatedOnly && <CheckCircle className="ml-auto size-4 text-green-600" />}
+                </button>
+
+                <div className="flex gap-2 pt-1">
+                  <button onClick={() => setDraftFilters(EMPTY_FILTERS)}
+                    className="rounded-full px-5 py-3 text-sm font-semibold" style={{ border: "1px solid rgba(212,160,175,0.35)", color: "#6B5232" }}>ล้าง</button>
+                  <button onClick={() => { setFilters(draftFilters); filtersRef.current = draftFilters; setShowFilters(false); if (activeCat) void loadQueue(activeCat); }}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-full py-3 text-sm font-bold"
+                    style={{ background: "linear-gradient(135deg,#EDD060,#D4AF37)", color: "#0B1D3A" }}>
+                    ใช้ตัวกรอง
+                  </button>
+                </div>
               </div>
             </motion.div>
           </motion.div>
