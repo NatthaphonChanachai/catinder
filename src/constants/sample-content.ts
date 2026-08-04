@@ -121,7 +121,62 @@ export const FEATURED_ARTICLES = ALL_ARTICLES.filter((a) => a.featured);
 export const ALL_EVENTS: (CatEvent & {
   isoDate: string;
   type: "online" | "bangkok" | "chiangmai" | "other";
-})[] = [];
+})[] = [
+  {
+    slug: "webinar-kitten-care-101",
+    title: "สัมมนาออนไลน์: ดูแลลูกแมวมือใหม่ 101",
+    date: "16 สิงหาคม 2569 · 19:00–20:30 น.",
+    isoDate: "2026-08-16",
+    location: "ออนไลน์ (Zoom) — ฟรี",
+    type: "online",
+    image: "https://cataas.com/cat?width=600&height=450&t=ev-kitten",
+  },
+  {
+    slug: "cat-cafe-meetup-bkk",
+    title: "Catinder Meetup: จิบกาแฟกับทาสแมว กรุงเทพฯ",
+    date: "23 สิงหาคม 2569 · 14:00–17:00 น.",
+    isoDate: "2026-08-23",
+    location: "Cat Café ทองหล่อ ซอย 13, กรุงเทพฯ",
+    type: "bangkok",
+    image: "https://cataas.com/cat?width=600&height=450&t=ev-meetup",
+  },
+  {
+    slug: "tica-cat-show-2026",
+    title: "TICA Cat Show Thailand 2026 — ประกวดแมวพันธุ์แท้",
+    date: "6–7 กันยายน 2569 · 10:00–18:00 น.",
+    isoDate: "2026-09-06",
+    location: "ศูนย์ประชุมไบเทค บางนา, กรุงเทพฯ",
+    type: "bangkok",
+    image: "https://cataas.com/cat?width=600&height=450&t=ev-show",
+  },
+  {
+    slug: "webinar-nutrition-by-age",
+    title: "สัมมนาออนไลน์: โภชนาการแมวตามช่วงวัย โดยสัตวแพทย์",
+    date: "20 กันยายน 2569 · 20:00–21:00 น.",
+    isoDate: "2026-09-20",
+    location: "ออนไลน์ (Facebook Live) — ฟรี",
+    type: "online",
+    image: "https://cataas.com/cat?width=600&height=450&t=ev-nutrition",
+  },
+  {
+    slug: "cat-meetup-chiangmai",
+    title: "Catinder Meetup เชียงใหม่: เจอเพื่อนทาสแมวภาคเหนือ",
+    date: "27 กันยายน 2569 · 15:00–18:00 น.",
+    isoDate: "2026-09-27",
+    location: "ร้าน Meow Café นิมมานเหมินท์, เชียงใหม่",
+    type: "chiangmai",
+    image: "https://cataas.com/cat?width=600&height=450&t=ev-cm",
+  },
+  {
+    slug: "vaccine-clinic-day",
+    title: "วันคลินิกวัคซีนสัญจร ราคาพิเศษสำหรับสมาชิก",
+    date: "11 ตุลาคม 2569 · 09:00–16:00 น.",
+    isoDate: "2026-10-11",
+    location: "รพ.สัตว์ทองหล่อ สาขาพระราม 9, กรุงเทพฯ",
+    type: "bangkok",
+    image: "https://cataas.com/cat?width=600&height=450&t=ev-vaccine",
+  },
+];
 
 // Backward-compat: homepage imports UPCOMING_EVENTS
 export const UPCOMING_EVENTS = ALL_EVENTS.slice(0, 2);
