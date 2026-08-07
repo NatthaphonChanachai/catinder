@@ -5,6 +5,7 @@ import { Link } from "@/i18n/navigation";
 const EXPLORE = [
   { href: "/about",     label: "เกี่ยวกับเรา" },
   { href: "/articles",  label: "คลังความรู้" },
+  { href: "/breeding-calculator", label: "คำนวณกำหนดคลอด" },
   { href: "/events",    label: "กิจกรรม" },
 ];
 const COMMUNITY = [
