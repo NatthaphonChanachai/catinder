@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { motion, AnimatePresence, type Variants } from "framer-motion";
+import { m, AnimatePresence, type Variants } from "framer-motion";
 import {
   collection,
   query,
@@ -414,7 +414,7 @@ export function DiscoverContent() {
     return (
       <AppShell>
         <div className="mx-auto max-w-sm">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col items-center justify-center rounded-3xl px-6 py-20 text-center"
@@ -440,7 +440,7 @@ export function DiscoverContent() {
             >
               <HeartHandshake className="size-4" /> เพิ่มโปรไฟล์แมว
             </Link>
-          </motion.div>
+          </m.div>
         </div>
       </AppShell>
     );
@@ -516,7 +516,7 @@ export function DiscoverContent() {
         <div className="relative" style={{ height: 480 }}>
           <AnimatePresence mode="wait" custom={exitDir}>
             {currentCat ? (
-              <motion.div
+              <m.div
                 key={currentCat.id}
                 custom={exitDir}
                 variants={cardVariants}
@@ -632,10 +632,10 @@ export function DiscoverContent() {
                     โดย {currentCat.ownerName}
                   </p>
                 </div>
-              </motion.div>
+              </m.div>
             ) : (
               /* Queue empty state */
-              <motion.div
+              <m.div
                 key="queue-empty"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -665,7 +665,7 @@ export function DiscoverContent() {
                 >
                   โหลดใหม่
                 </button>
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
         </div>
@@ -735,7 +735,7 @@ export function DiscoverContent() {
       <AnimatePresence>
         {infoModal && (
           <>
-            <motion.div
+            <m.div
               key="info-backdrop"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -747,7 +747,7 @@ export function DiscoverContent() {
                 backdropFilter: "blur(4px)",
               }}
             />
-            <motion.div
+            <m.div
               key="info-sheet"
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
@@ -867,7 +867,7 @@ export function DiscoverContent() {
                   <Ban className="size-3.5" /> บล็อกผู้ใช้นี้
                 </button>
               </div>
-            </motion.div>
+            </m.div>
           </>
         )}
       </AnimatePresence>
@@ -875,9 +875,9 @@ export function DiscoverContent() {
       {/* Report reason sheet */}
       <AnimatePresence>
         {reportTarget && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center sm:p-4">
+          <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center sm:p-4">
             <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => !reportSending && setReportTarget(null)} />
-            <motion.div initial={{ y: "100%" }} animate={{ y: 0, transition: { type: "spring", damping: 26, stiffness: 280 } }} exit={{ y: "100%" }}
+            <m.div initial={{ y: "100%" }} animate={{ y: 0, transition: { type: "spring", damping: 26, stiffness: 280 } }} exit={{ y: "100%" }}
               className="relative w-full rounded-t-3xl p-5 pb-8 sm:max-w-sm sm:rounded-3xl" style={{ background: "#FFFAFC", border: "1px solid rgba(212,160,175,0.22)" }} onClick={(e) => e.stopPropagation()}>
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="font-heading text-lg font-bold text-[#0B1D3A]">รายงาน {reportTarget.name}</h3>
@@ -894,25 +894,25 @@ export function DiscoverContent() {
                   </button>
                 ))}
               </div>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
 
       {/* Safety toast */}
       <AnimatePresence>
         {safetyToast && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
+          <m.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
             className="fixed bottom-24 left-1/2 z-[70] -translate-x-1/2 rounded-full px-5 py-2.5 text-sm font-semibold text-white shadow-lg lg:bottom-6" style={{ background: "#0B1D3A" }}>
             {safetyToast}
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
       {/* ─── Match celebration overlay ───────────────────────────────────────── */}
       <AnimatePresence>
         {matchModal && (
-          <motion.div
+          <m.div
             key="match-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -923,7 +923,7 @@ export function DiscoverContent() {
               backdropFilter: "blur(14px)",
             }}
           >
-            <motion.div
+            <m.div
               initial={{ scale: 0.82, opacity: 0, y: 28 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: -10 }}
@@ -1039,17 +1039,17 @@ export function DiscoverContent() {
                   ดูต่อ
                 </button>
               </div>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
 
       {/* Filter bottom sheet */}
       <AnimatePresence>
         {showFilters && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
+          <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
             <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowFilters(false)} />
-            <motion.div initial={{ y: "100%" }} animate={{ y: 0, transition: { type: "spring", damping: 26, stiffness: 280 } }} exit={{ y: "100%" }}
+            <m.div initial={{ y: "100%" }} animate={{ y: 0, transition: { type: "spring", damping: 26, stiffness: 280 } }} exit={{ y: "100%" }}
               className="relative w-full rounded-t-3xl p-5 pb-8 sm:max-w-sm sm:rounded-3xl" style={{ background: "#FFFAFC", border: "1px solid rgba(212,160,175,0.22)" }} onClick={(e) => e.stopPropagation()}>
               <div className="mb-5 flex items-center justify-between">
                 <h3 className="font-heading text-lg font-bold text-[#0B1D3A]">ตัวกรองการจับคู่</h3>
@@ -1122,8 +1122,8 @@ export function DiscoverContent() {
                   </button>
                 </div>
               </div>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
     </AppShell>

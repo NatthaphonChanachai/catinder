@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { ChevronUp } from "lucide-react";
 
 export function BackToTop() {
@@ -16,7 +16,7 @@ export function BackToTop() {
   return (
     <AnimatePresence>
       {visible && (
-        <motion.button
+        <m.button
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.8 }}
@@ -26,7 +26,7 @@ export function BackToTop() {
           className="fixed bottom-6 right-6 z-50 flex size-11 items-center justify-center rounded-full bg-[var(--soft-gold)] shadow-lg transition-opacity hover:opacity-90"
         >
           <ChevronUp className="size-5 text-foreground" />
-        </motion.button>
+        </m.button>
       )}
     </AnimatePresence>
   );

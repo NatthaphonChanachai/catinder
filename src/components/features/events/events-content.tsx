@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { CalendarDays, MapPin, CheckCircle2, CalendarRange, Wifi, Users } from "lucide-react";
@@ -51,21 +51,21 @@ export function EventsContent() {
       {/* ── Hero ── */}
       <section className="relative overflow-hidden bg-gradient-to-b from-[var(--champagne)]/40 to-background px-6 py-16 text-center sm:py-20">
         <HeavenBg dense={false} hearts={false} />
-        <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="relative mx-auto max-w-2xl">
-          <motion.span variants={fadeUp} className="inline-block rounded-full bg-[var(--soft-gold)]/40 px-4 py-1.5 text-xs font-bold uppercase tracking-widest">
+        <m.div initial="hidden" animate="visible" variants={staggerContainer} className="relative mx-auto max-w-2xl">
+          <m.span variants={fadeUp} className="inline-block rounded-full bg-[var(--soft-gold)]/40 px-4 py-1.5 text-xs font-bold uppercase tracking-widest">
             {t("badge")}
-          </motion.span>
-          <motion.h1 variants={fadeUp} className="mt-5 text-3xl font-extrabold sm:text-4xl">
+          </m.span>
+          <m.h1 variants={fadeUp} className="mt-5 text-3xl font-extrabold sm:text-4xl">
             {t("title")}
-          </motion.h1>
-          <motion.p variants={fadeUp} className="mt-4 text-base text-muted-foreground">
+          </m.h1>
+          <m.p variants={fadeUp} className="mt-4 text-base text-muted-foreground">
             {t("subtitle")}
-          </motion.p>
-          <motion.div variants={fadeUp} className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+          </m.p>
+          <m.div variants={fadeUp} className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <Wifi className="size-3.5 text-[var(--soft-gold)]" />
             {t("onlineOnlyBadge")}
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       </section>
 
       {/* ── Filters + view toggle ── */}
@@ -114,7 +114,7 @@ export function EventsContent() {
       <section className="px-6 py-12 sm:py-16">
         <div className="mx-auto max-w-3xl">
           {viewMode === "calendar" ? (
-            <motion.div
+            <m.div
               initial="hidden"
               animate="visible"
               variants={fadeUp}
@@ -122,13 +122,13 @@ export function EventsContent() {
             >
               <CalendarRange className="size-10 text-[var(--soft-gold)]" />
               <p className="text-muted-foreground">{t("calendarComingSoon")}</p>
-            </motion.div>
+            </m.div>
           ) : filtered.length === 0 ? (
-            <motion.p initial="hidden" animate="visible" variants={fadeUp} className="py-16 text-center text-muted-foreground">
+            <m.p initial="hidden" animate="visible" variants={fadeUp} className="py-16 text-center text-muted-foreground">
               {t("noEvents")}
-            </motion.p>
+            </m.p>
           ) : (
-            <motion.div
+            <m.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
@@ -140,7 +140,7 @@ export function EventsContent() {
                   const isJoined = joined.includes(event.slug);
                   const days = daysUntil(event.isoDate);
                   return (
-                    <motion.div
+                    <m.div
                       key={event.slug}
                       layout
                       variants={fadeUp}
@@ -188,11 +188,11 @@ export function EventsContent() {
                       >
                         {isJoined ? "✓" : te("join")}
                       </button>
-                    </motion.div>
+                    </m.div>
                   );
                 })}
               </AnimatePresence>
-            </motion.div>
+            </m.div>
           )}
         </div>
       </section>

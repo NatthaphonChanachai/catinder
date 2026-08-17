@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import {
   collection,
   query,
@@ -331,7 +331,7 @@ function CatFormModal({
   }
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, transition: { duration: 0.2 } }}
@@ -345,7 +345,7 @@ function CatFormModal({
 
       {/* Panel: bottom sheet on mobile, centered card on sm+ */}
       <div className="absolute inset-0 flex items-end justify-center sm:items-center sm:p-4">
-        <motion.div
+        <m.div
           initial={{ y: "100%" }}
           animate={{
             y: 0,
@@ -652,7 +652,7 @@ function CatFormModal({
 
                 <AnimatePresence initial={false}>
                   {showPetInfo && (
-                    <motion.div
+                    <m.div
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
@@ -788,7 +788,7 @@ function CatFormModal({
                           )}
                         </div>
                       </div>
-                    </motion.div>
+                    </m.div>
                   )}
                 </AnimatePresence>
               </div>
@@ -841,9 +841,9 @@ function CatFormModal({
               </button>
             </form>
           </div>
-        </motion.div>
+        </m.div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -871,7 +871,7 @@ function CatCard({
   const photo = cat.photos[0];
 
   return (
-    <motion.div
+    <m.div
       variants={fadeUp}
       className="overflow-hidden rounded-3xl"
       style={{
@@ -948,7 +948,7 @@ function CatCard({
         {/* Action row with animated state switch */}
         <AnimatePresence mode="wait">
           {isConfirmingDelete ? (
-            <motion.div
+            <m.div
               key="confirm"
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
@@ -987,9 +987,9 @@ function CatCard({
                   ยกเลิก
                 </button>
               </div>
-            </motion.div>
+            </m.div>
           ) : (
-            <motion.div
+            <m.div
               key="actions"
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
@@ -1017,11 +1017,11 @@ function CatCard({
               >
                 <Trash2 className="size-4" />
               </button>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -1116,14 +1116,14 @@ export function CatsContent() {
         )}
       </AnimatePresence>
 
-      <motion.div
+      <m.div
         initial="hidden"
         animate="visible"
         variants={staggerContainer}
         className="mx-auto max-w-4xl space-y-5"
       >
         {/* Header */}
-        <motion.div
+        <m.div
           variants={fadeUp}
           className="flex items-center justify-between"
         >
@@ -1159,11 +1159,11 @@ export function CatsContent() {
               <Plus className="size-4" /> เพิ่มแมว
             </button>
           )}
-        </motion.div>
+        </m.div>
 
         {/* Loading skeleton */}
         {catsLoading && (
-          <motion.div variants={fadeUp} className="grid gap-4 sm:grid-cols-2">
+          <m.div variants={fadeUp} className="grid gap-4 sm:grid-cols-2">
             {[0, 1].map((i) => (
               <div
                 key={i}
@@ -1180,7 +1180,7 @@ export function CatsContent() {
                 </div>
               </div>
             ))}
-          </motion.div>
+          </m.div>
         )}
 
         {/* Content: empty state or cat grid */}
@@ -1188,7 +1188,7 @@ export function CatsContent() {
           <>
             {cats.length === 0 ? (
               /* Empty state */
-              <motion.div variants={fadeUp}>
+              <m.div variants={fadeUp}>
                 <div
                   className="flex flex-col items-center justify-center rounded-3xl py-16 text-center"
                   style={{
@@ -1214,10 +1214,10 @@ export function CatsContent() {
                     <Plus className="size-4" /> เพิ่มแมวตัวแรก
                   </button>
                 </div>
-              </motion.div>
+              </m.div>
             ) : (
               /* Cat cards grid */
-              <motion.div
+              <m.div
                 variants={fadeUp}
                 className="grid gap-4 sm:grid-cols-2"
               >
@@ -1282,11 +1282,11 @@ export function CatsContent() {
                     </Link>
                   </div>
                 )}
-              </motion.div>
+              </m.div>
             )}
           </>
         )}
-      </motion.div>
+      </m.div>
     </AppShell>
   );
 }

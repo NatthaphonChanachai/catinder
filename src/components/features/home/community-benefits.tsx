@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { ShieldCheck, BookOpenText, Users2, Sparkle } from "lucide-react";
 import { fadeUp, staggerContainer } from "@/lib/motion";
 
@@ -14,7 +14,7 @@ export function CommunityBenefits() {
 
   return (
     <section className="bg-[var(--warm-ivory)] px-4 sm:px-6 py-14 sm:py-20">
-      <motion.div
+      <m.div
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-80px" }}
@@ -23,10 +23,10 @@ export function CommunityBenefits() {
       >
         <h2 className="text-xl font-extrabold sm:text-2xl lg:text-3xl">{t("title")}</h2>
         <p className="mt-2.5 text-sm text-muted-foreground sm:mt-3">{t("subtitle")}</p>
-      </motion.div>
+      </m.div>
 
       {/* ── Mobile: 2×2 grid (compact) ── */}
-      <motion.div
+      <m.div
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-80px" }}
@@ -36,7 +36,7 @@ export function CommunityBenefits() {
         {items.map((item, i) => {
           const Icon = ICONS[i]!;
           return (
-            <motion.div
+            <m.div
               key={item.title}
               variants={fadeUp}
               whileTap={{ scale: 0.97 }}
@@ -47,13 +47,13 @@ export function CommunityBenefits() {
               </div>
               <h3 className="mt-3 text-[13px] font-bold leading-tight">{item.title}</h3>
               <p className="mt-1.5 text-[11px] leading-relaxed text-muted-foreground line-clamp-3">{item.desc}</p>
-            </motion.div>
+            </m.div>
           );
         })}
-      </motion.div>
+      </m.div>
 
       {/* ── Desktop: 4-column grid (unchanged) ── */}
-      <motion.div
+      <m.div
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-80px" }}
@@ -63,7 +63,7 @@ export function CommunityBenefits() {
         {items.map((item, i) => {
           const Icon = ICONS[i]!;
           return (
-            <motion.div
+            <m.div
               key={item.title}
               variants={fadeUp}
               className="rounded-3xl bg-card p-6 shadow-sm ring-1 ring-border/60"
@@ -73,10 +73,10 @@ export function CommunityBenefits() {
               </div>
               <h3 className="mt-4 text-base font-bold">{item.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.desc}</p>
-            </motion.div>
+            </m.div>
           );
         })}
-      </motion.div>
+      </m.div>
     </section>
   );
 }

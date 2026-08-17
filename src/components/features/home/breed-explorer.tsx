@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Shuffle, MapPin, Sparkles } from "lucide-react";
 import { fadeUp } from "@/lib/motion";
 import { CAT_BREED_KEYS } from "@/constants/sample-content";
@@ -23,7 +23,7 @@ export function BreedExplorer() {
   }
 
   return (
-    <motion.section
+    <m.section
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-80px" }}
@@ -37,7 +37,7 @@ export function BreedExplorer() {
 
       <div className="relative mt-10 overflow-hidden rounded-[2rem] bg-card shadow-sm ring-1 ring-border/60">
         <AnimatePresence mode="wait">
-          <motion.div
+          <m.div
             key={breed.key}
             initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
@@ -58,7 +58,7 @@ export function BreedExplorer() {
               <p className="mt-3 text-sm font-semibold text-muted-foreground">{t("temperament")}</p>
               <p className="mt-1 text-base leading-relaxed">{info.temperament}</p>
             </div>
-          </motion.div>
+          </m.div>
         </AnimatePresence>
       </div>
 
@@ -70,6 +70,6 @@ export function BreedExplorer() {
           <Shuffle className="size-4" /> {t("discoverAnother")}
         </button>
       </div>
-    </motion.section>
+    </m.section>
   );
 }

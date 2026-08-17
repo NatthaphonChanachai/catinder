@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import {
   HeartHandshake, MessageCircle, PawPrint, Crown, Sparkles,
@@ -475,7 +475,7 @@ export function DashboardContent() {
 
         {/* ── Page body ── */}
         <main className="flex-1 p-4 sm:p-5 lg:p-6">
-          <motion.div
+          <m.div
             initial="hidden"
             animate="visible"
             variants={staggerContainer}
@@ -485,19 +485,19 @@ export function DashboardContent() {
             {/* Toast */}
             <AnimatePresence>
               {toast && (
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}
                   className="fixed left-1/2 top-20 z-50 -translate-x-1/2 rounded-2xl px-5 py-3 text-sm font-bold shadow-xl"
                   style={{ background: "linear-gradient(135deg,#EDD060,#D4AF37)", color: "#0B1D3A" }}
                 >
                   {toast}
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
 
             {/* Onboarding welcome card — shown only when user has no cats */}
             {showOnboarding && (
-              <motion.div
+              <m.div
                 variants={fadeUp}
                 className="relative overflow-hidden rounded-2xl p-5"
                 style={{
@@ -580,11 +580,11 @@ export function DashboardContent() {
                   <PawPrint className="size-4" />
                   เพิ่มแมวตัวแรก →
                 </Link>
-              </motion.div>
+              </m.div>
             )}
 
             {/* Hero banner */}
-            <motion.div variants={fadeUp} className="relative overflow-hidden rounded-2xl" style={{ minHeight: "200px" }}>
+            <m.div variants={fadeUp} className="relative overflow-hidden rounded-2xl" style={{ minHeight: "200px" }}>
               <Image src="/img/Blackgroud.png" alt="" fill className="object-cover object-center" quality={85} />
               <div className="absolute inset-0"
                 style={{ background: "linear-gradient(110deg,rgba(11,29,58,0.72) 0%,rgba(11,29,58,0.38) 50%,rgba(11,29,58,0.04) 100%)" }} />
@@ -619,16 +619,16 @@ export function DashboardContent() {
                 <div className="relative hidden sm:block">
                   <div className="absolute inset-0 -m-6 rounded-full"
                     style={{ background: "radial-gradient(circle,rgba(212,175,55,0.35),transparent 70%)", filter: "blur(20px)" }} />
-                  <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}>
+                  <m.div animate={{ y: [0, -10, 0] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}>
                     <Image src="/img/mascot.png" alt="" width={150} height={150} className="relative"
                       style={{ filter: "drop-shadow(0 8px 24px rgba(212,175,55,0.55))" }} />
-                  </motion.div>
+                  </m.div>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
 
             {/* Quick Actions */}
-            <motion.div variants={fadeUp} className="grid grid-cols-4 gap-2 sm:grid-cols-4">
+            <m.div variants={fadeUp} className="grid grid-cols-4 gap-2 sm:grid-cols-4">
               {[
                 { icon: BookOpen,   label: "ความรู้",     href: "/articles", color: "#4A90D9" },
                 { icon: Gamepad2,   label: "เกม",          href: "/games",     color: "#D4AF37" },
@@ -645,10 +645,10 @@ export function DashboardContent() {
                   <span className="text-[11px] font-semibold text-[#0B1D3A]">{label}</span>
                 </Link>
               ))}
-            </motion.div>
+            </m.div>
 
             {/* Stats row */}
-            <motion.div variants={fadeUp} className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <m.div variants={fadeUp} className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               {[
                 {
                   label: "การจับคู่ที่แอคทีฟ",
@@ -667,10 +667,10 @@ export function DashboardContent() {
                   <p className="text-xl font-extrabold text-[#0B1D3A]">{s.value}</p>
                 </div>
               ))}
-            </motion.div>
+            </m.div>
 
             {/* AI Match Recommendations */}
-            <motion.section variants={fadeUp}>
+            <m.section variants={fadeUp}>
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="text-base font-bold text-[#0B1D3A]">
                   <Star className="mr-1.5 inline size-4 text-[#D4AF37]" />
@@ -690,10 +690,10 @@ export function DashboardContent() {
                   เพิ่มแมว
                 </Link>
               </div>
-            </motion.section>
+            </m.section>
 
             {/* Featured Cat Profiles */}
-            <motion.section variants={fadeUp}>
+            <m.section variants={fadeUp}>
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="text-base font-bold text-[#0B1D3A]">
                   <Crown className="mr-1.5 inline size-4 text-[#D4AF37]" />
@@ -709,9 +709,9 @@ export function DashboardContent() {
                 <p className="text-sm font-bold text-[#0B1D3A]">ยังไม่มีโปรไฟล์แนะนำ</p>
                 <p className="mt-1 text-xs text-[#6B5232]/50">โปรไฟล์แมวจากชุมชนจะแสดงที่นี่</p>
               </div>
-            </motion.section>
+            </m.section>
 
-          </motion.div>
+          </m.div>
         </main>
       </div>
 

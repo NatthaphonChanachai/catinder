@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { BarChart3, Check } from "lucide-react";
 import { fadeUp } from "@/lib/motion";
 import { useLocalStorage } from "@/hooks/use-local-storage";
@@ -26,7 +26,7 @@ export function CommunityPoll() {
   const total = votes.reduce((a, b) => a + b, 0);
 
   return (
-    <motion.section
+    <m.section
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-60px" }}
@@ -56,7 +56,7 @@ export function CommunityPoll() {
                 className="relative overflow-hidden rounded-2xl bg-muted px-4 py-3 text-left text-sm font-semibold disabled:cursor-default"
               >
                 {voted !== null && (
-                  <motion.div
+                  <m.div
                     initial={{ width: 0 }}
                     animate={{ width: `${pct}%` }}
                     transition={{ duration: 0.5, ease: "easeOut" }}
@@ -77,6 +77,6 @@ export function CommunityPoll() {
 
         {voted !== null && <p className="mt-4 text-center text-xs text-muted-foreground">{t("voted")}</p>}
       </div>
-    </motion.section>
+    </m.section>
   );
 }

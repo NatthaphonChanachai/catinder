@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { ChevronRight, RotateCcw, Zap, Brain, Compass, Users, Search, Wind } from "lucide-react";
 import { addXP } from "@/lib/xp";
 
@@ -150,7 +150,7 @@ export function PersonalityQuiz({ onClose }: { onClose: () => void }) {
 
       <AnimatePresence mode="wait">
         {!result ? (
-          <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+          <m.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
             {/* Progress */}
             <div className="mb-4 flex gap-1.5">
               {QUESTIONS.map((_, i) => (
@@ -169,9 +169,9 @@ export function PersonalityQuiz({ onClose }: { onClose: () => void }) {
                 </button>
               ))}
             </div>
-          </motion.div>
+          </m.div>
         ) : (
-          <motion.div key="result" initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }}>
+          <m.div key="result" initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }}>
             <div className="rounded-2xl p-5 text-center"
               style={{ background: `${result.color}`, border: `1px solid ${result.iconColor}33` }}>
               <result.ResultIcon className="mx-auto mb-2 size-10" style={{ color: result.iconColor }} strokeWidth={1.6} />
@@ -195,7 +195,7 @@ export function PersonalityQuiz({ onClose }: { onClose: () => void }) {
                 เสร็จแล้ว <ChevronRight className="size-4" />
               </button>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

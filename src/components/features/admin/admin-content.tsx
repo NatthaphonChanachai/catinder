@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import {
   collection, onSnapshot, addDoc, updateDoc, deleteDoc,
   doc, serverTimestamp, query, orderBy,
@@ -120,7 +120,7 @@ function ArticleModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" style={{ background: "rgba(11,29,58,0.5)" }}>
-      <motion.div
+      <m.div
         initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 60, opacity: 0 }}
         className="relative w-full max-w-2xl overflow-y-auto rounded-t-3xl sm:rounded-3xl"
         style={{ background: "var(--background)", maxHeight: "92dvh" }}
@@ -199,7 +199,7 @@ function ArticleModal({
             {saving ? <Loader2 className="mx-auto size-4 animate-spin" /> : initial?.id ? "บันทึกการแก้ไข" : "เพิ่มบทความ"}
           </button>
         </div>
-      </motion.div>
+      </m.div>
     </div>
   );
 }
@@ -306,12 +306,12 @@ function ArticlesTab() {
       {/* Error toast */}
       <AnimatePresence>
         {actionError && (
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+          <m.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             className="mt-3 rounded-2xl px-4 py-3 text-sm font-semibold text-red-700"
             style={{ background: "rgba(239,68,68,0.10)", border: "1px solid rgba(239,68,68,0.20)" }}>
             {actionError}
             <button onClick={() => setActionError("")} className="ml-2 underline text-xs">ปิด</button>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
 
@@ -319,7 +319,7 @@ function ArticlesTab() {
       <AnimatePresence>
         {pendingDelete && (
           <div className="fixed inset-0 z-50 flex items-center justify-center px-6" style={{ background: "rgba(11,29,58,0.45)" }}>
-            <motion.div initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.92, opacity: 0 }}
+            <m.div initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.92, opacity: 0 }}
               className="w-full max-w-sm rounded-3xl p-6" style={{ background: "var(--background)" }}>
               <p className="mb-1 font-bold text-[#0B1D3A]">ลบบทความนี้?</p>
               <p className="mb-5 text-sm text-muted-foreground line-clamp-2">{pendingDelete.title}</p>
@@ -334,7 +334,7 @@ function ArticlesTab() {
                   ลบ
                 </button>
               </div>
-            </motion.div>
+            </m.div>
           </div>
         )}
       </AnimatePresence>
@@ -835,9 +835,9 @@ export function AdminContent() {
         </div>
 
         <AnimatePresence mode="wait">
-          <motion.div key={tab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}>
+          <m.div key={tab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}>
             {tab === "articles" ? <ArticlesTab /> : tab === "premium" ? <PremiumTab /> : <SupportTab />}
-          </motion.div>
+          </m.div>
         </AnimatePresence>
       </div>
     </AppShell>

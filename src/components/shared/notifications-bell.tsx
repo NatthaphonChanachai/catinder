@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Bell, Heart, MessageCircle, Sparkles } from "lucide-react";
 import {
   collection, query, where, onSnapshot, doc, updateDoc, type DocumentData,
@@ -103,7 +103,7 @@ export function NotificationsBell() {
 
       <AnimatePresence>
         {open && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: -8, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
@@ -144,7 +144,7 @@ export function NotificationsBell() {
                 })
               )}
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

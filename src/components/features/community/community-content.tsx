@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Heart, Shield, MessageCircle, Lightbulb, Trophy, Flame, Zap } from "lucide-react";
 import { PremiumTeaser } from "@/components/shared/premium-teaser";
@@ -36,7 +36,7 @@ function LiveStats() {
         { icon: Flame, label: "Streak ต่อเนื่อง", value: `${stats.streak} วัน`, color: "var(--warm-peach)" },
         { icon: Trophy, label: "ระดับของคุณ", value: `${level.emoji} ${level.nameTh}`, color: "var(--rose-blush)" },
       ].map((stat) => (
-        <motion.div
+        <m.div
           key={stat.label}
           variants={fadeUp}
           className="flex items-center gap-4 rounded-3xl bg-card p-5 shadow-sm ring-1 ring-border/60"
@@ -51,7 +51,7 @@ function LiveStats() {
             <p className="text-2xl font-extrabold">{stat.value}</p>
             <p className="text-xs text-muted-foreground">{stat.label}</p>
           </div>
-        </motion.div>
+        </m.div>
       ))}
     </div>
   );
@@ -71,17 +71,17 @@ export function CommunityContent() {
       <section className="relative overflow-hidden bg-gradient-to-br from-[var(--rose-blush)] via-[var(--champagne)] to-[var(--warm-peach)] px-6 py-20 text-center sm:py-28">
         <HeavenBg dense={false} hearts />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,var(--soft-gold)/20,transparent_60%)]" />
-        <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="relative mx-auto max-w-2xl">
-          <motion.span variants={fadeUp} className="inline-block rounded-full bg-white/60 px-4 py-1.5 text-xs font-bold uppercase tracking-widest">
+        <m.div initial="hidden" animate="visible" variants={staggerContainer} className="relative mx-auto max-w-2xl">
+          <m.span variants={fadeUp} className="inline-block rounded-full bg-white/60 px-4 py-1.5 text-xs font-bold uppercase tracking-widest">
             {t("badge")}
-          </motion.span>
-          <motion.h1 variants={fadeUp} className="mt-5 text-4xl font-extrabold sm:text-5xl">
+          </m.span>
+          <m.h1 variants={fadeUp} className="mt-5 text-4xl font-extrabold sm:text-5xl">
             {t("title")}
-          </motion.h1>
-          <motion.p variants={fadeUp} className="mt-5 text-base text-muted-foreground sm:text-lg">
+          </m.h1>
+          <m.p variants={fadeUp} className="mt-5 text-base text-muted-foreground sm:text-lg">
             {t("subtitle")}
-          </motion.p>
-        </motion.div>
+          </m.p>
+        </m.div>
       </section>
 
       {/* ── Cat Compatibility Game ── */}
@@ -90,14 +90,14 @@ export function CommunityContent() {
       {/* ── Live XP Stats ── */}
       <section className="px-6 py-6">
         <div className="mx-auto max-w-4xl">
-          <motion.div
+          <m.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             variants={staggerContainer}
           >
             <LiveStats />
-          </motion.div>
+          </m.div>
         </div>
       </section>
 
@@ -107,7 +107,7 @@ export function CommunityContent() {
       {/* ── Guidelines ── */}
       <section className="bg-[var(--warm-ivory)] px-6 py-12 sm:py-16">
         <div className="mx-auto max-w-4xl">
-          <motion.h2
+          <m.h2
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
@@ -115,8 +115,8 @@ export function CommunityContent() {
             className="mb-8 text-center text-2xl font-extrabold"
           >
             {t("guidelinesTitle")}
-          </motion.h2>
-          <motion.div
+          </m.h2>
+          <m.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-40px" }}
@@ -126,7 +126,7 @@ export function CommunityContent() {
             {guidelines.map((item, i) => {
               const Icon = GUIDELINE_ICONS[i]!;
               return (
-                <motion.div
+                <m.div
                   key={item.rule}
                   variants={fadeUp}
                   className="flex gap-4 rounded-3xl bg-card p-6 shadow-sm ring-1 ring-border/60"
@@ -138,17 +138,17 @@ export function CommunityContent() {
                     <p className="font-bold">{item.rule}</p>
                     <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{item.desc}</p>
                   </div>
-                </motion.div>
+                </m.div>
               );
             })}
-          </motion.div>
+          </m.div>
         </div>
       </section>
 
       {/* ── Leaderboard ── */}
       <section className="px-6 py-12 sm:py-16">
         <div className="mx-auto max-w-2xl">
-          <motion.h2
+          <m.h2
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
@@ -156,8 +156,8 @@ export function CommunityContent() {
             className="mb-6 text-center text-2xl font-extrabold"
           >
             {t("leaderboardTitle")}
-          </motion.h2>
-          <motion.div
+          </m.h2>
+          <m.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
@@ -169,7 +169,7 @@ export function CommunityContent() {
             <p className="max-w-xs text-xs text-muted-foreground/70">
               อันดับจะอัปเดตแบบเรียลไทม์เมื่อมีผู้ใช้สะสม XP ในชุมชน
             </p>
-          </motion.div>
+          </m.div>
         </div>
       </section>
 
@@ -185,20 +185,20 @@ export function CommunityContent() {
 
       {/* ── Join CTA ── */}
       <section className="bg-gradient-to-br from-[var(--rose-blush)] to-[var(--champagne)] px-6 py-16 text-center sm:py-20">
-        <motion.div
+        <m.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={staggerContainer}
           className="mx-auto max-w-xl"
         >
-          <motion.h2 variants={fadeUp} className="text-2xl font-extrabold sm:text-3xl">
+          <m.h2 variants={fadeUp} className="text-2xl font-extrabold sm:text-3xl">
             {t("joinCtaTitle")}
-          </motion.h2>
-          <motion.p variants={fadeUp} className="mt-4 text-base text-muted-foreground">
+          </m.h2>
+          <m.p variants={fadeUp} className="mt-4 text-base text-muted-foreground">
             {t("joinCtaSubtitle")}
-          </motion.p>
-          <motion.div variants={fadeUp} className="mt-8 flex justify-center">
+          </m.p>
+          <m.div variants={fadeUp} className="mt-8 flex justify-center">
             <a
               href="https://www.facebook.com/profile.php?id=61591494033259&mibextid=wwXIfr"
               target="_blank"
@@ -211,8 +211,8 @@ export function CommunityContent() {
               </svg>
               เข้าร่วมชุมชน Facebook
             </a>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       </section>
     </>
   );

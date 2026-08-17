@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Heart, MessageCircle, Send, PawPrint } from "lucide-react";
 import { fadeUp } from "@/lib/motion";
 import { addXP } from "@/lib/xp";
@@ -86,7 +86,7 @@ export function DiscussionBoard() {
   return (
     <section className="px-6 py-12">
       <div className="mx-auto max-w-2xl">
-        <motion.div
+        <m.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
@@ -95,10 +95,10 @@ export function DiscussionBoard() {
         >
           <h2 className="text-2xl font-extrabold">💬 พูดคุยชุมชน</h2>
           <p className="mt-1 text-sm text-muted-foreground">แชร์ประสบการณ์กับเพื่อนๆ คนรักแมว</p>
-        </motion.div>
+        </m.div>
 
         {/* Post form */}
-        <motion.form
+        <m.form
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
@@ -139,12 +139,12 @@ export function DiscussionBoard() {
               </div>
             </div>
           </div>
-        </motion.form>
+        </m.form>
 
         {/* Feed */}
         <div className="space-y-3">
           {allPosts.length === 0 && (
-            <motion.div
+            <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="flex flex-col items-center gap-3 rounded-3xl border border-dashed border-border/60 py-12 text-center"
@@ -152,11 +152,11 @@ export function DiscussionBoard() {
               <PawPrint className="size-8 text-muted-foreground/40" />
               <p className="text-sm font-semibold text-muted-foreground">ยังไม่มีโพสต์</p>
               <p className="text-xs text-muted-foreground/70">เป็นคนแรกที่แชร์เรื่องราวน้องแมวของคุณ!</p>
-            </motion.div>
+            </m.div>
           )}
           <AnimatePresence initial={false}>
             {allPosts.map((post, i) => (
-              <motion.div
+              <m.div
                 key={post.id}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -194,7 +194,7 @@ export function DiscussionBoard() {
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </m.div>
             ))}
           </AnimatePresence>
         </div>

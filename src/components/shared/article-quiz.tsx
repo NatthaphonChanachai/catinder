@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { CheckCircle2, XCircle, RefreshCw, Trophy, Star } from "lucide-react";
 import { fadeUp } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -62,7 +62,7 @@ export function ArticleQuiz({ questions, title, subtitle, correctMsg, wrongMsg, 
   const xpEarned = score === questions.length ? 50 : score >= Math.ceil(questions.length / 2) ? 30 : 10;
 
   return (
-    <motion.div
+    <m.div
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-60px" }}
@@ -98,7 +98,7 @@ export function ArticleQuiz({ questions, title, subtitle, correctMsg, wrongMsg, 
 
       <AnimatePresence mode="wait">
         {!done ? (
-          <motion.div
+          <m.div
             key={current}
             initial={{ opacity: 0, x: 16 }}
             animate={{ opacity: 1, x: 0 }}
@@ -139,7 +139,7 @@ export function ArticleQuiz({ questions, title, subtitle, correctMsg, wrongMsg, 
             </div>
 
             {selected !== null && (
-              <motion.p
+              <m.p
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="mt-3 text-sm font-semibold"
@@ -151,11 +151,11 @@ export function ArticleQuiz({ questions, title, subtitle, correctMsg, wrongMsg, 
                     {wrongMsg} <strong>{q.options[q.correct]}</strong>
                   </span>
                 )}
-              </motion.p>
+              </m.p>
             )}
-          </motion.div>
+          </m.div>
         ) : (
-          <motion.div
+          <m.div
             key="done"
             initial={{ opacity: 0, scale: 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -163,7 +163,7 @@ export function ArticleQuiz({ questions, title, subtitle, correctMsg, wrongMsg, 
             className="mt-6 text-center"
           >
             {/* Score */}
-            <motion.div
+            <m.div
               initial={{ scale: 0.7 }}
               animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 260, damping: 18, delay: 0.1 }}
@@ -173,10 +173,10 @@ export function ArticleQuiz({ questions, title, subtitle, correctMsg, wrongMsg, 
               <p className="text-sm text-muted-foreground">
                 {typeof scoreMsg === "function" ? scoreMsg(score) : scoreMsg.replace("{n}", String(score))}
               </p>
-            </motion.div>
+            </m.div>
 
             {/* XP reward banner */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
@@ -187,7 +187,7 @@ export function ArticleQuiz({ questions, title, subtitle, correctMsg, wrongMsg, 
               {score === questions.length && (
                 <span className="text-xs font-semibold text-muted-foreground">Perfect Score! 🎉</span>
               )}
-            </motion.div>
+            </m.div>
 
             <button
               onClick={reset}
@@ -195,9 +195,9 @@ export function ArticleQuiz({ questions, title, subtitle, correctMsg, wrongMsg, 
             >
               <RefreshCw className="size-4" /> {retryLabel}
             </button>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </m.div>
   );
 }

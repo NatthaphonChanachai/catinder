@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 
 interface Toast {
   id: number;
@@ -27,7 +27,7 @@ export function XPToastProvider() {
     <div className="pointer-events-none fixed bottom-24 right-4 z-[200] flex flex-col items-end gap-2">
       <AnimatePresence>
         {toasts.map((toast) => (
-          <motion.div
+          <m.div
             key={toast.id}
             initial={{ opacity: 0, x: 56, scale: 0.8 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
@@ -40,7 +40,7 @@ export function XPToastProvider() {
             {toast.reason && (
               <span className="text-xs font-medium leading-none opacity-70">{toast.reason}</span>
             )}
-          </motion.div>
+          </m.div>
         ))}
       </AnimatePresence>
     </div>

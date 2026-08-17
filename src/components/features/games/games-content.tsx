@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import {
   Palette, LayoutGrid, Brain, HelpCircle, Sparkles,
   Zap, RotateCcw, Lightbulb, Trophy, Star, PawPrint, Gamepad2,
@@ -187,12 +187,12 @@ function TriviaGame({ onClose }: { onClose: () => void }) {
         })}
       </div>
       {picked !== null && (
-        <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+        <m.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
           className="mt-3 flex items-start gap-2 rounded-xl p-3"
           style={{ background: "rgba(212,175,55,0.10)" }}>
           <Lightbulb className="mt-0.5 size-4 flex-shrink-0 text-[#D4AF37]" />
           <p className="text-xs leading-relaxed text-[#6B5232]">{q.fact}</p>
-        </motion.div>
+        </m.div>
       )}
     </div>
   );
@@ -267,7 +267,7 @@ function NameGenerator({ onClose }: { onClose: () => void }) {
 
       <AnimatePresence>
         {results && (
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-4 space-y-2.5">
+          <m.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-4 space-y-2.5">
             {results.map((r) => (
               <div key={r.name} className="flex items-center gap-3 rounded-2xl p-3.5"
                 style={{ background: "rgba(212,175,55,0.10)", border: "1px solid rgba(212,175,55,0.25)" }}>
@@ -285,7 +285,7 @@ function NameGenerator({ onClose }: { onClose: () => void }) {
               className="flex w-full items-center justify-center gap-2 rounded-2xl py-2.5 text-xs font-bold text-[#B04060] hover:bg-[#F9C5D1]/20 transition-colors">
               <RotateCcw className="size-3.5" /> สุ่มชื่อใหม่
             </button>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>
@@ -314,7 +314,7 @@ export function GamesContent() {
         {/* Active game panel */}
         <AnimatePresence mode="wait">
           {activeGame && (
-            <motion.div key={activeGame}
+            <m.div key={activeGame}
               initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
               className="relative mb-6">
               {activeGame === "photo"   && <CatPhotoStyler  onClose={() => setActiveGame(null)} />}
@@ -322,7 +322,7 @@ export function GamesContent() {
               {activeGame === "quiz"    && <PersonalityQuiz  onClose={() => setActiveGame(null)} />}
               {activeGame === "trivia"  && <TriviaGame       onClose={() => setActiveGame(null)} />}
               {activeGame === "namegen" && <NameGenerator    onClose={() => setActiveGame(null)} />}
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
 
@@ -331,7 +331,7 @@ export function GamesContent() {
           {GAME_CARDS.map((g) => {
             const isActive = activeGame === g.id;
             return (
-              <motion.button key={g.id}
+              <m.button key={g.id}
                 whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
                 onClick={() => setActiveGame(isActive ? null : g.id)}
                 className="flex items-start gap-4 rounded-3xl p-4 text-left transition-all"
@@ -367,7 +367,7 @@ export function GamesContent() {
                   style={{ background: isActive ? "rgba(212,175,55,0.25)" : "transparent" }}>
                   <g.CardIcon className="size-3" style={{ color: isActive ? "#D4AF37" : "rgba(176,64,96,0.30)" }} />
                 </div>
-              </motion.button>
+              </m.button>
             );
           })}
         </div>

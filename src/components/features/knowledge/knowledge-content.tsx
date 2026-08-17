@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Search } from "lucide-react";
 import Image from "next/image";
@@ -49,22 +49,22 @@ export function KnowledgeContent() {
       {/* ── Hero + Search ── */}
       <section className="relative overflow-hidden bg-gradient-to-b from-[var(--soft-cream)] to-background px-6 py-16 text-center sm:py-20">
         <HeavenBg dense={false} hearts={false} />
-        <motion.div
+        <m.div
           initial="hidden"
           animate="visible"
           variants={staggerContainer}
           className="relative mx-auto max-w-2xl"
         >
-          <motion.span variants={fadeUp} className="inline-block rounded-full bg-[var(--rose-blush)] px-4 py-1.5 text-xs font-bold uppercase tracking-widest">
+          <m.span variants={fadeUp} className="inline-block rounded-full bg-[var(--rose-blush)] px-4 py-1.5 text-xs font-bold uppercase tracking-widest">
             {t("badge")}
-          </motion.span>
-          <motion.h1 variants={fadeUp} className="mt-5 text-3xl font-extrabold sm:text-4xl">
+          </m.span>
+          <m.h1 variants={fadeUp} className="mt-5 text-3xl font-extrabold sm:text-4xl">
             {t("title")}
-          </motion.h1>
-          <motion.p variants={fadeUp} className="mt-4 text-base text-muted-foreground">
+          </m.h1>
+          <m.p variants={fadeUp} className="mt-4 text-base text-muted-foreground">
             {t("subtitle")}
-          </motion.p>
-          <motion.div variants={fadeUp} className="relative mt-8">
+          </m.p>
+          <m.div variants={fadeUp} className="relative mt-8">
             <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <input
               value={query}
@@ -72,8 +72,8 @@ export function KnowledgeContent() {
               placeholder={t("searchPlaceholder")}
               className="w-full rounded-full border border-border bg-card py-3 pl-11 pr-5 text-sm shadow-sm outline-none focus:ring-2 focus:ring-[var(--soft-gold)]"
             />
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       </section>
 
       {/* ── Category tabs ── */}
@@ -101,7 +101,7 @@ export function KnowledgeContent() {
         <div className="mx-auto max-w-5xl">
           {/* Featured article */}
           {featured && (
-            <motion.div
+            <m.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
@@ -135,7 +135,7 @@ export function KnowledgeContent() {
                   </p>
                 </div>
               </Link>
-            </motion.div>
+            </m.div>
           )}
 
           {/* All articles grid */}
@@ -143,11 +143,11 @@ export function KnowledgeContent() {
             {t("allArticles")}
           </p>
           {filtered.length === 0 ? (
-            <motion.p variants={fadeUp} initial="hidden" animate="visible" className="py-16 text-center text-muted-foreground">
+            <m.p variants={fadeUp} initial="hidden" animate="visible" className="py-16 text-center text-muted-foreground">
               {t("noResults")}
-            </motion.p>
+            </m.p>
           ) : (
-            <motion.div
+            <m.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-40px" }}
@@ -155,11 +155,11 @@ export function KnowledgeContent() {
               className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
             >
               {rest.map((article) => (
-                <motion.div key={article.slug} variants={fadeUp}>
+                <m.div key={article.slug} variants={fadeUp}>
                   <ArticleCard article={article} />
-                </motion.div>
+                </m.div>
               ))}
-            </motion.div>
+            </m.div>
           )}
 
           {/* Premium teaser */}

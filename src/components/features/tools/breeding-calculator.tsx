@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { CalendarHeart, Baby, Stethoscope, Info, AlertTriangle } from "lucide-react";
 
 // Real feline reproductive data (see sources at the bottom of the page):
@@ -65,7 +65,7 @@ export function BreedingCalculator() {
           style={{ background: "#FFF5F8", border: "1px solid rgba(212,160,175,0.35)", color: "#0B1D3A" }} />
 
         {mating && dueMin && dueMax && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-5 rounded-2xl p-5 text-center"
+          <m.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-5 rounded-2xl p-5 text-center"
             style={{ background: "linear-gradient(135deg,rgba(237,208,96,0.14),rgba(249,197,209,0.16))", border: "1px solid rgba(212,175,55,0.25)" }}>
             <p className="flex items-center justify-center gap-1.5 text-xs font-semibold" style={{ color: "#B04060" }}>
               <Baby className="size-3.5" /> กำหนดคลอดโดยประมาณ
@@ -88,7 +88,7 @@ export function BreedingCalculator() {
                 </div>
               </div>
             )}
-          </motion.div>
+          </m.div>
         )}
       </div>
 

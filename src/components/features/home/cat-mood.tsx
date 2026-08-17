@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { fadeUp } from "@/lib/motion";
 import { addXP, hasEarnedToday, markEarnedToday } from "@/lib/xp";
@@ -37,7 +37,7 @@ export function CatMood() {
   }
 
   return (
-    <motion.div
+    <m.div
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-60px" }}
@@ -66,7 +66,7 @@ export function CatMood() {
 
       <AnimatePresence mode="wait">
         {selected && (
-          <motion.div
+          <m.div
             key={selected}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -78,9 +78,9 @@ export function CatMood() {
             <p className="mt-2 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
               <Sparkles className="size-3.5" /> {t("aiPlaceholder")}
             </p>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </m.div>
   );
 }

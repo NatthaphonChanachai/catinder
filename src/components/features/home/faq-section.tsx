@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { FaqAccordion } from "@/components/shared/faq-accordion";
 import { fadeUp } from "@/lib/motion";
 
@@ -11,7 +11,7 @@ export function FaqSection() {
 
   return (
     <section className="bg-[var(--warm-ivory)] px-6 py-20">
-      <motion.div
+      <m.div
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-60px" }}
@@ -20,7 +20,7 @@ export function FaqSection() {
       >
         <h2 className="text-2xl font-extrabold sm:text-3xl">{t("title")}</h2>
         <p className="mt-3 text-muted-foreground">{t("subtitle")}</p>
-      </motion.div>
+      </m.div>
 
       <div className="mt-10">
         <FaqAccordion items={items} />

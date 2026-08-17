@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import {
   Bookmark, HeartHandshake, Trash2, Loader2, MessageCircle, Heart, Sparkles,
 } from "lucide-react";
@@ -126,10 +126,10 @@ export function MatchesContent() {
 
   return (
     <AppShell>
-      <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="mx-auto max-w-4xl space-y-5">
+      <m.div initial="hidden" animate="visible" variants={staggerContainer} className="mx-auto max-w-4xl space-y-5">
 
         {/* Header */}
-        <motion.div variants={fadeUp} className="flex items-center justify-between">
+        <m.div variants={fadeUp} className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-extrabold text-[#0B1D3A]">คู่ของฉัน</h1>
             <p className="text-xs text-[#6B5232]/60">แมวที่คุณถูกใจและที่แมตช์กันแล้ว</p>
@@ -139,10 +139,10 @@ export function MatchesContent() {
             style={{ background: "linear-gradient(135deg,#EDD060,#D4AF37)", color: "#0B1D3A" }}>
             <Sparkles className="size-4" /> จับคู่เพิ่ม
           </Link>
-        </motion.div>
+        </m.div>
 
         {/* Tabs */}
-        <motion.div variants={fadeUp} className="flex gap-2 rounded-2xl p-1"
+        <m.div variants={fadeUp} className="flex gap-2 rounded-2xl p-1"
           style={{ background: "#FFFAFC", border: "1px solid rgba(212,160,175,0.22)" }}>
           {tabs.map((t) => (
             <button key={t.key} onClick={() => setTab(t.key)}
@@ -153,11 +153,11 @@ export function MatchesContent() {
               <span className={cn("rounded-full px-1.5 text-[10px]", tab === t.key ? "bg-[#0B1D3A]/15" : "bg-[#D4AF37]/15")}>{t.count}</span>
             </button>
           ))}
-        </motion.div>
+        </m.div>
 
         <AnimatePresence mode="wait">
           {tab === "matched" ? (
-            <motion.div key="matched" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}>
+            <m.div key="matched" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}>
               {loadingMatches ? (
                 <div className="flex justify-center py-20"><Loader2 className="size-6 animate-spin text-[#D4AF37]" /></div>
               ) : matches.length === 0 ? (
@@ -190,9 +190,9 @@ export function MatchesContent() {
                   </div>
                 </div>
               )}
-            </motion.div>
+            </m.div>
           ) : (
-            <motion.div key="liked" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}>
+            <m.div key="liked" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.15 }}>
               {loadingLiked ? (
                 <div className="flex justify-center py-20"><Loader2 className="size-6 animate-spin text-[#D4AF37]" /></div>
               ) : pending.length === 0 ? (
@@ -201,7 +201,7 @@ export function MatchesContent() {
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   <AnimatePresence>
                     {pending.map((f) => (
-                      <motion.div key={f.likeId} layout
+                      <m.div key={f.likeId} layout
                         initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
                         className="group overflow-hidden rounded-2xl transition-all hover:-translate-y-0.5 hover:shadow-lg"
                         style={{ background: "#FFFAFC", border: "1px solid rgba(212,160,175,0.22)" }}>
@@ -228,15 +228,15 @@ export function MatchesContent() {
                             {removingId === f.likeId ? <Loader2 className="size-3.5 animate-spin" /> : <Trash2 className="size-3.5" />}
                           </button>
                         </div>
-                      </motion.div>
+                      </m.div>
                     ))}
                   </AnimatePresence>
                 </div>
               )}
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
-      </motion.div>
+      </m.div>
     </AppShell>
   );
 }

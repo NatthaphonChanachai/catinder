@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   Dna, HeartHandshake, CheckCircle, Crown, Lock, Star, Loader2, MessageCircle,
 } from "lucide-react";
@@ -62,10 +62,10 @@ export function BreedingContent() {
 
   return (
     <AppShell>
-      <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="mx-auto max-w-4xl space-y-5">
+      <m.div initial="hidden" animate="visible" variants={staggerContainer} className="mx-auto max-w-4xl space-y-5">
 
         {/* Header */}
-        <motion.div variants={fadeUp} className="flex items-center justify-between">
+        <m.div variants={fadeUp} className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-extrabold text-[#0B1D3A]">ผสมพันธุ์</h1>
             <p className="text-xs text-[#6B5232]/60">จัดการคู่จับคู่ผสมพันธุ์ของคุณ</p>
@@ -75,10 +75,10 @@ export function BreedingContent() {
             style={{ background: "linear-gradient(135deg,#EDD060,#D4AF37)", color: "#0B1D3A" }}>
             <HeartHandshake className="size-4" /> หาคู่ผสม
           </Link>
-        </motion.div>
+        </m.div>
 
         {/* Stats */}
-        <motion.div variants={fadeUp} className="grid grid-cols-3 gap-3">
+        <m.div variants={fadeUp} className="grid grid-cols-3 gap-3">
           {[
             { label: "คู่ที่จับคู่ได้", value: total, color: "#D4AF37" },
             { label: "พร้อมประสานงาน", value: total, color: "#7B5EA7" },
@@ -90,10 +90,10 @@ export function BreedingContent() {
               <p className="text-[11px] text-[#6B5232]/60">{s.label}</p>
             </div>
           ))}
-        </motion.div>
+        </m.div>
 
         {/* Matched breeding partners */}
-        <motion.div variants={fadeUp} className="rounded-2xl overflow-hidden"
+        <m.div variants={fadeUp} className="rounded-2xl overflow-hidden"
           style={{ background: "#FFFAFC", border: "1px solid rgba(212,160,175,0.22)", boxShadow: "0 2px 12px rgba(160,60,90,0.06)" }}>
           <div className="px-5 py-4" style={{ borderBottom: "1px solid rgba(212,160,175,0.18)" }}>
             <h2 className="font-bold text-[#0B1D3A]">
@@ -138,10 +138,10 @@ export function BreedingContent() {
               ))}
             </div>
           )}
-        </motion.div>
+        </m.div>
 
         {/* Tips */}
-        <motion.div variants={fadeUp} className="grid gap-3 sm:grid-cols-3">
+        <m.div variants={fadeUp} className="grid gap-3 sm:grid-cols-3">
           {TIPS.map(({ icon: Icon, title, desc }) => (
             <div key={title} className="rounded-2xl p-4"
               style={{ background: "#FFFAFC", border: "1px solid rgba(212,160,175,0.22)" }}>
@@ -150,10 +150,10 @@ export function BreedingContent() {
               <p className="mt-0.5 text-[11px] text-[#6B5232]/60">{desc}</p>
             </div>
           ))}
-        </motion.div>
+        </m.div>
 
         {/* Pedigree premium */}
-        <motion.div variants={fadeUp} className="flex items-center gap-4 rounded-2xl p-5"
+        <m.div variants={fadeUp} className="flex items-center gap-4 rounded-2xl p-5"
           style={{ background: "linear-gradient(135deg,#FDF0F4,#F9DDE8)", border: "1px solid rgba(212,140,165,0.30)" }}>
           <Lock className="size-5 flex-shrink-0 text-[#B04060]/60" />
           <div className="flex-1">
@@ -164,9 +164,9 @@ export function BreedingContent() {
             style={{ background: "linear-gradient(135deg,#EDD060,#D4AF37)", color: "#0B1D3A" }}>
             <Crown className="mr-1 inline size-3" /> Premium
           </Link>
-        </motion.div>
+        </m.div>
 
-      </motion.div>
+      </m.div>
     </AppShell>
   );
 }

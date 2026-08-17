@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { HeartHandshake } from "lucide-react";
 import { fadeUp } from "@/lib/motion";
 
@@ -9,7 +9,7 @@ export function Mission() {
   const t = useTranslations("mission");
 
   return (
-    <motion.section
+    <m.section
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-80px" }}
@@ -21,6 +21,6 @@ export function Mission() {
       </div>
       <h2 className="mt-6 text-2xl font-extrabold sm:text-3xl">{t("title")}</h2>
       <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{t("body")}</p>
-    </motion.section>
+    </m.section>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Lightbulb, Bookmark, Share2, Shuffle } from "lucide-react";
 import { fadeUp } from "@/lib/motion";
 import { useLocalStorage } from "@/hooks/use-local-storage";
@@ -40,7 +40,7 @@ export function CatFact() {
   }
 
   return (
-    <motion.div
+    <m.div
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-60px" }}
@@ -52,7 +52,7 @@ export function CatFact() {
       </div>
       <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("label")}</p>
       <AnimatePresence mode="wait">
-        <motion.p
+        <m.p
           key={index}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -61,7 +61,7 @@ export function CatFact() {
           className="max-w-xl text-base font-semibold leading-relaxed sm:text-lg"
         >
           {fact}
-        </motion.p>
+        </m.p>
       </AnimatePresence>
 
       <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
@@ -87,6 +87,6 @@ export function CatFact() {
           <Share2 className="size-4" /> {shared ? t("copied") : t("share")}
         </button>
       </div>
-    </motion.div>
+    </m.div>
   );
 }

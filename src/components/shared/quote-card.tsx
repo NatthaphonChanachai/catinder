@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Quote, Heart, Share2, RefreshCw } from "lucide-react";
 import { fadeUp } from "@/lib/motion";
 import { useLocalStorage } from "@/hooks/use-local-storage";
@@ -42,7 +42,7 @@ export function QuoteCard() {
   }
 
   return (
-    <motion.div
+    <m.div
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-60px" }}
@@ -51,7 +51,7 @@ export function QuoteCard() {
     >
       <Quote className="mx-auto size-8 text-[var(--soft-gold)]" />
       <AnimatePresence mode="wait">
-        <motion.p
+        <m.p
           key={index}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -60,7 +60,7 @@ export function QuoteCard() {
           className="mt-5 text-xl font-semibold leading-relaxed sm:text-2xl"
         >
           &ldquo;{quote}&rdquo;
-        </motion.p>
+        </m.p>
       </AnimatePresence>
       <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("label")}</p>
 
@@ -87,6 +87,6 @@ export function QuoteCard() {
           <RefreshCw className="size-4" /> {t("next")}
         </button>
       </div>
-    </motion.div>
+    </m.div>
   );
 }

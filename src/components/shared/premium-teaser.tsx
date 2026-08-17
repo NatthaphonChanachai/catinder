@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Lock, Sparkles } from "lucide-react";
 import { fadeUp } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -15,7 +15,7 @@ interface PremiumTeaserProps {
 
 export function PremiumTeaser({ title, description, cta = "Coming Soon", className, compact }: PremiumTeaserProps) {
   return (
-    <motion.div
+    <m.div
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-60px" }}
@@ -48,6 +48,6 @@ export function PremiumTeaser({ title, description, cta = "Coming Soon", classNa
           {cta}
         </button>
       </div>
-    </motion.div>
+    </m.div>
   );
 }

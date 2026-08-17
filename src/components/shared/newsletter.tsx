@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Mail, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +21,7 @@ export function Newsletter() {
   }
 
   return (
-    <motion.section
+    <m.section
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-80px" }}
@@ -53,6 +53,6 @@ export function Newsletter() {
           </Button>
         </form>
       )}
-    </motion.section>
+    </m.section>
   );
 }

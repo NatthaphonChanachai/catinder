@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { Link } from "@/i18n/navigation";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   Home,
   HeartHandshake,
@@ -67,7 +67,7 @@ export function MobileBottomNav() {
           const active = isActive(href);
           return (
             <Link key={idx} href={href}>
-              <motion.div
+              <m.div
                 whileTap={{ scale: 0.82 }}
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 className={cn(
@@ -77,7 +77,7 @@ export function MobileBottomNav() {
               >
                 {/* Active indicator bar */}
                 {active && (
-                  <motion.div
+                  <m.div
                     layoutId="mobile-nav-active"
                     className="absolute -top-2 h-[3px] w-5 rounded-full bg-[#D4AF37]"
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
@@ -103,7 +103,7 @@ export function MobileBottomNav() {
                 >
                   {label}
                 </span>
-              </motion.div>
+              </m.div>
             </Link>
           );
         })}

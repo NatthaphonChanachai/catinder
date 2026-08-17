@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Check, Award } from "lucide-react";
 import { fadeUp } from "@/lib/motion";
 import { useLocalStorage, todayKey } from "@/hooks/use-local-storage";
@@ -31,7 +31,7 @@ export function DailyMission() {
   }
 
   return (
-    <motion.div
+    <m.div
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-60px" }}
@@ -46,7 +46,7 @@ export function DailyMission() {
       </div>
 
       <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
-        <motion.div
+        <m.div
           className="h-full rounded-full bg-[var(--soft-gold)]"
           animate={{ width: `${(done.length / items.length) * 100}%` }}
           transition={{ duration: 0.4, ease: "easeOut" }}
@@ -82,7 +82,7 @@ export function DailyMission() {
 
       <AnimatePresence>
         {allComplete && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
@@ -95,9 +95,9 @@ export function DailyMission() {
               <p className="text-sm font-bold">{t("rewardTitle")}</p>
               <p className="text-xs text-muted-foreground">{t("rewardBody")}</p>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </m.div>
   );
 }

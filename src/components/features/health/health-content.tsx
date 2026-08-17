@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import {
   HeartPulse, Syringe, FileText, Lock, Crown, Plus, PawPrint, X,
   Stethoscope, Pill, Loader2, Trash2, CheckCircle, AlertTriangle, Calendar, ChevronDown,
@@ -85,10 +85,10 @@ function AddRecordModal({ catId, onClose }: { catId: string; onClose: () => void
   }
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, transition: { duration: 0.2 } }} className="fixed inset-0 z-50">
+    <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, transition: { duration: 0.2 } }} className="fixed inset-0 z-50">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
       <div className="absolute inset-0 flex items-end justify-center sm:items-center sm:p-4">
-        <motion.div
+        <m.div
           initial={{ y: "100%" }} animate={{ y: 0, transition: { type: "spring", damping: 26, stiffness: 280 } }} exit={{ y: "100%", transition: { duration: 0.22 } }}
           className="relative w-full max-h-[92vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl sm:max-w-md"
           style={{ background: "#FFFAFC", border: "1px solid rgba(212,160,175,0.22)" }}
@@ -169,9 +169,9 @@ function AddRecordModal({ catId, onClose }: { catId: string; onClose: () => void
               </button>
             </div>
           </div>
-        </motion.div>
+        </m.div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -230,10 +230,10 @@ export function HealthContent() {
 
   return (
     <AppShell>
-      <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="mx-auto max-w-4xl space-y-5">
+      <m.div initial="hidden" animate="visible" variants={staggerContainer} className="mx-auto max-w-4xl space-y-5">
 
         {/* Header */}
-        <motion.div variants={fadeUp} className="flex items-center justify-between">
+        <m.div variants={fadeUp} className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-extrabold text-[#0B1D3A]">บันทึกสุขภาพ</h1>
             <p className="text-xs text-[#6B5232]/60">ติดตามวัคซีนและประวัติสุขภาพของแมวคุณ</p>
@@ -245,13 +245,13 @@ export function HealthContent() {
               <Plus className="size-4" /> เพิ่มบันทึก
             </button>
           )}
-        </motion.div>
+        </m.div>
 
         {loadingCats ? (
           <div className="flex justify-center py-24"><Loader2 className="size-6 animate-spin text-[#D4AF37]" /></div>
         ) : cats.length === 0 ? (
           /* No cats yet */
-          <motion.div variants={fadeUp} className="flex flex-col items-center justify-center rounded-3xl py-16 text-center"
+          <m.div variants={fadeUp} className="flex flex-col items-center justify-center rounded-3xl py-16 text-center"
             style={{ background: "#FFFAFC", border: "1px solid rgba(212,160,175,0.22)" }}>
             <HeartPulse className="mb-4 size-12 text-[#D4AF37]/40" />
             <h3 className="text-base font-bold text-[#0B1D3A]">ยังไม่มีแมวในโปรไฟล์</h3>
@@ -260,11 +260,11 @@ export function HealthContent() {
               style={{ background: "linear-gradient(135deg,#EDD060,#D4AF37)", color: "#0B1D3A" }}>
               <PawPrint className="size-4" /> เพิ่มแมว
             </Link>
-          </motion.div>
+          </m.div>
         ) : (
           <>
             {/* Cat selector */}
-            <motion.div variants={fadeUp} className="flex gap-2 overflow-x-auto pb-1">
+            <m.div variants={fadeUp} className="flex gap-2 overflow-x-auto pb-1">
               {cats.map((c) => {
                 const active = c.id === selectedCatId;
                 return (
@@ -277,10 +277,10 @@ export function HealthContent() {
                   </button>
                 );
               })}
-            </motion.div>
+            </m.div>
 
             {/* Records */}
-            <motion.div variants={fadeUp} className="rounded-2xl overflow-hidden"
+            <m.div variants={fadeUp} className="rounded-2xl overflow-hidden"
               style={{ background: "#FFFAFC", border: "1px solid rgba(212,160,175,0.22)", boxShadow: "0 2px 12px rgba(160,60,90,0.06)" }}>
               <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: "1px solid rgba(212,160,175,0.18)" }}>
                 <h2 className="font-bold text-[#0B1D3A]">
@@ -328,12 +328,12 @@ export function HealthContent() {
                   })}
                 </div>
               )}
-            </motion.div>
+            </m.div>
           </>
         )}
 
         {/* Premium health passport */}
-        <motion.div variants={fadeUp} className="rounded-2xl p-5"
+        <m.div variants={fadeUp} className="rounded-2xl p-5"
           style={{ background: "linear-gradient(135deg,#FDF0F4,#F9DDE8)", border: "1px solid rgba(212,140,165,0.30)" }}>
           <div className="flex items-start gap-4">
             <div className="flex size-12 flex-shrink-0 items-center justify-center rounded-2xl" style={{ background: "linear-gradient(135deg,#EDD060,#D4AF37)" }}>
@@ -351,9 +351,9 @@ export function HealthContent() {
               </Link>
             </div>
           </div>
-        </motion.div>
+        </m.div>
 
-      </motion.div>
+      </m.div>
 
       <AnimatePresence>
         {showAdd && selectedCatId && <AddRecordModal catId={selectedCatId} onClose={() => setShowAdd(false)} />}
@@ -363,7 +363,7 @@ export function HealthContent() {
       <AnimatePresence>
         {pendingDelete && (
           <div className="fixed inset-0 z-50 flex items-center justify-center px-6" style={{ background: "rgba(11,29,58,0.45)" }}>
-            <motion.div initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.92, opacity: 0 }}
+            <m.div initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.92, opacity: 0 }}
               className="w-full max-w-sm rounded-3xl p-6" style={{ background: "#FFFAFC" }}>
               <p className="mb-1 font-bold text-[#0B1D3A]">ลบบันทึกนี้?</p>
               <p className="mb-5 text-sm text-[#6B5232]/70">การลบไม่สามารถกู้คืนได้</p>
@@ -374,7 +374,7 @@ export function HealthContent() {
                 <button onClick={confirmDelete}
                   className="flex-1 rounded-full py-2.5 text-sm font-bold text-white hover:opacity-90" style={{ background: "#B04060" }}>ลบ</button>
               </div>
-            </motion.div>
+            </m.div>
           </div>
         )}
       </AnimatePresence>

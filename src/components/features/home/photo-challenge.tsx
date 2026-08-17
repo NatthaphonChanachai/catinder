@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Camera, Trophy } from "lucide-react";
 import { fadeUp } from "@/lib/motion";
 
@@ -9,7 +9,7 @@ export function PhotoChallenge() {
   const t = useTranslations("challenge");
 
   return (
-    <motion.section
+    <m.section
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-60px" }}
@@ -35,6 +35,6 @@ export function PhotoChallenge() {
           </span>
         </div>
       </div>
-    </motion.section>
+    </m.section>
   );
 }

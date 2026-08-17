@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Shield, Heart, Eye, Sparkles, CheckCircle } from "lucide-react";
 import Image from "next/image";
@@ -38,44 +38,44 @@ export function AboutPageContent() {
         {/* Blackgroud4 — Roman columns / golden sky */}
         <Image src="/img/Blackgroud4.png" alt="" fill className="object-cover object-center" quality={85} />
         <div className="absolute inset-0" style={{ background: "rgba(255,248,236,0.72)" }} />
-        <motion.div
+        <m.div
           initial="hidden"
           animate="visible"
           variants={staggerContainer}
           className="relative mx-auto max-w-3xl"
         >
-          <motion.span
+          <m.span
             variants={fadeUp}
             className="inline-block rounded-full bg-[var(--rose-blush)] px-4 py-1.5 text-xs font-bold uppercase tracking-widest"
           >
             {t("badge")}
-          </motion.span>
-          <motion.h1
+          </m.span>
+          <m.h1
             variants={fadeUp}
             className="mt-5 text-4xl font-extrabold leading-tight sm:text-5xl"
           >
             {t("headline")}
-          </motion.h1>
-          <motion.p
+          </m.h1>
+          <m.p
             variants={fadeUp}
             className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg"
           >
             {t("subheadline")}
-          </motion.p>
-          <motion.div variants={fadeUp} className="mt-8 flex flex-wrap justify-center gap-3">
+          </m.p>
+          <m.div variants={fadeUp} className="mt-8 flex flex-wrap justify-center gap-3">
             <LinkButton href="/register" size="lg" className="rounded-full px-8">
               {t("ctaJoin")}
             </LinkButton>
             <LinkButton href="/articles" variant="outline" size="lg" className="rounded-full px-8">
               {t("ctaLearn")}
             </LinkButton>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       </section>
 
       {/* ── Stats ── */}
       <section className="border-y border-border/60 bg-card px-6 py-12">
-        <motion.div
+        <m.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
@@ -83,11 +83,11 @@ export function AboutPageContent() {
           className="mx-auto grid max-w-4xl grid-cols-2 gap-6 sm:grid-cols-4"
         >
           {stats.map((s) => (
-            <motion.div key={s.label} variants={fadeUp} className="text-center">
+            <m.div key={s.label} variants={fadeUp} className="text-center">
               <AnimatedCounter value={s.value} label={s.label} />
-            </motion.div>
+            </m.div>
           ))}
-        </motion.div>
+        </m.div>
       </section>
 
       {/* ── Mission + Vision ── */}
@@ -97,7 +97,7 @@ export function AboutPageContent() {
             { label: t("missionLabel"), body: t("missionBody"), color: "var(--rose-blush)" },
             { label: t("visionLabel"), body: t("visionBody"), color: "var(--champagne)" },
           ].map((item) => (
-            <motion.div
+            <m.div
               key={item.label}
               initial="hidden"
               whileInView="visible"
@@ -110,7 +110,7 @@ export function AboutPageContent() {
                 {item.label}
               </p>
               <p className="mt-3 text-base font-semibold leading-relaxed">{item.body}</p>
-            </motion.div>
+            </m.div>
           ))}
         </div>
       </section>
@@ -118,7 +118,7 @@ export function AboutPageContent() {
       {/* ── Community Promise ── */}
       <section className="bg-[var(--warm-ivory)] px-6 py-16 sm:py-20">
         <div className="mx-auto max-w-4xl">
-          <motion.h2
+          <m.h2
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
@@ -126,8 +126,8 @@ export function AboutPageContent() {
             className="text-center text-2xl font-extrabold sm:text-3xl"
           >
             {t("promiseTitle")}
-          </motion.h2>
-          <motion.div
+          </m.h2>
+          <m.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-40px" }}
@@ -137,7 +137,7 @@ export function AboutPageContent() {
             {promiseItems.map((item, i) => {
               const Icon = PROMISE_ICONS[i]!;
               return (
-                <motion.div
+                <m.div
                   key={item.title}
                   variants={fadeUp}
                   className="flex gap-4 rounded-3xl bg-card p-6 shadow-sm ring-1 ring-border/60"
@@ -149,17 +149,17 @@ export function AboutPageContent() {
                     <p className="font-bold">{item.title}</p>
                     <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{item.desc}</p>
                   </div>
-                </motion.div>
+                </m.div>
               );
             })}
-          </motion.div>
+          </m.div>
         </div>
       </section>
 
       {/* ── Timeline ── */}
       <section className="px-6 py-16 sm:py-20">
         <div className="mx-auto max-w-2xl">
-          <motion.h2
+          <m.h2
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
@@ -167,10 +167,10 @@ export function AboutPageContent() {
             className="mb-12 text-center text-2xl font-extrabold sm:text-3xl"
           >
             {t("timelineTitle")}
-          </motion.h2>
+          </m.h2>
           <div className="relative">
             <div className="absolute left-7 top-0 h-full w-px bg-border" />
-            <motion.div
+            <m.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-40px" }}
@@ -178,7 +178,7 @@ export function AboutPageContent() {
               className="flex flex-col gap-10"
             >
               {timelineItems.map((item) => (
-                <motion.div key={item.year} variants={fadeUp} className="flex gap-6">
+                <m.div key={item.year} variants={fadeUp} className="flex gap-6">
                   <div className="relative flex size-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-[var(--soft-gold)]/30 text-center">
                     <p className="text-[10px] font-bold uppercase leading-tight text-muted-foreground">
                       {item.year}
@@ -191,37 +191,37 @@ export function AboutPageContent() {
                     </div>
                     <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{item.desc}</p>
                   </div>
-                </motion.div>
+                </m.div>
               ))}
-            </motion.div>
+            </m.div>
           </div>
         </div>
       </section>
 
       {/* ── CTA ── */}
       <section className="bg-gradient-to-br from-[var(--rose-blush)] via-[var(--champagne)] to-[var(--warm-peach)] px-6 py-16 text-center sm:py-24">
-        <motion.div
+        <m.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={staggerContainer}
           className="mx-auto max-w-2xl"
         >
-          <motion.h2 variants={fadeUp} className="text-2xl font-extrabold sm:text-3xl">
+          <m.h2 variants={fadeUp} className="text-2xl font-extrabold sm:text-3xl">
             {t("ctaTitle")}
-          </motion.h2>
-          <motion.p variants={fadeUp} className="mt-4 text-base text-muted-foreground">
+          </m.h2>
+          <m.p variants={fadeUp} className="mt-4 text-base text-muted-foreground">
             {t("ctaSubtitle")}
-          </motion.p>
-          <motion.div variants={fadeUp} className="mt-8 flex flex-wrap justify-center gap-3">
+          </m.p>
+          <m.div variants={fadeUp} className="mt-8 flex flex-wrap justify-center gap-3">
             <LinkButton href="/register" size="lg" className="rounded-full px-8">
               {t("ctaJoin")}
             </LinkButton>
             <LinkButton href="/articles" variant="outline" size="lg" className="rounded-full px-8 bg-white/60">
               {t("ctaLearn")}
             </LinkButton>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       </section>
     </>
   );

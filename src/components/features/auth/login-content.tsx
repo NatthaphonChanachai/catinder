@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { useRouter, Link } from "@/i18n/navigation";
 import { signInWithEmailAndPassword, signInWithPopup, sendPasswordResetEmail } from "firebase/auth";
 import { auth, googleProvider } from "@/services/firebase";
@@ -87,12 +87,12 @@ export function LoginContent() {
       <Image src="/img/Blackgroud2.png" alt="" fill className="object-cover object-center" quality={85} priority />
       <div className="absolute inset-0" style={{ background: "rgba(255,250,240,0.60)" }} />
 
-      <motion.div
+      <m.div
         initial="hidden" animate="visible" variants={staggerContainer}
         className="relative z-10 w-full max-w-md"
       >
         {/* Logo + title */}
-        <motion.div variants={fadeUp} className="text-center">
+        <m.div variants={fadeUp} className="text-center">
           <Link href="/" className="inline-flex justify-center">
             <div className="relative h-14 w-48">
               <Image src="/img/logo_and_icon.png" alt="Catinder" fill className="object-contain" />
@@ -103,9 +103,9 @@ export function LoginContent() {
           </p>
           <h1 className="mt-3 font-heading text-2xl font-bold text-[#0B1D3A]">เข้าสู่ระบบ</h1>
           <p className="mt-2 text-sm" style={{ color: "#6B5232" }}>ดีใจที่ได้เจออีกครั้ง แมวของคุณคิดถึงคุณนะ</p>
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           variants={fadeUp}
           className="mt-8 rounded-3xl p-8"
           style={{
@@ -133,7 +133,7 @@ export function LoginContent() {
           {/* Reset sent banner */}
           <AnimatePresence>
             {resetSent && (
-              <motion.div
+              <m.div
                 initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                 className="mb-4 flex items-start gap-2 rounded-2xl px-4 py-3"
                 style={{ background: "rgba(34,197,94,0.10)", border: "1px solid rgba(34,197,94,0.25)" }}
@@ -143,7 +143,7 @@ export function LoginContent() {
                   <p className="text-sm font-semibold text-[#0B1D3A]">ส่งลิงก์รีเซ็ตรหัสผ่านแล้ว</p>
                   <p className="text-xs text-[#6B5232]">ตรวจสอบอีเมล <strong>{email}</strong> (รวมถึงโฟลเดอร์สแปม)</p>
                 </div>
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
 
@@ -195,7 +195,7 @@ export function LoginContent() {
             {/* Error message */}
             <AnimatePresence>
               {error && (
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
                   className="rounded-2xl px-4 py-3"
                   style={{ background: "rgba(212,140,165,0.15)", border: "1px solid rgba(212,140,165,0.30)" }}
@@ -209,7 +209,7 @@ export function LoginContent() {
                       </Link>
                     </p>
                   )}
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
 
@@ -222,15 +222,15 @@ export function LoginContent() {
               {loading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
             </button>
           </form>
-        </motion.div>
+        </m.div>
 
-        <motion.p variants={fadeUp} className="mt-6 text-center text-sm text-muted-foreground">
+        <m.p variants={fadeUp} className="mt-6 text-center text-sm text-muted-foreground">
           ยังไม่มีบัญชีใช่ไหม?{" "}
           <Link href="/register" className="font-bold text-foreground hover:underline">
             สมัครสมาชิกฟรี
           </Link>
-        </motion.p>
-      </motion.div>
+        </m.p>
+      </m.div>
     </div>
   );
 }

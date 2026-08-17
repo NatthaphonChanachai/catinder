@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Heart, PawPrint, ShieldCheck, Bot, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { LinkButton } from "@/components/shared/link-button";
@@ -10,7 +10,7 @@ import { fadeUp, staggerContainer } from "@/lib/motion";
 // ── Trust badge pill ──────────────────────────────────────────────────────────
 function TrustPill({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
-    <motion.div
+    <m.div
       variants={fadeUp}
       className="flex items-center gap-2.5 rounded-2xl px-5 py-3 text-sm font-semibold"
       style={{
@@ -25,7 +25,7 @@ function TrustPill({ icon, label }: { icon: React.ReactNode; label: string }) {
         {icon}
       </span>
       {label}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -62,14 +62,14 @@ export function Hero() {
           <div className="flex flex-col items-center gap-6 lg:flex-row lg:items-center lg:gap-4 xl:gap-8">
 
             {/* LEFT: Text */}
-            <motion.div
+            <m.div
               initial="hidden"
               animate="visible"
               variants={staggerContainer}
               className="order-1 flex-1 text-center lg:text-left"
             >
               {/* Badge */}
-              <motion.div variants={fadeUp} className="mb-4 sm:mb-6">
+              <m.div variants={fadeUp} className="mb-4 sm:mb-6">
                 <span
                   className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 sm:px-5 sm:py-2 text-xs sm:text-sm font-semibold"
                   style={{
@@ -83,10 +83,10 @@ export function Hero() {
                   <Heart className="size-3.5 fill-[#F9C5D1] text-[#F9C5D1]" />
                   {t("badge")}
                 </span>
-              </motion.div>
+              </m.div>
 
               {/* ── Mobile headline (hidden on sm+) ── */}
-              <motion.h1
+              <m.h1
                 variants={fadeUp}
                 className="sm:hidden font-heading text-[2.1rem] font-bold leading-tight tracking-wide text-wrap-balance"
                 style={{
@@ -95,10 +95,10 @@ export function Hero() {
                 }}
               >
                 {t("mobileTagline")}
-              </motion.h1>
+              </m.h1>
 
               {/* ── Desktop headline (hidden on mobile) ── */}
-              <motion.h1
+              <m.h1
                 variants={fadeUp}
                 className="hidden sm:block font-heading text-5xl font-bold leading-tight tracking-wide sm:text-6xl xl:text-[4.2rem]"
                 style={{
@@ -116,10 +116,10 @@ export function Hero() {
                 >
                   {t("headline2")}
                 </span>
-              </motion.h1>
+              </m.h1>
 
               {/* ── Mobile subheadline (hidden on sm+) ── */}
-              <motion.p
+              <m.p
                 variants={fadeUp}
                 className="sm:hidden mx-auto mt-3 max-w-xs text-sm leading-relaxed px-1"
                 style={{
@@ -128,10 +128,10 @@ export function Hero() {
                 }}
               >
                 {t("mobileSubheadline")}
-              </motion.p>
+              </m.p>
 
               {/* ── Desktop subheadline (hidden on mobile) ── */}
-              <motion.p
+              <m.p
                 variants={fadeUp}
                 className="hidden sm:block mx-auto mt-6 max-w-lg text-lg leading-relaxed lg:mx-0"
                 style={{
@@ -140,10 +140,10 @@ export function Hero() {
                 }}
               >
                 {t("subheadline")}
-              </motion.p>
+              </m.p>
 
               {/* ── Mobile CTAs (hidden on sm+) ── */}
-              <motion.div
+              <m.div
                 variants={fadeUp}
                 className="sm:hidden mt-6 flex flex-col gap-3 w-full max-w-xs mx-auto"
               >
@@ -171,10 +171,10 @@ export function Hero() {
                 >
                   {t("ctaGames")}
                 </LinkButton>
-              </motion.div>
+              </m.div>
 
               {/* ── Desktop CTAs (hidden on mobile) ── */}
-              <motion.div
+              <m.div
                 variants={fadeUp}
                 className="hidden sm:flex mt-9 flex-col items-center gap-4 sm:flex-row lg:items-start"
               >
@@ -211,10 +211,10 @@ export function Hero() {
                 >
                   {t("ctaLearn")}
                 </LinkButton>
-              </motion.div>
+              </m.div>
 
               {/* Trust micro-badges — desktop only */}
-              <motion.div
+              <m.div
                 variants={fadeUp}
                 className="hidden sm:flex mt-8 flex-wrap items-center justify-center gap-x-6 gap-y-2.5 text-sm lg:justify-start"
               >
@@ -236,11 +236,11 @@ export function Hero() {
                     {b.icon} {b.text}
                   </span>
                 ))}
-              </motion.div>
-            </motion.div>
+              </m.div>
+            </m.div>
 
             {/* RIGHT: Mascot */}
-            <motion.div
+            <m.div
               initial={{ opacity: 0, scale: 0.88, y: 30 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 1.4, ease: "easeOut", delay: 0.2 }}
@@ -257,7 +257,7 @@ export function Hero() {
                   }}
                 />
                 {/* Floating mascot */}
-                <motion.div
+                <m.div
                   animate={{ y: [0, -18, 0] }}
                   transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
                   className="relative"
@@ -274,9 +274,9 @@ export function Hero() {
                     }}
                     priority
                   />
-                </motion.div>
+                </m.div>
               </div>
-            </motion.div>
+            </m.div>
           </div>
         </div>
       </section>
@@ -296,7 +296,7 @@ export function Hero() {
         />
 
         <div className="relative z-10 mx-auto max-w-5xl px-6 py-10">
-          <motion.div
+          <m.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-40px" }}
@@ -308,7 +308,7 @@ export function Hero() {
             <TrustPill icon={<PawPrint className="size-4 text-[#D4AF37]" />} label="ใส่ใจทุกชีวิต" />
             <TrustPill icon={<Bot className="size-4 text-[#D4AF37]" />} label="AI Matching" />
             <TrustPill icon={<Sparkles className="size-4 text-[#D4AF37]" />} label="Premium Care" />
-          </motion.div>
+          </m.div>
         </div>
       </section>
     </>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Timer, Trophy, RotateCcw, PawPrint, Flower2, Moon, Mountain, Heart, Gem, Award, Leaf, Eye, LayoutGrid, Clock } from "lucide-react";
 import { addXP } from "@/lib/xp";
 
@@ -161,18 +161,18 @@ export function BreedMemory({ onClose }: { onClose: () => void }) {
               }}>
               <AnimatePresence mode="wait">
                 {card.flipped || card.matched ? (
-                  <motion.div key="face" initial={{ rotateY: 90 }} animate={{ rotateY: 0 }}
+                  <m.div key="face" initial={{ rotateY: 90 }} animate={{ rotateY: 0 }}
                     className="flex h-full flex-col items-center justify-center gap-1 p-1">
                     <BreedIcon className="size-5" style={{ color: card.matched ? breed.color : breed.color }} strokeWidth={1.8} />
                     <span className="text-[9px] font-bold leading-tight"
                       style={{ color: card.matched ? "#B8920A" : "#4A1030" }}>
                       {card.name}
                     </span>
-                  </motion.div>
+                  </m.div>
                 ) : (
-                  <motion.div key="back" className="flex h-full items-center justify-center">
+                  <m.div key="back" className="flex h-full items-center justify-center">
                     <PawPrint className="size-6 text-white/55" strokeWidth={1.5} />
-                  </motion.div>
+                  </m.div>
                 )}
               </AnimatePresence>
             </button>
@@ -185,7 +185,7 @@ export function BreedMemory({ onClose }: { onClose: () => void }) {
       {/* Win / Lose overlay */}
       <AnimatePresence>
         {finished && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="absolute inset-0 z-10 flex flex-col items-center justify-center rounded-3xl p-8 text-center"
             style={{ background: "rgba(255,250,252,0.96)", backdropFilter: "blur(8px)" }}>
             {finished === "win" ? (
@@ -217,7 +217,7 @@ export function BreedMemory({ onClose }: { onClose: () => void }) {
                 เสร็จแล้ว
               </button>
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </div>

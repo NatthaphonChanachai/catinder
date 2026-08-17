@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Upload, Share2, RefreshCw } from "lucide-react";
 import { fadeUp, staggerContainer } from "@/lib/motion";
@@ -93,23 +93,23 @@ export function CatCompatibilityGame() {
     <section className="bg-gradient-to-br from-[var(--champagne)]/20 to-background px-6 py-14">
       <div className="mx-auto max-w-2xl">
         {/* Header */}
-        <motion.div
+        <m.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
           variants={staggerContainer}
           className="mb-8 text-center"
         >
-          <motion.span variants={fadeUp} className="inline-block rounded-full bg-[var(--petal-pink)]/50 px-4 py-1.5 text-xs font-bold uppercase tracking-widest">
+          <m.span variants={fadeUp} className="inline-block rounded-full bg-[var(--petal-pink)]/50 px-4 py-1.5 text-xs font-bold uppercase tracking-widest">
             {t("badge")}
-          </motion.span>
-          <motion.h2 variants={fadeUp} className="mt-3 text-2xl font-extrabold sm:text-3xl">
+          </m.span>
+          <m.h2 variants={fadeUp} className="mt-3 text-2xl font-extrabold sm:text-3xl">
             {t("title")}
-          </motion.h2>
-          <motion.p variants={fadeUp} className="mt-2 text-sm text-muted-foreground">
+          </m.h2>
+          <m.p variants={fadeUp} className="mt-2 text-sm text-muted-foreground">
             {t("subtitle")}
-          </motion.p>
-        </motion.div>
+          </m.p>
+        </m.div>
 
         {/* Game card */}
         <div className="overflow-hidden rounded-3xl bg-card shadow-sm ring-1 ring-border/60">
@@ -117,7 +117,7 @@ export function CatCompatibilityGame() {
 
             {/* ── Step 1: Your cat ── */}
             {step === 1 && (
-              <motion.div
+              <m.div
                 key="step1"
                 initial={{ opacity: 0, x: 40 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -197,12 +197,12 @@ export function CatCompatibilityGame() {
                 >
                   {t("nextBtn")}
                 </button>
-              </motion.div>
+              </m.div>
             )}
 
             {/* ── Step 2: Partner preferences ── */}
             {step === 2 && (
-              <motion.div
+              <m.div
                 key="step2"
                 initial={{ opacity: 0, x: 40 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -286,31 +286,31 @@ export function CatCompatibilityGame() {
                     {t("generateBtn")}
                   </button>
                 </div>
-              </motion.div>
+              </m.div>
             )}
 
             {/* ── Step 3: Loading ── */}
             {step === 3 && (
-              <motion.div
+              <m.div
                 key="step3"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="flex flex-col items-center gap-6 p-20 text-center"
               >
-                <motion.span
+                <m.span
                   className="text-5xl"
                   animate={{ rotate: 360 }}
                   transition={{ repeat: Infinity, duration: 1.4, ease: "linear" }}
                 >
                   🐾
-                </motion.span>
+                </m.span>
                 <p className="text-sm font-semibold text-muted-foreground">{t("step3Title")}</p>
-              </motion.div>
+              </m.div>
             )}
 
             {/* ── Result ── */}
             {step === "result" && (
-              <motion.div
+              <m.div
                 key="result"
                 initial={{ opacity: 0, scale: 0.88 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -379,7 +379,7 @@ export function CatCompatibilityGame() {
                     {t("playAgainBtn")}
                   </button>
                 </div>
-              </motion.div>
+              </m.div>
             )}
           </AnimatePresence>
         </div>

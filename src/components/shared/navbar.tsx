@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Menu, X, LayoutDashboard, LogOut } from "lucide-react";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
@@ -141,7 +141,7 @@ export function Navbar() {
       {/* Mobile menu */}
       <AnimatePresence>
         {open && (
-          <motion.nav
+          <m.nav
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
@@ -195,7 +195,7 @@ export function Navbar() {
                 )}
               </div>
             </div>
-          </motion.nav>
+          </m.nav>
         )}
       </AnimatePresence>
     </header>

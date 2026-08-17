@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Send } from "lucide-react";
 import { addXP, hasEarnedToday, markEarnedToday } from "@/lib/xp";
 import { cn } from "@/lib/utils";
@@ -119,7 +119,7 @@ export function FaqAiChat() {
       {/* Messages */}
       <div className="flex h-64 flex-col gap-3 overflow-y-auto p-5">
         {msgs.map((msg, i) => (
-          <motion.div
+          <m.div
             key={i}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -141,18 +141,18 @@ export function FaqAiChat() {
             >
               {msg.text}
             </div>
-          </motion.div>
+          </m.div>
         ))}
 
         {typing && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-end gap-2">
+          <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-end gap-2">
             <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[var(--rose-blush)] text-sm">
               🐱
             </div>
             <div className="rounded-2xl rounded-bl-sm bg-[var(--warm-ivory)] px-4 py-3">
               <div className="flex gap-1">
                 {[0, 1, 2].map((i) => (
-                  <motion.span
+                  <m.span
                     key={i}
                     className="block size-1.5 rounded-full bg-muted-foreground/60"
                     animate={{ y: [0, -4, 0] }}
@@ -161,7 +161,7 @@ export function FaqAiChat() {
                 ))}
               </div>
             </div>
-          </motion.div>
+          </m.div>
         )}
         <div ref={bottomRef} />
       </div>

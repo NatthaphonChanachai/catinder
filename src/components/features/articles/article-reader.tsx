@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { ArrowLeft, Bookmark, ThumbsUp, Share2, BookOpen, Clock } from "lucide-react";
@@ -98,7 +98,7 @@ export function ArticleReader({ slug }: { slug: string }) {
     <>
       {/* Reading progress bar — fixed at very top */}
       <div className="fixed inset-x-0 top-0 z-[60] h-0.5 bg-border/40">
-        <motion.div
+        <m.div
           className="h-full bg-gradient-to-r from-[var(--soft-gold)] to-[var(--warm-peach)]"
           style={{ width: `${readProgress}%` }}
           transition={{ duration: 0.1 }}
@@ -108,26 +108,26 @@ export function ArticleReader({ slug }: { slug: string }) {
       <article className="px-6 py-10 sm:py-14">
         <div className="mx-auto max-w-5xl">
           {/* Back */}
-          <motion.div initial="hidden" animate="visible" variants={fadeUp}>
+          <m.div initial="hidden" animate="visible" variants={fadeUp}>
             <Link href="/articles" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
               <ArrowLeft className="size-4" /> {t("backToArticles")}
             </Link>
-          </motion.div>
+          </m.div>
 
           {/* Header */}
-          <motion.div
+          <m.div
             initial="hidden"
             animate="visible"
             variants={staggerContainer}
             className="mt-6"
           >
-            <motion.span variants={fadeUp} className="rounded-full bg-[var(--rose-blush)] px-3 py-1 text-xs font-semibold">
+            <m.span variants={fadeUp} className="rounded-full bg-[var(--rose-blush)] px-3 py-1 text-xs font-semibold">
               {tk(`categories.${article.category}`)}
-            </motion.span>
-            <motion.h1 variants={fadeUp} className="mt-4 text-3xl font-extrabold leading-tight sm:text-4xl">
+            </m.span>
+            <m.h1 variants={fadeUp} className="mt-4 text-3xl font-extrabold leading-tight sm:text-4xl">
               {localTitle}
-            </motion.h1>
-            <motion.div variants={fadeUp} className="mt-4 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+            </m.h1>
+            <m.div variants={fadeUp} className="mt-4 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
               <span className="flex items-center gap-1"><BookOpen className="size-3.5" />{t("authorLabel")}</span>
               <span className="flex items-center gap-1"><Clock className="size-3.5" />{t("minRead", { n: article.readMinutes })}</span>
               <span className="rounded-full bg-[var(--soft-gold)]/30 px-2 py-0.5 font-semibold text-foreground">
@@ -136,18 +136,18 @@ export function ArticleReader({ slug }: { slug: string }) {
               <span className="rounded-full bg-[var(--rose-blush)]/50 px-2 py-0.5 font-semibold text-foreground">
                 +30 XP ⭐
               </span>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
 
           {/* Hero image */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
             className="relative mt-8 aspect-[16/7] w-full overflow-hidden rounded-3xl bg-muted"
           >
             <Image src={article.image} alt={localTitle} fill sizes="100vw" className="object-cover" priority />
-          </motion.div>
+          </m.div>
 
           {/* Layout: TOC sidebar + body */}
           <div className="mt-10 flex gap-10">
@@ -176,7 +176,7 @@ export function ArticleReader({ slug }: { slug: string }) {
 
             {/* Body */}
             <div className="min-w-0 flex-1">
-              <motion.div
+              <m.div
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
@@ -184,11 +184,11 @@ export function ArticleReader({ slug }: { slug: string }) {
                 className="space-y-5 text-base leading-relaxed"
               >
                 {body.map((para, i) => (
-                  <motion.p key={i} variants={fadeUp} id={TOC_SECTIONS[i] ?? undefined}>
+                  <m.p key={i} variants={fadeUp} id={TOC_SECTIONS[i] ?? undefined}>
                     {para}
-                  </motion.p>
+                  </m.p>
                 ))}
-              </motion.div>
+              </m.div>
 
               {/* Action bar */}
               <div className="mt-8 flex flex-wrap gap-3">
@@ -255,7 +255,7 @@ export function ArticleReader({ slug }: { slug: string }) {
           {related.length > 0 && (
             <section className="mt-16">
               <h2 className="mb-6 text-xl font-extrabold">{t("relatedTitle")}</h2>
-              <motion.div
+              <m.div
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
@@ -263,11 +263,11 @@ export function ArticleReader({ slug }: { slug: string }) {
                 className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
               >
                 {related.map((a) => (
-                  <motion.div key={a.slug} variants={fadeUp}>
+                  <m.div key={a.slug} variants={fadeUp}>
                     <ArticleCard article={a} />
-                  </motion.div>
+                  </m.div>
                 ))}
-              </motion.div>
+              </m.div>
             </section>
           )}
         </div>

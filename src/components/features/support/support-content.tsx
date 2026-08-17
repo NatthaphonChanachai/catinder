@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   collection, doc, query, orderBy, onSnapshot, addDoc, setDoc,
   serverTimestamp, increment, type DocumentData,
@@ -183,9 +183,9 @@ function Shell({ children }: { children: React.ReactNode }) {
         <Link href="/" className="mb-6 inline-flex items-center gap-1.5 text-sm font-semibold transition-opacity hover:opacity-70" style={{ color: "#B04060" }}>
           <ArrowLeft className="size-4" /> กลับหน้าแรก
         </Link>
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+        <m.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
           {children}
-        </motion.div>
+        </m.div>
       </div>
     </div>
   );

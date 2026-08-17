@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { CalendarDays, MapPin } from "lucide-react";
 import type { CatEvent } from "@/types/content";
 import { softHover } from "@/lib/motion";
@@ -17,7 +17,7 @@ export function EventCard({ event }: { event: CatEvent & { isoDate: string } }) 
   const days = daysUntil(event.isoDate);
 
   return (
-    <motion.div
+    <m.div
       whileHover={softHover}
       className="flex items-center gap-4 rounded-3xl bg-card p-4 shadow-sm ring-1 ring-border/60"
     >
@@ -41,6 +41,6 @@ export function EventCard({ event }: { event: CatEvent & { isoDate: string } }) 
       <button className="shrink-0 rounded-full bg-[var(--soft-gold)] px-4 py-2 text-xs font-semibold text-foreground hover:opacity-90">
         {t("join")}
       </button>
-    </motion.div>
+    </m.div>
   );
 }

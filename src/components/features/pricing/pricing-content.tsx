@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Crown, Check, Zap, Shield, Heart, Star, ChevronDown, Loader2, CheckCircle, Mail } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { useState } from "react";
@@ -107,7 +107,7 @@ export function PricingContent() {
 
       <div className="max-w-3xl mx-auto px-4 py-10 pb-24">
         {/* Header */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45 }}
@@ -136,7 +136,7 @@ export function PricingContent() {
           <p className="text-base max-w-sm mx-auto" style={{ color: "#6B5232" }}>
             เริ่มต้นฟรี อัปเกรดเมื่อพร้อม ไม่มีค่าใช้จ่ายซ่อนเร้น
           </p>
-        </motion.div>
+        </m.div>
 
         {/* Monthly / Annual toggle (UI only) */}
         <div className="flex justify-center mb-8">
@@ -187,7 +187,7 @@ export function PricingContent() {
         {/* Plan cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-12">
           {/* Free plan */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, delay: 0.05 }}
@@ -241,10 +241,10 @@ export function PricingContent() {
             >
               เริ่มใช้งานฟรี
             </Link>
-          </motion.div>
+          </m.div>
 
           {/* Premium plan */}
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, delay: 0.12 }}
@@ -328,11 +328,11 @@ export function PricingContent() {
             <p className="text-center text-xs mt-2 text-white/40">
               จ่ายผ่าน PromptPay · เปิดใช้ภายใน 24 ชม.
             </p>
-          </motion.div>
+          </m.div>
         </div>
 
         {/* Early Bird waitlist */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.2 }}
@@ -389,10 +389,10 @@ export function PricingContent() {
           {ebStatus === "error" && (
             <p className="mt-2 text-xs text-[#B04060]">กรุณากรอกอีเมลให้ถูกต้อง</p>
           )}
-        </motion.div>
+        </m.div>
 
         {/* Feature comparison note */}
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
@@ -401,7 +401,7 @@ export function PricingContent() {
           <p className="text-sm" style={{ color: "#6B5232" }}>
             ทุกแผนรวมถึงการเข้าถึงบทความ ชุมชน และกิจกรรมออนไลน์
           </p>
-        </motion.div>
+        </m.div>
 
         {/* FAQ section */}
         <div>
@@ -414,7 +414,7 @@ export function PricingContent() {
 
           <div className="space-y-3">
             {FAQ_ITEMS.map((item, i) => (
-              <motion.div
+              <m.div
                 key={i}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -447,7 +447,7 @@ export function PricingContent() {
                     </p>
                   </div>
                 )}
-              </motion.div>
+              </m.div>
             ))}
           </div>
         </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import {
   Camera, Upload, Download, Share2, Loader2,
   ImageIcon, Paintbrush, Pencil, Wand2, Zap, Film, Feather, Star,
@@ -147,7 +147,7 @@ export function CatPhotoStyler({ onClose }: { onClose: () => void }) {
         </div>
       ) : (
         <AnimatePresence mode="wait">
-          <motion.div key={style} initial={{ opacity: 0.7 }} animate={{ opacity: 1 }}>
+          <m.div key={style} initial={{ opacity: 0.7 }} animate={{ opacity: 1 }}>
             {/* Preview */}
             <div className="relative mb-4 overflow-hidden rounded-3xl"
               style={{ background: "#F0E8EC", aspectRatio: "4/3" }}>
@@ -202,7 +202,7 @@ export function CatPhotoStyler({ onClose }: { onClose: () => void }) {
                 <Download className="size-4" /> ดาวน์โหลด
               </button>
             </div>
-          </motion.div>
+          </m.div>
         </AnimatePresence>
       )}
     </div>

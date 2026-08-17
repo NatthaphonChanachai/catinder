@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   collection, query, where, onSnapshot, addDoc, serverTimestamp,
   type DocumentData,
@@ -400,9 +400,9 @@ function Shell({ children }: { children: React.ReactNode }) {
           <ArrowLeft className="size-4" />
           กลับไปหน้าแผนราคา
         </Link>
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+        <m.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
           {children}
-        </motion.div>
+        </m.div>
       </div>
     </div>
   );

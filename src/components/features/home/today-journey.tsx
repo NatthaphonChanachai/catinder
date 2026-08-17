@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Check, Flame, Star } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { addXP, getXP, getLevel, hasEarnedToday, markEarnedToday } from "@/lib/xp";
@@ -67,7 +67,7 @@ function JCard({
   onClick?: () => void;
 }) {
   return (
-    <motion.div
+    <m.div
       whileTap={{ scale: 0.90 }}
       transition={{ type: "spring", stiffness: 480, damping: 28 }}
       onClick={onClick}
@@ -93,7 +93,7 @@ function JCard({
           <Check className="size-3 text-[#3A7D5A]" strokeWidth={3} />
         </div>
       )}
-    </motion.div>
+    </m.div>
   );
 }
 

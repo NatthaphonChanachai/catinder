@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import { fadeUp } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -27,7 +27,7 @@ export function SuccessStories() {
   }
 
   return (
-    <motion.section
+    <m.section
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-80px" }}
@@ -42,7 +42,7 @@ export function SuccessStories() {
       <div className="relative mt-10">
         <div className="overflow-hidden rounded-[2rem] bg-card shadow-sm ring-1 ring-border/60">
           <AnimatePresence mode="wait">
-            <motion.div
+            <m.div
               key={index}
               initial={{ opacity: 0, x: 24 }}
               animate={{ opacity: 1, x: 0 }}
@@ -69,7 +69,7 @@ export function SuccessStories() {
                 </p>
                 <p className="mt-4 text-sm font-semibold">{story.author}</p>
               </div>
-            </motion.div>
+            </m.div>
           </AnimatePresence>
         </div>
 
@@ -102,6 +102,6 @@ export function SuccessStories() {
           />
         ))}
       </div>
-    </motion.section>
+    </m.section>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Bot, BookOpen, PawPrint, Users, HeartPulse, Gamepad2 } from "lucide-react";
 import Image from "next/image";
 import { fadeUp, staggerContainer } from "@/lib/motion";
@@ -65,35 +65,35 @@ export function FeatureCards() {
       <div className="absolute inset-0" style={{ background: "rgba(255,252,242,0.82)" }} />
       <div className="relative z-10 mx-auto max-w-6xl">
         {/* Section heading */}
-        <motion.div
+        <m.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-60px" }}
           variants={staggerContainer}
           className="mb-12 text-center"
         >
-          <motion.p
+          <m.p
             variants={fadeUp}
             className="mb-2 text-xs font-bold uppercase tracking-widest text-[#D4AF37]"
           >
             ฟีเจอร์หลัก
-          </motion.p>
-          <motion.h2
+          </m.p>
+          <m.h2
             variants={fadeUp}
             className="font-heading text-3xl font-bold text-[#0B1D3A] sm:text-4xl"
           >
             ทุกสิ่งที่คุณพ่อคุณแม่แมวต้องการ
-          </motion.h2>
-          <motion.p
+          </m.h2>
+          <m.p
             variants={fadeUp}
             className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-[#6B5232] sm:text-base"
           >
             แพลตฟอร์มครบวงจรสำหรับการจับคู่แมวอย่างปลอดภัยและมีความสุข
-          </motion.p>
-        </motion.div>
+          </m.p>
+        </m.div>
 
         {/* Cards grid */}
-        <motion.div
+        <m.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-40px" }}
@@ -101,7 +101,7 @@ export function FeatureCards() {
           className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
         >
           {FEATURES.map((f, i) => (
-            <motion.div
+            <m.div
               key={i}
               variants={fadeUp}
               whileHover={{ y: -6, boxShadow: "0 16px 40px rgba(11,29,58,0.14)" }}
@@ -134,9 +134,9 @@ export function FeatureCards() {
                   <span>→</span>
                 </div>
               </Link>
-            </motion.div>
+            </m.div>
           ))}
-        </motion.div>
+        </m.div>
       </div>
     </section>
   );

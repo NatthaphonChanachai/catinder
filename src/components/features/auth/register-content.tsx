@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Link, useRouter } from "@/i18n/navigation";
 import {
   createUserWithEmailAndPassword,
@@ -198,12 +198,12 @@ export function RegisterContent() {
       <Image src="/img/Blackgroud3.png" alt="" fill className="object-cover object-center" quality={85} priority />
       <div className="absolute inset-0" style={{ background: "rgba(255,250,240,0.62)" }} />
 
-      <motion.div
+      <m.div
         initial="hidden" animate="visible" variants={staggerContainer}
         className="relative z-10 w-full max-w-md"
       >
         {/* Logo */}
-        <motion.div variants={fadeUp} className="text-center">
+        <m.div variants={fadeUp} className="text-center">
           <Link href="/" className="inline-flex justify-center">
             <div className="relative h-14 w-48">
               <Image src="/img/logo_and_icon.png" alt="Catinder" fill className="object-contain" />
@@ -211,11 +211,11 @@ export function RegisterContent() {
           </Link>
           <p className="mt-1 text-xs font-bold uppercase tracking-widest" style={{ color: "#D4AF37" }}>เข้าร่วมฟรี</p>
           <h1 className="mt-3 font-heading text-2xl font-bold text-[#0B1D3A]">สร้างบัญชีของคุณ</h1>
-        </motion.div>
+        </m.div>
 
         {/* Step indicator */}
         {step !== "done" && (
-          <motion.div variants={fadeUp} className="mt-6 flex items-center justify-center gap-2">
+          <m.div variants={fadeUp} className="mt-6 flex items-center justify-center gap-2">
             {STEP_LABELS.map((label, i) => (
               <div key={label} className="flex items-center gap-2">
                 <div className="flex items-center gap-1.5">
@@ -239,13 +239,13 @@ export function RegisterContent() {
                 )}
               </div>
             ))}
-          </motion.div>
+          </m.div>
         )}
 
         <AnimatePresence mode="wait">
           {/* ── Step 1: Info ── */}
           {step === "info" && (
-            <motion.div
+            <m.div
               key="info"
               initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
               className="mt-6 rounded-3xl p-8"
@@ -302,10 +302,10 @@ export function RegisterContent() {
                 </div>
 
                 {error && (
-                  <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
+                  <m.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
                     className="rounded-2xl bg-[var(--petal-pink)]/30 px-4 py-3 text-sm font-semibold">
                     {error}
-                  </motion.p>
+                  </m.p>
                 )}
 
                 <button
@@ -320,12 +320,12 @@ export function RegisterContent() {
                   การสมัครสมาชิกถือว่าคุณยอมรับข้อกำหนดการใช้บริการและนโยบายความเป็นส่วนตัว
                 </p>
               </form>
-            </motion.div>
+            </m.div>
           )}
 
           {/* ── Step 2: OTP ── */}
           {step === "otp" && (
-            <motion.div
+            <m.div
               key="otp"
               initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
               className="mt-6 rounded-3xl p-8"
@@ -368,10 +368,10 @@ export function RegisterContent() {
                 </div>
 
                 {error && (
-                  <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
+                  <m.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
                     className="rounded-2xl bg-[var(--petal-pink)]/30 px-4 py-3 text-center text-sm font-semibold">
                     {error}
-                  </motion.p>
+                  </m.p>
                 )}
 
                 <button
@@ -401,12 +401,12 @@ export function RegisterContent() {
                   </button>
                 </div>
               </form>
-            </motion.div>
+            </m.div>
           )}
 
           {/* ── Step 3: Password ── */}
           {step === "password" && (
-            <motion.div
+            <m.div
               key="password"
               initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
               className="mt-6 rounded-3xl p-8"
@@ -468,10 +468,10 @@ export function RegisterContent() {
                 </div>
 
                 {error && (
-                  <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
+                  <m.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
                     className="rounded-2xl bg-[var(--petal-pink)]/30 px-4 py-3 text-sm font-semibold">
                     {error}
-                  </motion.p>
+                  </m.p>
                 )}
 
                 <button
@@ -483,24 +483,24 @@ export function RegisterContent() {
                   {loading ? "กำลังสร้างบัญชี..." : "สร้างบัญชีฟรี 🐾"}
                 </button>
               </form>
-            </motion.div>
+            </m.div>
           )}
 
           {/* ── Step 4: Done ── */}
           {step === "done" && (
-            <motion.div
+            <m.div
               key="done"
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
               className="mt-8 rounded-3xl p-10 text-center"
               style={{ background: "rgba(255,254,245,0.90)", backdropFilter: "blur(20px)", border: "1px solid rgba(212,175,55,0.30)", boxShadow: "0 8px 40px rgba(11,29,58,0.12)" }}
             >
-              <motion.div
+              <m.div
                 animate={{ scale: [1, 1.1, 1] }}
                 transition={{ duration: 0.6, repeat: 2 }}
                 className="mx-auto mb-4 text-5xl"
               >
                 🎉
-              </motion.div>
+              </m.div>
               <h2 className="text-xl font-extrabold text-[#0B1D3A]">ยินดีต้อนรับสู่ Catinder!</h2>
               <p className="mt-2 text-sm leading-relaxed text-[#6B5232]">
                 บัญชีของ <strong>{name}</strong> พร้อมแล้ว<br/>
@@ -513,19 +513,19 @@ export function RegisterContent() {
               >
                 ไปหน้าหลัก →
               </button>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
 
         {(step === "info" || step === "otp") && (
-          <motion.p variants={fadeUp} className="mt-6 text-center text-sm text-muted-foreground">
+          <m.p variants={fadeUp} className="mt-6 text-center text-sm text-muted-foreground">
             มีบัญชีอยู่แล้วใช่ไหม?{" "}
             <Link href="/login" className="font-bold text-foreground hover:underline">
               เข้าสู่ระบบ
             </Link>
-          </motion.p>
+          </m.p>
         )}
-      </motion.div>
+      </m.div>
     </div>
   );
 }

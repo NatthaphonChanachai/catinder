@@ -8,6 +8,7 @@ import { routing, type Locale } from "@/i18n/routing";
 import { XPToastProvider } from "@/components/shared/xp-toast";
 import { AuthProvider } from "@/contexts/auth-context";
 import { MobileBottomNav } from "@/components/shared/mobile-bottom-nav";
+import { MotionProvider } from "@/components/shared/motion-provider";
 import "../globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -79,9 +80,11 @@ export default async function LocaleLayout({
       <body className="min-h-full flex flex-col font-sans bg-background text-foreground">
         <NextIntlClientProvider>
           <AuthProvider>
-            {children}
-            <XPToastProvider />
-            <MobileBottomNav />
+            <MotionProvider>
+              {children}
+              <XPToastProvider />
+              <MobileBottomNav />
+            </MotionProvider>
           </AuthProvider>
         </NextIntlClientProvider>
       </body>

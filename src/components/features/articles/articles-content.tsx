@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Search, ThumbsUp, Star } from "lucide-react";
 import { ALL_ARTICLES } from "@/constants/sample-content";
@@ -43,22 +43,22 @@ export function ArticlesContent() {
     <>
       {/* ── Hero + Search ── */}
       <section className="bg-gradient-to-b from-[var(--warm-ivory)] to-background px-6 py-16 text-center sm:py-20">
-        <motion.div
+        <m.div
           initial="hidden"
           animate="visible"
           variants={staggerContainer}
           className="mx-auto max-w-2xl"
         >
-          <motion.span variants={fadeUp} className="inline-block rounded-full bg-[var(--petal-pink)]/60 px-4 py-1.5 text-xs font-bold uppercase tracking-widest">
+          <m.span variants={fadeUp} className="inline-block rounded-full bg-[var(--petal-pink)]/60 px-4 py-1.5 text-xs font-bold uppercase tracking-widest">
             {t("badge")}
-          </motion.span>
-          <motion.h1 variants={fadeUp} className="mt-5 text-3xl font-extrabold sm:text-4xl">
+          </m.span>
+          <m.h1 variants={fadeUp} className="mt-5 text-3xl font-extrabold sm:text-4xl">
             {t("title")}
-          </motion.h1>
-          <motion.p variants={fadeUp} className="mt-4 text-base text-muted-foreground">
+          </m.h1>
+          <m.p variants={fadeUp} className="mt-4 text-base text-muted-foreground">
             {t("subtitle")}
-          </motion.p>
-          <motion.div variants={fadeUp} className="relative mt-8">
+          </m.p>
+          <m.div variants={fadeUp} className="relative mt-8">
             <Search className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <input
               value={query}
@@ -66,8 +66,8 @@ export function ArticlesContent() {
               placeholder={t("searchPlaceholder")}
               className="w-full rounded-full border border-border bg-card py-3 pl-11 pr-5 text-sm shadow-sm outline-none focus:ring-2 focus:ring-[var(--soft-gold)]"
             />
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       </section>
 
       {/* ── Sort tabs ── */}
@@ -94,11 +94,11 @@ export function ArticlesContent() {
       <section className="px-6 py-12 sm:py-16">
         <div className="mx-auto max-w-5xl">
           {sorted.length === 0 ? (
-            <motion.p initial="hidden" animate="visible" variants={fadeUp} className="py-16 text-center text-muted-foreground">
+            <m.p initial="hidden" animate="visible" variants={fadeUp} className="py-16 text-center text-muted-foreground">
               {t("noResults")}
-            </motion.p>
+            </m.p>
           ) : (
-            <motion.div
+            <m.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
@@ -106,7 +106,7 @@ export function ArticlesContent() {
               className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
             >
               {sorted.map((article) => (
-                <motion.div key={article.slug} variants={fadeUp} className="relative">
+                <m.div key={article.slug} variants={fadeUp} className="relative">
                   {article.editorsPick && (
                     <div className="absolute -top-2 left-4 z-10 flex items-center gap-1 rounded-full bg-[var(--soft-gold)] px-2.5 py-0.5 text-[11px] font-bold shadow-sm">
                       <Star className="size-3 fill-current" />
@@ -120,9 +120,9 @@ export function ArticlesContent() {
                       {t("likesLabel", { n: article.likes })}
                     </div>
                   )}
-                </motion.div>
+                </m.div>
               ))}
-            </motion.div>
+            </m.div>
           )}
         </div>
       </section>

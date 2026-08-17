@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Clock, Bookmark } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import type { Article } from "@/types/content";
@@ -30,7 +30,7 @@ export function ArticleCard({ article }: { article: Article }) {
   }
 
   return (
-    <motion.div whileHover={softHover}>
+    <m.div whileHover={softHover}>
       <Link
         href={`/articles/${article.slug}`}
         className="group block overflow-hidden rounded-3xl bg-card shadow-sm ring-1 ring-border/60"
@@ -66,6 +66,6 @@ export function ArticleCard({ article }: { article: Article }) {
           </div>
         </div>
       </Link>
-    </motion.div>
+    </m.div>
   );
 }

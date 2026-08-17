@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Bookmark, HeartHandshake, Trash2, Loader2, MessageCircle } from "lucide-react";
 import {
   collection, query, where, onSnapshot, doc, getDoc, deleteDoc,
@@ -90,10 +90,10 @@ export function FavoritesContent() {
 
   return (
     <AppShell>
-      <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="mx-auto max-w-4xl space-y-5">
+      <m.div initial="hidden" animate="visible" variants={staggerContainer} className="mx-auto max-w-4xl space-y-5">
 
         {/* Header */}
-        <motion.div variants={fadeUp} className="flex items-center justify-between">
+        <m.div variants={fadeUp} className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-extrabold text-[#0B1D3A]">รายการโปรด</h1>
             <p className="text-xs text-[#6B5232]/60">แมวที่คุณกดถูกใจ {favs.length} ตัว</p>
@@ -103,14 +103,14 @@ export function FavoritesContent() {
             style={{ background: "linear-gradient(135deg,#EDD060,#D4AF37)", color: "#0B1D3A" }}>
             <HeartHandshake className="size-4" /> ค้นหาเพิ่ม
           </Link>
-        </motion.div>
+        </m.div>
 
         {loading ? (
           <div className="flex justify-center py-24">
             <Loader2 className="size-6 animate-spin text-[#D4AF37]" />
           </div>
         ) : favs.length === 0 ? (
-          <motion.div variants={fadeUp} className="flex flex-col items-center justify-center rounded-3xl py-20 text-center"
+          <m.div variants={fadeUp} className="flex flex-col items-center justify-center rounded-3xl py-20 text-center"
             style={{ background: "#FFFAFC", border: "1px solid rgba(212,160,175,0.22)" }}>
             <Bookmark className="mb-4 size-12 text-[#D4AF37]/40" />
             <h3 className="text-base font-bold text-[#0B1D3A]">ยังไม่มีรายการโปรด</h3>
@@ -119,12 +119,12 @@ export function FavoritesContent() {
               style={{ background: "linear-gradient(135deg,#EDD060,#D4AF37)", color: "#0B1D3A" }}>
               เริ่มค้นหา
             </Link>
-          </motion.div>
+          </m.div>
         ) : (
-          <motion.div variants={fadeUp} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <m.div variants={fadeUp} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <AnimatePresence>
               {favs.map((f) => (
-                <motion.div key={f.likeId} layout
+                <m.div key={f.likeId} layout
                   initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
                   className="group overflow-hidden rounded-2xl transition-all hover:-translate-y-0.5 hover:shadow-lg"
                   style={{ background: "#FFFAFC", border: "1px solid rgba(212,160,175,0.22)", boxShadow: "0 2px 12px rgba(160,60,90,0.06)" }}>
@@ -172,12 +172,12 @@ export function FavoritesContent() {
                       {removingId === f.likeId ? <Loader2 className="size-3.5 animate-spin" /> : <Trash2 className="size-3.5" />}
                     </button>
                   </div>
-                </motion.div>
+                </m.div>
               ))}
             </AnimatePresence>
-          </motion.div>
+          </m.div>
         )}
-      </motion.div>
+      </m.div>
     </AppShell>
   );
 }

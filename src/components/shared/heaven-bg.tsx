@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 // ─── Sparkle positions ────────────────────────────────────────────────────────
@@ -55,7 +55,7 @@ function FourStar({ size, delay, bright, dark }: { size: number; delay: number; 
   const color = dark ? (bright ? "#F7D7AB" : "#D4AF37") : (bright ? "var(--soft-gold)" : "var(--rose-gold)");
   const maxOpacity = dark ? (bright ? 1 : 0.75) : (bright ? 0.90 : 0.50);
   return (
-    <motion.div
+    <m.div
       style={{ width: size, height: size }}
       animate={{ scale: [0.4, 1.2, 0.4], opacity: [0.1, maxOpacity, 0.1], rotate: [0, 20, 0] }}
       transition={{ duration: 2.6 + delay * 0.2, repeat: Infinity, delay, ease: "easeInOut" }}
@@ -65,7 +65,7 @@ function FourStar({ size, delay, bright, dark }: { size: number; delay: number; 
         <path d="M12 6.5 L12.7 11.3 L17.5 12 L12.7 12.7 L12 17.5 L11.3 12.7 L6.5 12 L11.3 11.3 Z"
           fill="white" fillOpacity={dark ? "0.8" : "0.4"} />
       </svg>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -159,7 +159,7 @@ function LuxuryCloud({ width, dark }: { width: number; dark: boolean }) {
 function CatPaw({ size, delay, duration, dark }: { size: number; delay: number; duration: number; dark: boolean }) {
   const fill = dark ? "rgba(212,175,55,0.42)" : "rgba(212,175,55,0.28)";
   return (
-    <motion.div
+    <m.div
       style={{ width: size, height: size }}
       animate={{ y: [0, -18, 0], rotate: [-8, 8, -8], opacity: [0.25, 0.65, 0.25] }}
       transition={{ duration, repeat: Infinity, delay, ease: "easeInOut" }}
@@ -173,7 +173,7 @@ function CatPaw({ size, delay, duration, dark }: { size: number; delay: number; 
         <ellipse cx="24" cy="11" rx="5.5" ry="5" />
         <ellipse cx="32" cy="16" rx="5.5" ry="5" />
       </svg>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -181,7 +181,7 @@ function CatPaw({ size, delay, duration, dark }: { size: number; delay: number; 
 function FloatingHeart({ size, delay, duration, dark }: { size: number; delay: number; duration: number; dark: boolean }) {
   const fill = dark ? "#F9C5D1" : "var(--petal-pink)";
   return (
-    <motion.div
+    <m.div
       style={{ width: size, height: size }}
       animate={{ y: [0, -(80 + size * 3)], opacity: [0, dark ? 0.90 : 0.65, 0] }}
       transition={{ duration, repeat: Infinity, delay, ease: "easeOut" }}
@@ -189,7 +189,7 @@ function FloatingHeart({ size, delay, duration, dark }: { size: number; delay: n
       <svg viewBox="0 0 24 24" fill={fill} xmlns="http://www.w3.org/2000/svg">
         <path d="M12 21L3.5 10.5C2 7.5 4 4 7.5 4.5C9.5 4.8 11 6.3 12 7.8C13 6.3 14.5 4.8 16.5 4.5C20 4 22 7.5 20.5 10.5L12 21Z" />
       </svg>
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -221,7 +221,7 @@ function GodRays() {
 function HaloRing() {
   return (
     <>
-      <motion.div
+      <m.div
         aria-hidden
         className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/4 rounded-full"
         style={{
@@ -232,7 +232,7 @@ function HaloRing() {
         animate={{ scale: [0.97, 1.03, 0.97], opacity: [0.40, 0.88, 0.40] }}
         transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
       />
-      <motion.div
+      <m.div
         aria-hidden
         className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/4 rounded-full"
         style={{
@@ -296,7 +296,7 @@ export function HeavenBg({ className, dense = true, hearts = true, variant = "li
 
       {/* ── Floating clouds ── */}
       {clouds.map((c, i) => (
-        <motion.div
+        <m.div
           key={i}
           className="absolute"
           style={{ top: c.top, left: c.left }}
@@ -304,7 +304,7 @@ export function HeavenBg({ className, dense = true, hearts = true, variant = "li
           transition={{ duration: c.duration, repeat: Infinity, delay: c.delay, ease: "easeInOut" }}
         >
           <LuxuryCloud width={c.width} dark={isDark} />
-        </motion.div>
+        </m.div>
       ))}
 
       {/* ── Sparkle stars ── */}

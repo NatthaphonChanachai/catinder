@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Sparkles, PawPrint } from "lucide-react";
 import { fadeUp } from "@/lib/motion";
 import { useLocalStorage, todayKey } from "@/hooks/use-local-storage";
@@ -26,7 +26,7 @@ export function LuckyCatCard() {
   }
 
   return (
-    <motion.section
+    <m.section
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-60px" }}
@@ -37,7 +37,7 @@ export function LuckyCatCard() {
       <p className="mt-2 text-muted-foreground">{t("subtitle")}</p>
 
       <div className="relative mx-auto mt-8 h-56 w-40 [perspective:1200px]">
-        <motion.div
+        <m.div
           className="relative size-full [transform-style:preserve-3d]"
           animate={{ rotateY: drawnToday ? 180 : 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
@@ -55,18 +55,18 @@ export function LuckyCatCard() {
             <Sparkles className="size-6 text-[var(--soft-gold)]" />
             <AnimatePresence>
               {blessing && (
-                <motion.p
+                <m.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.3, duration: 0.4 }}
                   className="text-sm font-semibold leading-snug"
                 >
                   {blessing}
-                </motion.p>
+                </m.p>
               )}
             </AnimatePresence>
           </div>
-        </motion.div>
+        </m.div>
       </div>
 
       <div className="mt-6">
@@ -80,6 +80,6 @@ export function LuckyCatCard() {
         )}
         <p className="mt-3 text-xs text-muted-foreground">{t("collected", { n: state.collected })}</p>
       </div>
-    </motion.section>
+    </m.section>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { ArticleCard } from "@/components/shared/article-card";
@@ -14,7 +14,7 @@ export function ArticlesPreview() {
   return (
     <section className="mx-auto max-w-6xl px-4 sm:px-6 py-14 sm:py-20">
       {/* Header */}
-      <motion.div
+      <m.div
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-80px" }}
@@ -31,13 +31,13 @@ export function ArticlesPreview() {
         >
           {t("viewAll")} <ArrowRight className="size-4" />
         </Link>
-      </motion.div>
+      </m.div>
 
       {/* ── Mobile: horizontal scroll strip ── */}
       <div className="mt-6 sm:hidden">
         <div className="flex gap-3.5 overflow-x-auto pb-2 no-scrollbar">
           {FEATURED_ARTICLES.map((article, i) => (
-            <motion.div
+            <m.div
               key={article.slug}
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -46,13 +46,13 @@ export function ArticlesPreview() {
               className="flex-shrink-0 w-[260px]"
             >
               <ArticleCard article={article} />
-            </motion.div>
+            </m.div>
           ))}
         </div>
       </div>
 
       {/* ── Desktop: 3-column grid (unchanged) ── */}
-      <motion.div
+      <m.div
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-80px" }}
@@ -60,11 +60,11 @@ export function ArticlesPreview() {
         className="hidden sm:grid mt-10 grid-cols-3 gap-6"
       >
         {FEATURED_ARTICLES.map((article) => (
-          <motion.div key={article.slug} variants={fadeUp}>
+          <m.div key={article.slug} variants={fadeUp}>
             <ArticleCard article={article} />
-          </motion.div>
+          </m.div>
         ))}
-      </motion.div>
+      </m.div>
     </section>
   );
 }
