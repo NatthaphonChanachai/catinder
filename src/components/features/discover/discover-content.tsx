@@ -108,6 +108,10 @@ export function DiscoverContent() {
   const [safetyToast, setSafetyToast] = useState<string | null>(null);
   const blockedRef = useRef<Set<string>>(new Set());
 
+  // Cache: fetch the candidate cats once, then filter client-side (instant)
+  const allCatsRef = useRef<Cat[]>([]);
+  const skipIdsRef = useRef<Set<string>>(new Set());
+
   // Discover filters
   const [filters, setFilters] = useState<DiscoverFilters>(EMPTY_FILTERS);
   const [showFilters, setShowFilters] = useState(false);
@@ -120,6 +124,24 @@ export function DiscoverContent() {
   const activeCat: Cat | undefined = ownCats[activeCatIndex];
   const currentCat: Cat | undefined = queue[queueIndex];
 
+  // ─── Filtering ──────────────────────────────────────────────────────────────
+
+  // Pure, instant re-filter of the cached cats — no network round-trip.
+  const applyFilters = useCallback(() => {
+    const f = filtersRef.current;
+    const filtered = allCatsRef.current.filter((c) => {
+      if (skipIdsRef.current.has(c.id)) return false;
+      if (blockedRef.current.has(c.ownerId)) return false;
+      if (f.breed && c.breed !== f.breed) return false;
+      if (f.gender && c.gender !== f.gender) return false;
+      if (f.province && c.province !== f.province) return false;
+      if (f.vaccinatedOnly && !c.vaccinated) return false;
+      return true;
+    });
+    setQueue(filtered);
+    setQueueIndex(0);
+  }, []);
+
   // ─── Load queue for a given liker cat ──────────────────────────────────────
 
   const loadQueue = useCallback(
@@ -127,51 +149,36 @@ export function DiscoverContent() {
       if (!user) return;
       setIsLoading(true);
       try {
-        // Load all cats not owned by the current user (limit 50)
-        const allSnap = await getDocs(
-          query(collection(db, "cats"), limit(50))
-        );
-        const allCats: Cat[] = [];
-        allSnap.forEach((d) => {
-          const data = d.data();
-          if (data.ownerId !== user.uid) {
-            allCats.push(normalizeCatRecord(d.id, data));
-          }
-        });
+        // Fetch the candidate cats once, then reuse the cache across
+        // cat-switches and filter changes.
+        if (allCatsRef.current.length === 0) {
+          const allSnap = await getDocs(query(collection(db, "cats"), limit(50)));
+          const allCats: Cat[] = [];
+          allSnap.forEach((d) => {
+            const data = d.data();
+            if (data.ownerId !== user.uid) allCats.push(normalizeCatRecord(d.id, data));
+          });
+          allCatsRef.current = allCats;
+        }
 
-        // Load already-liked and already-passed cat IDs in parallel
+        // Already-liked / already-passed for THIS liker cat (indexed queries)
         const [likedSnap, passedSnap] = await Promise.all([
-          getDocs(
-            query(collection(db, "likes"), where("fromCatId", "==", liker.id))
-          ),
-          getDocs(
-            query(collection(db, "passes"), where("fromCatId", "==", liker.id))
-          ),
+          getDocs(query(collection(db, "likes"), where("fromCatId", "==", liker.id))),
+          getDocs(query(collection(db, "passes"), where("fromCatId", "==", liker.id))),
         ]);
-
         const skipIds = new Set<string>();
         likedSnap.forEach((d) => skipIds.add(d.data().toCatId as string));
         passedSnap.forEach((d) => skipIds.add(d.data().toCatId as string));
+        skipIdsRef.current = skipIds;
 
-        const f = filtersRef.current;
-        const filtered = allCats.filter((c) => {
-          if (skipIds.has(c.id)) return false;
-          if (blockedRef.current.has(c.ownerId)) return false;
-          if (f.breed && c.breed !== f.breed) return false;
-          if (f.gender && c.gender !== f.gender) return false;
-          if (f.province && c.province !== f.province) return false;
-          if (f.vaccinatedOnly && !c.vaccinated) return false;
-          return true;
-        });
-        setQueue(filtered);
-        setQueueIndex(0);
+        applyFilters();
       } catch (err) {
         console.error("[Discover] loadQueue error:", err);
       } finally {
         setIsLoading(false);
       }
     },
-    [user]
+    [user, applyFilters]
   );
 
   // ─── Load user's own cats on mount ─────────────────────────────────────────
@@ -183,6 +190,9 @@ export function DiscoverContent() {
       setIsLoading(false);
       return;
     }
+    // Reset caches for a fresh user session
+    allCatsRef.current = [];
+    skipIdsRef.current = new Set();
     (async () => {
       try {
         // Load blocked users first so they're filtered out of the queue
@@ -1105,7 +1115,7 @@ export function DiscoverContent() {
                 <div className="flex gap-2 pt-1">
                   <button onClick={() => setDraftFilters(EMPTY_FILTERS)}
                     className="rounded-full px-5 py-3 text-sm font-semibold" style={{ border: "1px solid rgba(212,160,175,0.35)", color: "#6B5232" }}>ล้าง</button>
-                  <button onClick={() => { setFilters(draftFilters); filtersRef.current = draftFilters; setShowFilters(false); if (activeCat) void loadQueue(activeCat); }}
+                  <button onClick={() => { setFilters(draftFilters); filtersRef.current = draftFilters; setShowFilters(false); applyFilters(); }}
                     className="flex flex-1 items-center justify-center gap-2 rounded-full py-3 text-sm font-bold"
                     style={{ background: "linear-gradient(135deg,#EDD060,#D4AF37)", color: "#0B1D3A" }}>
                     ใช้ตัวกรอง

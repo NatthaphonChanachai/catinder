@@ -6,7 +6,7 @@ import {
   User, Bell, Shield, LogOut, Crown, Check, Loader2, X, AlertTriangle, Mail, Pencil,
 } from "lucide-react";
 import {
-  updateProfile, updatePassword, sendPasswordResetEmail, deleteUser,
+  updateProfile, sendPasswordResetEmail, deleteUser,
 } from "firebase/auth";
 import { doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { auth, db } from "@/services/firebase";
